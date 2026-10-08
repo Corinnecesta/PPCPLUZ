@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Playlist du Joueur</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.25s ease; }
+        .card-item:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
+        
+        .playlist-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .playlist-info { display: flex; flex-direction: column; gap: 4px; }
+        .playlist-title { font-weight: bold; font-size: 0.9rem; color: var(--container-text); display: flex; align-items: center; gap: 8px; }
+        .playlist-meta { font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 8px; align-items: center; }
+        
+        .playlist-actions { display: flex; align-items: center; gap: 6px; }
+        
+        .btn-play { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 5px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .btn-play:hover { opacity: 0.9; }
+
+        .btn-delete { background: #e11d48; color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 0.72rem; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .btn-delete:hover { background: #be123c; }
+
+        .coach-form { background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+        .coach-input { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; color: var(--container-text); font-size: 0.78rem; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
+        .coach-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="joueurs.html" id="backToPlayerBtn" class="home-btn" title="Retour aux joueurs">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div class="section-title" id="playlistPageTitle">Playlist Vidéo du Joueur</div>
+
+    <!-- Formulaire d'ajout strictement réservé à l'administrateur -->
+    <div class="coach-form" id="sectionAjoutVideo" style="display: none;">
+        <div style="font-size: 0.78rem; font-weight: bold; color: var(--container-text); margin-bottom: 8px;">➕ Ajouter une vidéo à la playlist</div>
+        <form id="formAjoutVideo" onsubmit="ajouterVideoFirebase(event)">
+            <input type="text" id="inputTitreVideo" class="coach-input" placeholder="Titre de la vidéo (ex: Frappes négatives...)" required>
+            <input type="text" id="inputCompetition" class="coach-input" placeholder="Compétition (optionnel - ex: Tournoi de Biarritz)">
+            <input type="date" id="inputDate" class="coach-input" placeholder="Date (optionnel)">
+            <input type="url" id="inputUrlVideo" class="coach-input" placeholder="Lien YouTube (ex: https://www.youtube.com/watch?v=...)" required>
+            <button type="submit" class="coach-btn">Ajouter la vidéo</button>
+        </form>
+    </div>
+
+    <!-- Conteneur de la playlist -->
+    <div id="playlistContainer">
+        <div class="card-item">
+            <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted);">Chargement des vidéos...</div>
+        </div>
+    </div>
+</div>
+
+<script src="joueurs-data.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const userRole = localStorage.getItem('cesta_user_role') || 'joueur';
+    
+    const isAdmin = (userRole === 'admin');
+
+    let playerId = urlParams.get('id');
+    if (!playerId && !isAdmin) {
+        playerId = localStorage.getItem('cesta_user_id') || 'basque';
+    } else if (!playerId && isAdmin) {
+        playerId = 'basque';
+    }
+
+    // Le joueur et l'admin peuvent supprimer des vidéos
+    const canDelete = (userRole === 'admin' || userRole === 'joueur');
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Seul l'admin voit le formulaire d'ajout
+        if (isAdmin) {
+            document.getElementById('sectionAjoutVideo').style.display = 'block';
+        }
+        chargerPlaylistFirebase();
+    });
+
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = (savedTheme === 'light') ? '☀' : '🌙';
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀' : '🌙';
+    }
+
+    // Charger les vidéos depuis Firestore pour ce joueur
+    async function chargerPlaylistFirebase() {
+        const container = document.getElementById('playlistContainer');
+        try {
+            const q = query(collection(db, "playlists"), where("playerId", "==", playerId));
+            const querySnapshot = await getDocs(q);
+            
+            container.innerHTML = "";
+            let count = 0;
+
+            querySnapshot.forEach((docSnap) => {
+                count++;
+                const data = docSnap.data();
+
+                // Le bouton supprimer apparaît si canDelete est vrai
+                let deleteBtnHtml = canDelete ? `<button class="btn-delete" onclick="supprimerVideo('${docSnap.id}')">Supprimer</button>` : '';
+
+                let metaHtml = '';
+                let metaParts = [];
+                if (data.competition) metaParts.push(`🏆 ${data.competition}`);
+                if (data.date) {
+                    const dateFormatted = data.date.split('-').reverse().join('/');
+                    metaParts.push(`📅 ${dateFormatted}`);
+                }
+                if (metaParts.length > 0) {
+                    metaHtml = `<div class="playlist-meta">${metaParts.join(' • ')}</div>`;
+                }
+
+                container.innerHTML += `
+                    <div class="card-item">
+                        <div class="playlist-row">
+                            <div class="playlist-info">
+                                <div class="playlist-title">🎬 ${data.titre}</div>
+                                ${metaHtml}
+                            </div>
+                            <div class="playlist-actions">
+                                <a href="${data.url}" target="_blank" class="btn-play">▶ Lire</a>
+                                ${deleteBtnHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (count === 0) {
+                container.innerHTML = `<div class="card-item"><div style="text-align: center; font-size: 0.75rem; color: var(--text-muted);">Aucune vidéo dans la playlist de ce joueur pour le moment.</div></div>`;
+            }
+        } catch (error) {
+            console.error("Erreur chargement playlist :", error);
+            container.innerHTML = `<div class="card-item"><div style="text-align: center; font-size: 0.75rem; color: #fb7185;">Erreur de chargement des vidéos.</div></div>`;
+        }
+    }
+
+    // Ajouter une vidéo (Strictement réservé à l'admin)
+    window.ajouterVideoFirebase = async function(event) {
+        event.preventDefault();
+        if (!isAdmin) {
+            alert("Accès refusé : Réservé à l'administrateur.");
+            return;
+        }
+
+        const titre = document.getElementById('inputTitreVideo').value.trim();
+        const competition = document.getElementById('inputCompetition').value.trim();
+        const date = document.getElementById('inputDate').value;
+        const url = document.getElementById('inputUrlVideo').value.trim();
+
+        if (!titre || !url) {
+            alert("Veuillez remplir au moins le titre et le lien de la vidéo.");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "playlists"), {
+                playerId: playerId,
+                titre: titre,
+                competition: competition || "",
+                date: date || "",
+                url: url,
+                dateCreation: new Date().toISOString()
+            });
+
+            alert("Vidéo ajoutée avec succès !");
+            document.getElementById('formAjoutVideo').reset();
+            await chargerPlaylistFirebase();
+        } catch (e) {
+            console.error("Erreur ajout vidéo :", e);
+            alert("Erreur lors de l'enregistrement.");
+        }
+    }
+
+    // Supprimer une vidéo (Réservé à l'admin ou au joueur)
+    window.supprimerVideo = async function(videoId) {
+        if (!canDelete) {
+            alert("Accès refusé.");
+            return;
+        }
+        if (confirm("Voulez-vous vraiment supprimer cette vidéo ?")) {
+            try {
+                await deleteDoc(doc(db, "playlists", videoId));
+                alert("Vidéo supprimée.");
+                await chargerPlaylistFirebase();
+            } catch (e) {
+                console.error("Erreur suppression :", e);
+                alert("Erreur lors de la suppression.");
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Internationaux de St Jean de Luz</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .search-container { margin-bottom: 15px; }
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--container-text);
+            font-size: 0.85rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent-color); }
+
+        .match-list { display: flex; flex-direction: column; gap: 12px; }
+        .match-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; text-decoration: none; color: var(--container-text); display: block; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .match-title { font-weight: bold; font-size: 0.9rem; color: var(--accent-color); }
+        .match-sets-badge { font-size: 0.72rem; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600; }
+        
+        .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; margin-bottom: 10px; }
+        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+        .team-score { font-weight: 800; font-size: 0.95rem; }
+        .score-win { color: #34d399; }   
+        .score-loss { color: #f87171; }  
+        .score-neutral { color: var(--text-muted); } 
+
+        .match-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-top: 2px solid var(--card-border); padding-top: 8px; margin-top: 8px; }
+        .no-result { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            background: rgba(0, 242, 254, 0.1);
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-action:hover {
+            background: rgba(0, 242, 254, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="match.html" class="home-btn" title="Retour aux compétitions">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div class="section-title" id="pageTitle">🏆 Internationaux de St Jean de Luz</div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher une équipe, un lieu, un titre..." onkeyup="filtrerMatchs()">
+    </div>
+
+    <div class="match-list" id="matchesContainer"></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const COMPETITION_CIBLE = "Internationaux de St Jean de Luz";
+
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggleBtn').innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    
+    window.toggleTheme = function() {
+        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('cesta_theme', t);
+        document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
+    }
+
+    let tousLesMatchsFiltres = [];
+
+    async function chargerMatchs() {
+        const container = document.getElementById('matchesContainer');
+        container.innerHTML = `<div class="no-result">Chargement des matchs...</div>`;
+
+        try {
+            tousLesMatchsFiltres = [];
+
+            const qMatchs = query(collection(db, "matchs"), where("competition", "==", COMPETITION_CIBLE));
+            const snapshotMatchs = await getDocs(qMatchs);
+            snapshotMatchs.forEach((docSnap) => {
+                tousLesMatchsFiltres.push({ id: docSnap.id, type: "detaille", ...docSnap.data() });
+            });
+
+            const qRapides = query(collection(db, "parties_rapides"), where("competition", "==", COMPETITION_CIBLE));
+            const snapshotRapides = await getDocs(qRapides);
+            snapshotRapides.forEach((docSnap) => {
+                const data = docSnap.data();
+                tousLesMatchsFiltres.push({
+                    id: docSnap.id,
+                    type: "rapide",
+                    titre: data.competition,
+                    equipe1: data.lieu ? `Lieu : ${data.lieu}` : "Partie Rapide",
+                    equipe2: data.heure ? `Heure : ${data.heure}` : "",
+                    scoreEquipe1: "",
+                    scoreEquipe2: "",
+                    date: data.date || "",
+                    lieu: data.lieu || "",
+                    lienVideo: data.videoUrl || ""
+                });
+            });
+
+            tousLesMatchsFiltres.sort((a, b) => {
+                let parseDate = (val) => {
+                    if (!val) return 0;
+                    if (val.toDate) return val.toDate();
+                    let str = String(val).trim();
+                    if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
+                        let parts = str.split('/');
+                        str = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+                    let parsed = new Date(str);
+                    return isNaN(parsed) ? 0 : parsed;
+                };
+                return parseDate(b.date) - parseDate(a.date);
+            });
+
+            afficherMatchs(tousLesMatchsFiltres);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des matchs :", error);
+            container.innerHTML = `<div class="no-result">Erreur lors du chargement des données.</div>`;
+        }
+    }
+
+    function afficherMatchs(matchs) {
+        const container = document.getElementById('matchesContainer');
+        container.innerHTML = '';
+
+        if (matchs.length === 0) {
+            container.innerHTML = `<div class="no-result">Aucun match trouvé pour cette compétition.</div>`;
+            return;
+        }
+
+        matchs.forEach(match => {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+
+            let s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
+            let s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
+            let c1 = "score-neutral", c2 = "score-neutral";
+            let badgeTexte = match.resultat || match.nombreManches || "Partie";
+
+            if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
+                let t1 = String(s1).split('/').reduce((a,b)=>a+parseInt(b||0),0);
+                let t2 = String(s2).split('/').reduce((a,b)=>a+parseInt(b||0),0);
+                if (t1 > t2) { 
+                    c1 = "score-win"; 
+                    c2 = "score-loss"; 
+                    badgeTexte = "Victoire";
+                } else if (t2 > t1) { 
+                    c1 = "score-loss"; 
+                    c2 = "score-win"; 
+                    badgeTexte = "Victoire";
+                }
+            }
+
+            let videoLink = match.lienVideo || match.videoUrl || "";
+            let videoBtnHTML = "";
+            if (videoLink.trim() !== "") {
+                videoBtnHTML = `<a href="${videoLink}" target="_blank" class="btn-action">📺 Voir la vidéo</a>`;
+            }
+
+            let statsBtnHTML = "";
+            if (match.type === "detaille") {
+                statsBtnHTML = `<a href="detail_match.html?id=${match.id}" class="btn-action">📊 Statistiques détaillées</a>`;
+            }
+
+            let teamsHTML = `
+                <div class="team-row"><span><strong>${match.equipe1 || 'Équipe 1'}</strong></span><span class="team-score ${c1}">${s1}</span></div>
+                <div class="team-row"><span><strong>${match.equipe2 || 'Équipe 2'}</strong></span><span class="team-score ${c2}">${s2}</span></div>
+            `;
+            if (s1 === "" && s2 === "" || s1 === "-" && s2 === "-") {
+                teamsHTML = `
+                    <div class="team-row"><span><strong>${match.equipe1 || ''}</strong></span></div>
+                    <div class="team-row" style="font-size: 0.8rem; color: var(--text-muted);"><span>${match.equipe2 || ''}</span></div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="match-header">
+                    <span class="match-title">${match.titre || 'Partie de poule'}</span>
+                    <span class="match-sets-badge">${badgeTexte}</span>
+                </div>
+                <div class="match-teams">
+                    ${teamsHTML}
+                </div>
+                <div class="match-footer-info">
+                    <span>📍 ${match.lieu || ''}</span>
+                    <span>📅 ${match.date || ''}</span>
+                </div>
+                ${(videoBtnHTML || statsBtnHTML) ? `<div class="action-buttons">${statsBtnHTML}${videoBtnHTML}</div>` : ""}
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    window.filtrerMatchs = function() {
+        const queryVal = document.getElementById('searchInput').value.toLowerCase();
+        
+        const resultats = tousLesMatchsFiltres.filter(match => {
+            return (match.equipe1 && match.equipe1.toLowerCase().includes(queryVal)) ||
+                   (match.equipe2 && match.equipe2.toLowerCase().includes(queryVal)) ||
+                   (match.lieu && match.lieu.toLowerCase().includes(queryVal)) ||
+                   (match.titre && match.titre.toLowerCase().includes(queryVal)) ||
+                   (match.date && match.date.toLowerCase().includes(queryVal));
+        });
+
+        afficherMatchs(resultats);
+    }
+
+    chargerMatchs();
+</script>
+</body>
+</html>

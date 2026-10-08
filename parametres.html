@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cesta Punta - Paramètres</title>
+    <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIABLES DE COULEURS (Mode Sombre) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
+            --container-text: #f8fafc;
+            --card-bg: linear-gradient(135deg, #0d1b2a 0%, #0f4c5c 100%);
+            --card-border: #17b890;
+            --card-hover-bg: linear-gradient(135deg, #132238 0%, #125c6e 100%);
+            --accent-color: #00f2fe;
+            --text-muted: #94a3b8;
+            --btn-gradient: linear-gradient(135deg, #0f4c5c 0%, #125c6e 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
+        }
+
+        /* --- VARIABLES DE COULEURS (Mode Clair) --- */
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --container-text: #0f172a;
+            --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --card-border: #cbd5e1;
+            --card-hover-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --accent-color: #0284c7;
+            --text-muted: #64748b;
+            --btn-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            color: var(--container-text); 
+            padding: 10px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s; 
+        }
+
+        .mobile-container { 
+            max-width: 420px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            padding-bottom: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        
+        /* En-tête */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; }
+        .logo-img { height: 50px; object-fit: contain; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        .home-btn, .theme-toggle-btn, .profile-btn { 
+            background: var(--btn-gradient); 
+            border: 1px solid var(--card-border); 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            text-decoration: none; 
+            color: var(--container-text); 
+            font-size: 0.95rem; 
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
+            border-color: var(--accent-color); 
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+        }
+
+        .separator { border: none; height: 1px; background-color: var(--card-border); margin: 2px 0; width: 100%; }
+
+        /* --- BLOCS PARAMÈTRES --- */
+        .settings-card {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--card-bg);
+            border: 2px solid #17b890;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: var(--btn-gradient);
+            color: var(--container-text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .status-box {
+            background: rgba(23, 184, 144, 0.1);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .action-btn {
+            background: var(--btn-gradient);
+            border: 2px solid var(--accent-color);
+            color: var(--container-text);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 242, 254, 0.15);
+            width: 100%;
+        }
+
+        .action-btn:hover {
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
+        }
+
+        /* MASQUÉ PAR DÉFAUT EN CSS PUR */
+        #adminRoleSection {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- En-tête -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte" style="border-color: var(--accent-color);">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <!-- Bloc Titre de la page -->
+    <div class="settings-card">
+        <div class="section-title">⚙️ Paramètres du Compte</div>
+        <div style="font-size: 0.82rem; color: var(--text-muted);" id="pageDescription">
+            Consultez les informations relatives à votre profil et vos accès.
+        </div>
+    </div>
+
+    <!-- Bloc Profil / Nom et Prénom Actuel -->
+    <div class="settings-card">
+        <div class="section-title">👤 Profil Connecté</div>
+        <div class="status-box" id="statusDisplay">
+            Chargement de vos informations...
+        </div>
+    </div>
+
+    <!-- Bloc Formulaire de changement de rôle : Caché par défaut via CSS -->
+    <div class="settings-card" id="adminRoleSection">
+        <div class="section-title">🛡️ Outil Administrateur (Simulation de rôle)</div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">
+            En tant qu'administrateur, vous pouvez basculer de rôle pour tester l'affichage de l'application :
+        </div>
+        
+        <div>
+            <label for="roleSelect">Sélectionner un profil :</label>
+            <select id="roleSelect" onchange="gererAffichageIdJoueur()" style="margin-top: 6px;">
+                <option value="admin">Administrateur</option>
+                <option value="coach">Entraîneur / Coach</option>
+                <option value="joueur">Joueur spécifique</option>
+            </select>
+        </div>
+
+        <div id="playerIdContainer" style="display: none;">
+            <label for="playerIdInput">ID du joueur (ex: 1, 2...) :</label>
+            <input type="text" id="playerIdInput" placeholder="Entrez l'ID du joueur" style="margin-top: 6px;">
+        </div>
+
+        <button class="action-btn" onclick="appliquerChangementRole()" style="margin-top: 4px;">Enregistrer et appliquer</button>
+    </div>
+</div>
+
+<!-- Fichiers de données -->
+<script src="joueurs-data.js"></script>
+<script src="staff-data.js"></script>
+
+<script>
+    // --- GESTION DU THÈME CLAIR / SOMBRE ---
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        themeToggleBtn.innerHTML = theme === 'light' ? '☀️' : '🌙';
+    }
+
+    // --- CHARGEMENT DES INFORMATIONS UTILISATEUR ---
+    window.addEventListener('DOMContentLoaded', () => {
+        const currentRole = localStorage.getItem('cesta_current_role') || 'admin';
+        const currentPlayerId = localStorage.getItem('cesta_current_player_id') || '';
+        
+        const statusDiv = document.getElementById('statusDisplay');
+        const adminSection = document.getElementById('adminRoleSection');
+        const pageDescription = document.getElementById('pageDescription');
+
+        let nomAffichage = "Utilisateur";
+        let roleLibelle = "Membre";
+
+        if (currentRole === 'admin') {
+            roleLibelle = "Administrateur";
+            nomAffichage = localStorage.getItem('cesta_user_name') || "Administrateur Principal";
+        } else if (currentRole === 'coach') {
+            roleLibelle = "Entraîneur / Coach";
+            nomAffichage = localStorage.getItem('cesta_user_name') || "Staff / Coach";
+        } else if (currentRole.startsWith('joueur_') || currentPlayerId) {
+            roleLibelle = "Joueur";
+            const searchId = currentPlayerId || currentRole.replace('joueur_', '');
+            
+            let trouve = false;
+            if (typeof joueursData !== 'undefined') {
+                const joueurTrouve = joueursData.find(j => String(j.id) === String(searchId));
+                if (joueurTrouve) {
+                    nomAffichage = `${joueurTrouve.prenom} ${joueurTrouve.nom}`;
+                    trouve = true;
+                }
+            }
+            if (!trouve) {
+                nomAffichage = `Joueur (ID : ${searchId})`;
+            }
+        }
+
+        statusDiv.innerHTML = `
+            <div>Nom & Prénom : <strong>${nomAffichage}</strong></div>
+            <div>Rôle : <strong>${roleLibelle}</strong></div>
+        `;
+
+        // AFFICHAGE UNIQUEMENT SI ADMIN STRICT
+        if (currentRole === 'admin') {
+            adminSection.style.display = 'flex !important'; // On l'affiche explicitement
+            pageDescription.textContent = "Gérez vos paramètres et simulez les différents profils d'accès de l'application.";
+            document.getElementById('roleSelect').value = 'admin';
+        } else {
+            adminSection.style.display = 'none'; // S'assure qu'il reste masqué
+        }
+    });
+
+    function gererAffichageIdJoueur() {
+        const role = document.getElementById('roleSelect').value;
+        const container = document.getElementById('playerIdContainer');
+        container.style.display = role === 'joueur' ? 'block' : 'none';
+    }
+
+    function appliquerChangementRole() {
+        const roleSelect = document.getElementById('roleSelect').value;
+        let finalRole = roleSelect;
+        let playerId = null;
+
+        if (roleSelect === 'joueur') {
+            playerId = document.getElementById('playerIdInput').value.trim() || '1';
+            finalRole = 'joueur_' + playerId;
+        }
+
+        localStorage.setItem('cesta_current_role', finalRole);
+        localStorage.setItem('cesta_user_role', roleSelect === 'joueur' ? 'player' : roleSelect);
+        
+        if (playerId) {
+            localStorage.setItem('cesta_current_player_id', playerId);
+        } else {
+            localStorage.removeItem('cesta_current_player_id');
+        }
+
+        alert("Rôle basculé avec succès : " + finalRole);
+        location.reload();
+    }
+</script>
+
+</body>
+</html>

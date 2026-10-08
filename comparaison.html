@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparaison des Joueurs - PPC Estapunta</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Conteneur principal étroit */
+        .mobile-container {
+            max-width: 520px !important;
+            width: 100%;
+            margin: 0 auto;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.5px; }
+
+        .filter-container { display: flex; gap: 6px; background: var(--card-bg); padding: 5px; border-radius: 14px; border: 2px solid var(--card-border); margin-bottom: 14px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); max-width: 320px; margin-left: auto; margin-right: auto; }
+        .filter-btn { flex: 1; padding: 6px; text-align: center; font-size: 0.8rem; font-weight: 600; border-radius: 9px; border: none; background: transparent; color: var(--container-text); cursor: pointer; transition: all 0.3s; }
+        .filter-btn.active { background: var(--accent-color); color: #000; box-shadow: 0 2px 8px rgba(23, 184, 144, 0.4); }
+
+        /* Grille en 2 colonnes étroites avec espacement accru */
+        .players-list { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            align-items: stretch; 
+        }
+        
+        @media (max-width: 768px) {
+            .players-list { grid-template-columns: 1fr; } /* Repasse en 1 colonne sur les petits écrans */
+        }
+
+        /* Cartes très aérées en hauteur transformées en liens propres */
+        .player-card { 
+            background: var(--card-bg); 
+            border: 2px solid var(--card-border); 
+            border-radius: 14px; 
+            padding: 22px 14px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            height: 100%; 
+            width: 100%;
+            box-sizing: border-box;
+            color: var(--container-text); 
+            box-shadow: 0 4px 10px rgba(23, 184, 144, 0.15); 
+            transition: all 0.25s ease; 
+            text-decoration: none; /* Supprime le soulignement du lien */
+            cursor: pointer; 
+        }
+        .player-card:hover { border-color: var(--accent-color); background: var(--card-hover-bg); transform: translateY(-2px); text-decoration: none; color: var(--container-text); }
+        
+        .player-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 8px; }
+        .player-info-left { display: flex; align-items: flex-start; gap: 10px; overflow: hidden; flex: 1; }
+        
+        /* Photo agrandie à 64x64px et carrée (sans border-radius) */
+        .player-photo { 
+            width: 64px; 
+            height: 64px; 
+            border-radius: 0px; 
+            object-fit: cover; 
+            border: 2px solid var(--accent-color); 
+            background: rgba(0,0,0,0.2); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--accent-color); 
+            font-weight: bold; 
+            flex-shrink: 0; 
+            font-size: 0.9rem; 
+        }
+
+        /* Organisation verticale aérée */
+        .player-details-vertical { 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            width: 100%;
+            gap: 4px;
+        }
+        .player-name { font-weight: bold; font-size: 0.82rem; color: var(--container-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-club { font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Ligne du bas (Poste + Note alignés horizontalement au même niveau) */
+        .player-bottom-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .player-poste { font-size: 0.68rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Note bien grosse (1.6rem) alignée avec le poste en bas */
+        .note-badge { font-size: 1.6rem; font-weight: 800; color: var(--accent-color); line-height: 1; flex-shrink: 0; text-align: right; }
+        .note-badge span { font-size: 0.58rem; color: var(--text-muted); font-weight: normal; }
+
+        /* Statistiques clés bien espacées (textes agrandis) */
+        .stats-grid-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; background: rgba(0, 0, 0, 0.2); padding: 12px 6px; border-radius: 8px; border: 1px solid var(--card-border); margin-bottom: 14px; font-size: 0.72rem; }
+        .stats-grid-mini span { display: block; }
+        .stats-label { color: var(--text-muted); font-size: 0.58rem; margin-bottom: 3px; text-transform: uppercase; }
+
+        /* Détails métriques aérés avec police légèrement plus grande */
+        .metrics-details { font-size: 0.68rem; color: var(--container-text); display: flex; flex-direction: column; gap: 3px; }
+        .metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-label { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- En-tête -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Trait de séparation -->
+    <hr class="separator">
+
+    <div class="section-title" style="text-align: center;">Comparaison des Joueurs</div>
+
+    <!-- Filtres d'affichage (Tous / Avants / Arrières) -->
+    <div class="filter-container">
+        <button id="btn-all" onclick="filterPlayers('all')" class="filter-btn active">Tous</button>
+        <button id="btn-avants" onclick="filterPlayers('avants')" class="filter-btn">Avants</button>
+        <button id="btn-arrieres" onclick="filterPlayers('arrieres')" class="filter-btn">Arrières</button>
+    </div>
+
+    <!-- Conteneur Principal des cartes -->
+    <main class="space-y-6">
+        
+        <!-- Section Avants -->
+        <section id="section-avants">
+            <div class="section-title" style="margin-top: 5px;"><i class="fa-solid fa-bolt mr-1"></i> Avants</div>
+            <div id="grid-avants" class="players-list">
+                <!-- Injecté dynamiquement -->
+            </div>
+        </section>
+
+        <!-- Section Arrières -->
+        <section id="section-arrieres">
+            <div class="section-title" style="margin-top: 15px;"><i class="fa-solid fa-shield mr-1"></i> Arrières</div>
+            <div id="grid-arrieres" class="players-list">
+                <!-- Injecté dynamiquement -->
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- Scripts de données -->
+<script src="joueurs-data.js?v=7"></script>
+<script src="statsdata.js"></script>
+<script src="matchs-data.js"></script>
+
+<!-- Script Principal Firebase et Logique -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.matchsCloudCharges = [];
+
+    // Gestion du thème sombre/clair
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateButtonIcon(savedTheme);
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+
+    function genererCartesJoueurs() {
+        if (typeof joueursData === 'undefined') return;
+
+        const gridAvants = document.getElementById('grid-avants');
+        const gridArrieres = document.getElementById('grid-arrieres');
+        
+        if (!gridAvants || !gridArrieres) return;
+
+        gridAvants.innerHTML = '';
+        gridArrieres.innerHTML = '';
+
+        joueursData.forEach(joueur => {
+            // Récupère l'ID (gère les différentes dénominations possibles : id, firebaseId, docId)
+            const joueurId = joueur.id || joueur.firebaseId || joueur.docId;
+
+            const posteLower = (joueur.poste || joueur.specialite || "").toLowerCase();
+            const estAvant = posteLower.includes('avant');
+            const initiales = `${joueur.prenom ? joueur.prenom.charAt(0) : ''}${joueur.nom ? joueur.nom.charAt(0) : ''}`;
+            const posteTexte = joueur.poste || joueur.specialite || 'Joueur';
+            const clubTexte = joueur.club || 'Indépendant';
+
+            // Utilisation d'une balise <a> pour un lien sémantique et propre
+            const carteHTML = `
+            <a href="detail-joueur.html?id=${joueurId}" class="player-card" data-id="${joueurId}">
+                <div class="player-card-header">
+                    <div class="player-info-left">
+                        ${joueur.photo ? `<img src="${joueur.photo}" alt="${joueur.nom}" class="player-photo" onerror="this.onerror=null; this.src='logoce.png';">` : `<div class="player-photo">${initiales}</div>`}
+                        <div class="player-details-vertical">
+                            <div class="player-name">${joueur.prenom} ${joueur.nom}</div>
+                            <div class="player-club">${clubTexte}</div>
+                            <div class="player-bottom-row">
+                                <div class="player-poste">${posteTexte}</div>
+                                <span class="note-badge note-100">0<span>/100</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques clés -->
+                <div class="stats-grid-mini">
+                    <div>
+                        <span class="stats-label">Parties</span>
+                        <span class="nb-matchs font-bold text-white" style="font-size: 0.8rem;">0</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Victoires</span>
+                        <span class="nb-victoires font-bold" style="color: #34d399; font-size: 0.8rem;">0</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Défaites</span>
+                        <span class="nb-defaites font-bold" style="color: #f87171; font-size: 0.8rem;">0</span>
+                    </div>
+                </div>
+
+                <!-- Détails métriques -->
+                <div class="metrics-details">
+                    <div class="metric-row">
+                        <span class="metric-label">Pelotes (Moy/Tot/%):</span>
+                        <span><strong class="pelotes-moy">0.0</strong> (<strong class="pelotes-tot">0.0</strong>) <span class="pelotes-pct" style="color: #34d399; font-weight: 600;">0%</span></span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Pts gagnés (Moy/Tot/%):</span>
+                        <span><strong class="gagnes-moy">0.0</strong> (<strong class="gagnes-tot">0.0</strong>) <span class="gagnes-pct" style="color: #34d399; font-weight: 600;">0%</span></span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Pts perdus (Moy/Tot/%):</span>
+                        <span><strong class="perdus-moy">0.0</strong> (<strong class="perdus-tot">0.0</strong>) <span class="perdus-pct" style="color: #f87171; font-weight: 600;">0%</span></span>
+                    </div>
+                    ${estAvant ? `
+                    <div class="metric-row">
+                        <span class="metric-label">Buts (Moy / Arr / Av):</span>
+                        <span><strong class="buts-moy">0.0</strong> (<span class="buts-arr-pct">0%</span> / <span class="buts-av-pct">0%</span>)</span>
+                    </div>
+                    ` : ''}
+                    <div class="metric-row">
+                        <span class="metric-label">Frappes / Rec (Pos/Nég):</span>
+                        <span><strong class="rec-pos" style="color: #34d399;">0%</strong> / <strong class="rec-neg" style="color: #f87171;">0%</strong></span>
+                    </div>
+                </div>
+            </a>
+            `;
+
+            if (estAvant) {
+                gridAvants.insertAdjacentHTML('beforeend', carteHTML);
+            } else {
+                gridArrieres.insertAdjacentHTML('beforeend', carteHTML);
+            }
+        });
+    }
+
+    async function chargerMatchsCloudEtCalculer() {
+        genererCartesJoueurs();
+        try {
+            const querySnapshot = await getDocs(collection(db, "matchs"));
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                window.matchsCloudCharges.push({
+                    id: docSnap.id,
+                    isCloud: true,
+                    competition: data.competition || data.titre || "Match Cloud",
+                    date: data.date || "",
+                    lieu: data.lieu || "",
+                    equipe1: data.equipe1 || "",
+                    equipe2: data.equipe2 || "",
+                    scoreEquipe1: data.scoreEquipe1 !== undefined ? data.scoreEquipe1 : data.equipe1Score,
+                    scoreEquipe2: data.scoreEquipe2 !== undefined ? data.scoreEquipe2 : data.equipe2Score,
+                    joueurId: data.joueurId || null,
+                    statsParJoueur: data.statsParJoueur || null,
+                    stats: data.stats || data
+                });
+            });
+        } catch (error) {
+            console.error("Erreur chargement Firebase :", error);
+        }
+
+        calculerToutesLesStatsJoueurs();
+    }
+
+    chargerMatchsCloudEtCalculer();
+
+    function determinerVainqueur(s1, s2) {
+        if (s1 === undefined || s2 === undefined) return 0;
+        let str1 = String(s1).trim();
+        let str2 = String(s2).trim();
+
+        let sets1 = str1.split(/[\/\s-]+/).map(Number).filter(n => !isNaN(n));
+        let sets2 = str2.split(/[\/\s-]+/).map(Number).filter(n => !isNaN(n));
+
+        if (sets1.length > 0 && sets2.length > 0) {
+            let wins1 = 0, wins2 = 0;
+            for (let i = 0; i < Math.min(sets1.length, sets2.length); i++) {
+                if (sets1[i] > sets2[i]) wins1++;
+                else if (sets2[i] > sets1[i]) wins2++;
+            }
+            if (wins1 > wins2) return 1;
+            if (wins2 > wins1) return 2;
+            let sum1 = sets1.reduce((a, b) => a + b, 0);
+            let sum2 = sets2.reduce((a, b) => a + b, 0);
+            if (sum1 > sum2) return 1;
+            if (sum2 > sum1) return 2;
+        }
+
+        let num1 = parseFloat(str1);
+        let num2 = parseFloat(str2);
+        if (!isNaN(num1) && !isNaN(num2)) {
+            if (num1 > num2) return 1;
+            if (num2 > num1) return 2;
+        }
+        return 0;
+    }
+
+    function obtenirMatchsEnrichisPourJoueur(jId, jObj) {
+        const listeMatchs = window.matchsCloudCharges || [];
+        const currentIdStr = String(jId).trim().toLowerCase();
+        const nomJoueur = (jObj.nom || "").trim().toLowerCase();
+        const prenomJoueur = (jObj.prenom || "").trim().toLowerCase();
+
+        return listeMatchs.map(match => {
+            let sourceBrute = {};
+            if (match.statsParJoueur) {
+                let foundKey = Object.keys(match.statsParJoueur).find(k => {
+                    const keyLower = String(k).trim().toLowerCase();
+                    return keyLower === currentIdStr || keyLower === nomJoueur || keyLower === prenomJoueur;
+                });
+                if (foundKey) sourceBrute = match.statsParJoueur[foundKey];
+            }
+            if (!Object.keys(sourceBrute).length) {
+                sourceBrute = { ...(match.stats || {}), ...match };
+            }
+
+            const e1 = (match.equipe1 || "").toLowerCase();
+            const e2 = (match.equipe2 || "").toLowerCase();
+            const estConcerne = (match.statsParJoueur && Object.keys(match.statsParJoueur).some(k => String(k).toLowerCase() === currentIdStr || String(k).toLowerCase() === nomJoueur)) ||
+                                (match.joueurId && String(match.joueurId).toLowerCase() === currentIdStr) ||
+                                (nomJoueur && (e1.includes(nomJoueur) || e2.includes(nomJoueur))) ||
+                                (prenomJoueur && (e1.includes(prenomJoueur) || e2.includes(prenomJoueur)));
+
+            if (!estConcerne) return null;
+
+            let eqJoueur = 1;
+            if ((nomJoueur && e2.includes(nomJoueur)) || (prenomJoueur && e2.includes(prenomJoueur))) {
+                eqJoueur = 2;
+            }
+
+            const s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : match.equipe1Score;
+            const s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : match.equipe2Score;
+            const vainqueur = determinerVainqueur(s1, s2);
+            let resultat = 'N'; 
+            if (vainqueur !== 0) {
+                resultat = (vainqueur === eqJoueur) ? 'V' : 'D';
+            }
+
+            return {
+                resultat,
+                stats: {
+                    pelotesJouees: Number(sourceBrute.pelotesJouees || sourceBrute.pelotes || 0),
+                    pelotesTotales: Number(sourceBrute.pelotesTotales || 100),
+                    ptsGagnes: Number(sourceBrute.ptsGagnes || sourceBrute.pointsGagnes || 0),
+                    ptsGagnesTotaux: Number(sourceBrute.ptsGagnesTotaux || 50),
+                    ptsPerdus: Number(sourceBrute.ptsPerdus || sourceBrute.pointsPerdus || 0),
+                    ptsPerdusTotaux: Number(sourceBrute.ptsPerdusTotaux || 50),
+                    butsTotal: Number(sourceBrute.butsTotal || sourceBrute.buts || 0),
+                    butsSurArriere: Number(sourceBrute.butsSurArriere || 0),
+                    butsSurAvant: Number(sourceBrute.butsSurAvant || 0),
+                    airePositif: Number(sourceBrute.airePositif || 0),
+                    aireNegatif: Number(sourceBrute.aireNegatif || 0),
+                    botePositif: Number(sourceBrute.botePositif || 0),
+                    boteNegatif: Number(sourceBrute.boteNegatif || 0)
+                }
+            };
+        }).filter(Boolean);
+    }
+
+    function calculerToutesLesStatsJoueurs() {
+        if (typeof joueursData === 'undefined') return;
+
+        joueursData.forEach(joueur => {
+            const joueurId = joueur.id || joueur.firebaseId || joueur.docId;
+            const card = document.querySelector(`[data-id="${joueurId}"]`);
+            if (!card) return;
+
+            const posteLower = (joueur.poste || joueur.specialite || "").toLowerCase();
+            const estAvant = posteLower.includes('avant');
+
+            const matchsJoueur = obtenirMatchsEnrichisPourJoueur(joueurId, joueur);
+            const nbMatchs = matchsJoueur.length;
+            
+            let nbVictoires = matchsJoueur.filter(m => m.resultat === 'V').length;
+            let nbDefaites = matchsJoueur.filter(m => m.resultat === 'D').length;
+
+            let totalPelotesJouees = 0, totalPelotesMax = 0;
+            let totalPtsGagnes = 0, totalPtsGagnesMax = 0;
+            let totalPtsPerdus = 0, totalPtsPerdusMax = 0;
+            let totalButs = 0, butsArriere = 0, butsAvant = 0;
+            let totalAirePos = 0, totalAireNeg = 0;
+            let totalBotePos = 0, totalBoteNeg = 0;
+
+            matchsJoueur.forEach(m => {
+                const s = m.stats;
+                totalPelotesJouees += s.pelotesJouees;
+                totalPelotesMax += s.pelotesTotales;
+                totalPtsGagnes += s.ptsGagnes;
+                totalPtsGagnesMax += s.ptsGagnesTotaux;
+                totalPtsPerdus += s.ptsPerdus;
+                totalPtsPerdusMax += s.ptsPerdusTotaux;
+                
+                totalButs += s.butsTotal;
+                butsArriere += s.butsSurArriere;
+                butsAvant += s.butsSurAvant;
+
+                totalAirePos += s.airePositif;
+                totalAireNeg += s.aireNegatif;
+                totalBotePos += s.botePositif;
+                totalBoteNeg += s.boteNegatif;
+            });
+
+            const moyPelotesGen = nbMatchs > 0 ? (totalPelotesJouees / nbMatchs).toFixed(1) : "0.0";
+            const moyPelotesJoueur = nbMatchs > 0 ? (totalPelotesJouees / nbMatchs).toFixed(1) : "0.0";
+            const pctPelotes = totalPelotesMax > 0 ? Math.round((totalPelotesJouees / totalPelotesMax) * 100) : 0;
+
+            const moyGagnesTot = nbMatchs > 0 ? (totalPtsGagnes / nbMatchs).toFixed(1) : "0.0";
+            const moyGagnesJoueur = nbMatchs > 0 ? (totalPtsGagnes / nbMatchs).toFixed(1) : "0.0";
+            const pctGagnes = totalPtsGagnesMax > 0 ? Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100) : 0;
+
+            const moyPerdusTot = nbMatchs > 0 ? (totalPtsPerdus / nbMatchs).toFixed(1) : "0.0";
+            const moyPerdusJoueur = nbMatchs > 0 ? (totalPtsPerdus / nbMatchs).toFixed(1) : "0.0";
+            const pctPerdus = totalPtsPerdusMax > 0 ? Math.round((totalPtsPerdus / totalPtsPerdusMax) * 100) : 0;
+
+            const moyButs = nbMatchs > 0 ? (totalButs / nbMatchs).toFixed(1) : "0.0";
+            const pctArriere = totalButs > 0 ? Math.round((butsArriere / totalButs) * 100) : 0;
+            const pctAvant = totalButs > 0 ? Math.round((butsAvant / totalButs) * 100) : 0;
+            
+            const totalRec = (totalAirePos + totalBotePos) + (totalAireNeg + totalBoteNeg);
+            const pctRecPos = totalRec > 0 ? Math.round(((totalAirePos + totalBotePos) / totalRec) * 100) : 0;
+            const pctRecNeg = totalRec > 0 ? Math.round(((totalAireNeg + totalBoteNeg) / totalRec) * 100) : 0;
+
+            let note100 = nbMatchs > 0 ? Math.min(100, Math.max(40, Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15))) : 0;
+
+            card.querySelector('.note-100').innerHTML = `${note100}<span>/100</span>`;
+            card.querySelector('.nb-matchs').textContent = nbMatchs;
+            card.querySelector('.nb-victoires').textContent = nbVictoires;
+            card.querySelector('.nb-defaites').textContent = nbDefaites;
+
+            card.querySelector('.pelotes-moy').textContent = moyPelotesGen;
+            card.querySelector('.pelotes-tot').textContent = moyPelotesJoueur;
+            card.querySelector('.pelotes-pct').textContent = `${pctPelotes}%`;
+
+            card.querySelector('.gagnes-moy').textContent = moyGagnesTot;
+            card.querySelector('.gagnes-tot').textContent = moyGagnesJoueur;
+            card.querySelector('.gagnes-pct').textContent = `${pctGagnes}%`;
+
+            card.querySelector('.perdus-moy').textContent = moyPerdusTot;
+            card.querySelector('.perdus-tot').textContent = moyPerdusJoueur;
+            card.querySelector('.perdus-pct').textContent = `${pctPerdus}%`;
+
+            if (estAvant) {
+                card.querySelector('.buts-moy').textContent = moyButs;
+                card.querySelector('.buts-arr-pct').textContent = `${pctArriere}%`;
+                card.querySelector('.buts-av-pct').textContent = `${pctAvant}%`;
+            }
+
+            card.querySelector('.rec-pos').textContent = `${pctRecPos}%`;
+            card.querySelector('.rec-neg').textContent = `${pctRecNeg}%`;
+        });
+    }
+
+    window.filterPlayers = function(type) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById(`btn-${type}`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        const sectionAvants = document.getElementById('section-avants');
+        const sectionArrieres = document.getElementById('section-arrieres');
+
+        if (type === 'all') {
+            if(sectionAvants) sectionAvants.style.display = 'block';
+            if(sectionArrieres) sectionArrieres.style.display = 'block';
+        } else if (type === 'avants') {
+            if(sectionAvants) sectionAvants.style.display = 'block';
+            if(sectionArrieres) sectionArrieres.style.display = 'none';
+        } else if (type === 'arrieres') {
+            if(sectionAvants) sectionAvants.style.display = 'none';
+            if(sectionArrieres) sectionArrieres.style.display = 'block';
+        }
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Calendrier & Entraînements</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        
+        /* Boutons d'en-tête ronds */
+        .home-btn, .theme-toggle-btn, .profile-btn { 
+            text-decoration: none; 
+            font-size: 1.1rem; 
+            background: var(--card-bg); 
+            border: 1px solid var(--card-border); 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            color: var(--container-text); 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .calendar-container { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; color: var(--container-text); font-size: 0.9rem; }
+        .cal-nav-btn { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--card-border); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .calendar-day-name { font-size: 0.65rem; color: var(--text-muted); font-weight: bold; padding-bottom: 4px; }
+        .calendar-day { background: rgba(15, 76, 92, 0.1); border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 2px; font-size: 0.75rem; color: var(--container-text); cursor: pointer; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; transition: all 0.2s; }
+        .calendar-day:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
+        .calendar-day.empty { background: transparent; border: none; cursor: default; }
+        
+        /* Styles de base pour les jours avec entraînements standards */
+        .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.15); font-weight: bold; color: var(--accent-color); }
+        
+        /* Styles spécifiques pour les jours avec des infos / notes joueurs (en ROUGE) */
+        .calendar-day.has-info { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); font-weight: bold; color: #ef4444; }
+
+        .calendar-day.selected { border: 2px solid #ffffff; }
+
+        /* Gestion des points multiples par jour */
+        .event-dots-container { display: flex; gap: 3px; justify-content: center; align-items: center; margin-top: 3px; flex-wrap: wrap; max-width: 28px; }
+        .multi-dot { width: 4px; height: 4px; border-radius: 50%; }
+        .multi-dot.match { background-color: var(--accent-color); }
+        .multi-dot.info { background-color: #ef4444; }
+        .event-count-badge { font-size: 0.55rem; background: rgba(255, 255, 255, 0.2); padding: 1px 3px; border-radius: 4px; margin-top: 2px; font-weight: bold; }
+
+        .match-preview-box { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--accent-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.78rem; display: none; }
+        .match-preview-box.active { display: block; }
+
+        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .card-item.card-info { border-color: #ef4444; }
+
+        .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 2px; }
+        .item-sub { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; }
+
+        /* Bouton programmation avec dégradé prononcé et bordure cyan lumineuse */
+        .program-btn { 
+            background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%); 
+            border: 2px solid #06b6d4; 
+            color: #ffffff; 
+            padding: 14px; 
+            border-radius: 30px; 
+            font-size: 0.9rem; 
+            font-weight: 800; 
+            cursor: pointer; 
+            width: 100%; 
+            box-sizing: border-box; 
+            text-align: center; 
+            display: block; 
+            text-decoration: none; 
+            margin-bottom: 16px; 
+            box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35); 
+            transition: all 0.2s ease;
+        }
+        .program-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(6, 182, 212, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img" style="height: 35px;">
+        <div class="header-actions">
+            <!-- Bouton retour accueil -->
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <!-- Bouton de bascule de thème -->
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <!-- Bouton profil / compte -->
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator" style="margin-bottom: 15px;">
+
+    <!-- Bouton d'ajout d'entraînement avec un ID pour pouvoir le masquer -->
+    <a href="nouveau-entrainement.html" id="btnProgrammerEntrainement" class="program-btn">+ Programmer un entraînement</a>
+
+    <div class="section-title">Calendrier Collectif</div>
+
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button class="cal-nav-btn" onclick="changerMois(-1)">◀</button>
+            <span id="calendarMonthYearTitle">Mois Année</span>
+            <button class="cal-nav-btn" onclick="changerMois(1)">▶</button>
+        </div>
+        
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <div id="matchPreviewBox" class="match-preview-box">
+        <div class="section-title" id="selectedDateTitle" style="margin-bottom:8px;">Sessions du jour</div>
+        <div id="matchPreviewContent" style="color: var(--container-text);">Sélectionnez un jour.</div>
+    </div>
+</div>
+
+<!-- Inclusion du fichier de données des joueurs -->
+<script src="joueurs-data.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
+    }
+
+    // Gestion des rôles au chargement de la page
+    document.addEventListener("DOMContentLoaded", () => {
+        const role = localStorage.getItem('cesta_user_role');
+        
+        // Si l'utilisateur connecté est un joueur, on masque le bouton d'ajout
+        if (role === 'joueur') {
+            const btnProgrammer = document.getElementById('btnProgrammerEntrainement');
+            if (btnProgrammer) {
+                btnProgrammer.style.display = 'none';
+            }
+        }
+    });
+
+    let currentDate = new Date();
+    let selectedDateStr = new Date().toISOString().split('T')[0];
+    let calendrierCloudEvents = [];
+
+    async function chargerCalendrierFirebase() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "entrainements"));
+            calendrierCloudEvents = [];
+            querySnapshot.forEach((docSnap) => {
+                calendrierCloudEvents.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            renderCalendar();
+            selectCalendarDate(selectedDateStr);
+        } catch (error) {
+            console.error("Erreur lors du chargement des entraînements Firebase :", error);
+        }
+    }
+
+    function estDansLaPlage(dateStr, event) {
+        const start = event.startDate || event.date;
+        const end = event.endDate || start;
+        if (!start) return false;
+        return dateStr >= start && dateStr <= end;
+    }
+
+    function formaterDateFR(dateStr) {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        return dateStr;
+    }
+
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const moisNoms = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        document.getElementById('calendarMonthYearTitle').innerText = `${moisNoms[month]} ${year}`;
+
+        const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = `
+            <div class="calendar-day-name">Lun</div><div class="calendar-day-name">Mar</div><div class="calendar-day-name">Mer</div><div class="calendar-day-name">Jeu</div><div class="calendar-day-name">Ven</div><div class="calendar-day-name">Sam</div><div class="calendar-day-name">Dim</div>
+        `;
+
+        for (let i = 0; i < firstDayIndex; i++) {
+            grid.innerHTML += `<div class="calendar-day empty"></div>`;
+        }
+
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            
+            const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
+            const hasInfo = matchingEvents.some(e => e.type === 'info');
+            const hasMatch = matchingEvents.some(e => e.type !== 'info');
+
+            let matchClass = '';
+            if (hasInfo && hasMatch) {
+                matchClass = 'has-match';
+            } else if (hasInfo) {
+                matchClass = 'has-info'; 
+            } else if (hasMatch) {
+                matchClass = 'has-match'; 
+            }
+
+            if (dateStr === selectedDateStr) matchClass += ' selected';
+
+            let dotsHtml = '';
+            if (matchingEvents.length > 0) {
+                dotsHtml = `<div class="event-dots-container">`;
+                matchingEvents.forEach(ev => {
+                    const isInf = ev.type === 'info';
+                    dotsHtml += `<div class="multi-dot ${isInf ? 'info' : 'match'}"></div>`;
+                });
+                dotsHtml += `</div>`;
+                
+                if (matchingEvents.length > 2) {
+                    dotsHtml += `<span class="event-count-badge">${matchingEvents.length}</span>`;
+                }
+            }
+
+            grid.innerHTML += `
+                <div class="calendar-day ${matchClass}" onclick="selectCalendarDate('${dateStr}')">
+                    ${day} ${dotsHtml}
+                </div>
+            `;
+        }
+    }
+
+    window.changerMois = function(direction) {
+        currentDate.setMonth(currentDate.getMonth() + direction);
+        renderCalendar();
+    }
+
+    window.selectCalendarDate = function(dateStr) {
+        selectedDateStr = dateStr;
+        const parts = dateStr.split('-');
+        
+        const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
+        
+        const allAreInfos = matchingEvents.length > 0 && matchingEvents.every(e => e.type === 'info');
+        const titreTeteBox = document.getElementById('selectedDateTitle');
+        
+        if (allAreInfos) {
+            titreTeteBox.innerText = `INFORMATIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+            titreTeteBox.innerText = `SESSIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        renderCalendar();
+
+        const previewBox = document.getElementById('matchPreviewBox');
+        const previewContent = document.getElementById('matchPreviewContent');
+
+        // Récupération du rôle pour adapter l'affichage des convocations
+        const userRole = localStorage.getItem('cesta_user_role');
+
+        if (matchingEvents.length > 0) {
+            let htmlText = "";
+            matchingEvents.forEach(ev => {
+                const isInfo = ev.type === 'info';
+                const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut} - ${ev.heureFin || ''}` : '';
+                const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
+                
+                let detailsHtml = "";
+                let titreHtml = "";
+                let sousTitreLigne = "";
+
+                if (isInfo) {
+                    const createurNom = ev.createur || ev.joueur || ev.nomJoueur || ev.auteur || "";
+                    const titreTexte = ev.titre || ev.title || "";
+                    const dateDebutFR = formaterDateFR(ev.startDate || ev.date);
+                    const dateFinFR = formaterDateFR(ev.endDate);
+                    const lieuNom = ev.lieu || "";
+                    
+                    const heureDebutVal = ev.heureDebut || "";
+                    const heureFinVal = ev.heureFin || "";
+                    
+                    let texteHeure = "";
+                    if (heureDebutVal && heureFinVal) {
+                        texteHeure = `de ${heureDebutVal} à ${heureFinVal}`;
+                    } else if (heureDebutVal) {
+                        texteHeure = `à ${heureDebutVal}`;
+                    }
+                    
+                    titreHtml = `<span style="color: #ef4444;">${createurNom}</span> <span style="color: var(--accent-color);">${titreTexte}</span>`;
+
+                    let partiesSub = [];
+                    let texteDate = "";
+                    if (dateDebutFR && dateFinFR && dateFinFR !== dateDebutFR) {
+                        texteDate = `du ${dateDebutFR} au ${dateFinFR}`;
+                    } else if (dateDebutFR) {
+                        texteDate = `le ${dateDebutFR}`;
+                    }
+
+                    if (texteDate) {
+                        let ligneDateHeure = `🕒 ${texteDate}`;
+                        if (texteHeure) {
+                            ligneDateHeure += ` (${texteHeure})`;
+                        }
+                        partiesSub.push(ligneDateHeure);
+                    }
+
+                    if (lieuNom) {
+                        partiesSub.push(`📍 ${lieuNom}`);
+                    }
+                    sousTitreLigne = partiesSub.join(' • ');
+
+                    const texteInfo = ev.description || ev.commentaire || ev.note || ev.message || ev.details || ev.texte || ev.contenu || "";
+                    if (texteInfo) {
+                        detailsHtml = `<div style="font-size: 0.75rem; color: var(--container-text); font-weight: normal; line-height: 1.4; margin-top: 4px;">${texteInfo}</div>`;
+                    }
+                } else {
+                    titreHtml = ev.titre || ev.title;
+                    
+                    if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
+                        ev.convoques.forEach(conv => {
+                            let badgeStatut = "⏳ En attente";
+                            if (conv.statut === 'present') badgeStatut = "✅ Présent";
+                            else if (conv.statut === 'absent') badgeStatut = `❌ Absent (${conv.motif || 'Sans motif'})`;
+
+                            // Si c'est un joueur, on affiche les noms et le statut en lecture seule sans possibilité de modifier ou répondre ici
+                            detailsHtml += `
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <span>👤 ${conv.nom}</span>
+                                    <span style="font-weight:600;">${badgeStatut}</span>
+                                </div>
+                            `;
+                        });
+
+                        // Petit message informatif pour les joueurs sous la liste des noms
+                        if (userRole === 'joueur') {
+                            detailsHtml += `
+                                <div style="font-size: 0.7rem; color: var(--accent-color); padding-top: 6px; text-align: center; font-weight: bold; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 4px;">
+                                    📅 Répondez à cette convocation via votre calendrier personnel (Page Joueur).
+                                </div>
+                            `;
+                        }
+                    } else {
+                        detailsHtml = `<div style="font-size: 0.7rem; color: var(--text-muted);">Aucun joueur spécifiquement convoqué.</div>`;
+                    }
+                }
+
+                htmlText += `
+                    <div class="card-item ${isInfo ? 'card-info' : ''}">
+                        <div class="item-title" style="font-size: 0.9rem;">${titreHtml}</div>
+                        <div class="item-sub" style="${isInfo ? 'color: var(--container-text); font-size: 0.75rem; margin-top: 2px;' : ''}">${isInfo ? sousTitreLigne : `${heureDebut}${lieu}`}</div>
+                        ${!isInfo ? `<div style="font-size: 0.75rem; font-weight: bold; color: var(--accent-color); margin-top: 6px; margin-bottom: 4px;">Joueurs convoqués :</div>` : ''}
+                        ${detailsHtml ? `<div style="background: rgba(15, 76, 92, 0.2); border-radius: 8px; padding: 6px; margin-top: 6px;">${detailsHtml}</div>` : ''}
+                    </div>
+                `;
+            });
+            previewContent.innerHTML = htmlText;
+            previewBox.classList.add('active');
+        } else {
+            previewContent.innerHTML = `<div style="font-size: 0.78rem; color: var(--text-muted);">Aucun entraînement prévu ce jour-là.</div>`;
+            previewBox.classList.add('active');
+        }
+    }
+
+    chargerCalendrierFirebase();
+</script>
+
+</body>
+</html>

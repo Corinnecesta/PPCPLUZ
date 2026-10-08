@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Compétitions</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.5px; }
+        .comp-grid { display: flex; flex-direction: column; gap: 10px; }
+        .comp-card { 
+            background: var(--card-bg); 
+            border: 2px solid var(--card-border); 
+            border-radius: 14px; 
+            padding: 14px 16px; 
+            color: var(--container-text); 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.9rem;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            transition: all 0.2s ease; 
+        }
+        .comp-card:hover { border-color: var(--accent-color); background: var(--card-hover-bg); transform: translateY(-2px); }
+        .comp-arrow { color: var(--accent-color); font-size: 1rem; }
+
+        /* Styles pour le bouton d'ajout rapide et le formulaire */
+        .action-add-btn {
+            background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%);
+            border: 2px solid var(--accent-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.3);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .action-add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 242, 254, 0.4);
+        }
+
+        .quick-form-card {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .quick-form-card.active { display: flex; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.75rem; color: var(--accent-color); font-weight: 700; text-transform: uppercase; }
+        .form-group input, .form-group select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--container-text);
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent-color); outline: none; }
+        .form-group select option { background: #0d1b2a; color: #fff; }
+        
+        .submit-btn {
+            background: var(--accent-color);
+            color: #0a192f;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 4px;
+        }
+        .submit-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <!-- Bouton d'ajout rapide (Réservé admin / entraîneur) -->
+    <button class="action-add-btn admin-entraineur-only" id="toggleFormBtn" onclick="toggleQuickForm()">
+        ➕ Ajouter une partie (Sans stats)
+    </button>
+
+    <!-- Formulaire d'ajout rapide avec choix de la compétition et date JJ-MM-AAAA -->
+    <div class="quick-form-card" id="quickFormCard">
+        <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-color);">Ajouter une partie & Vidéo</div>
+        <div class="form-group">
+            <label>Sélectionner la Compétition</label>
+            <select id="qCompetition">
+                <option value="Winter Series">Winter Series</option>
+                <option value="Gant d'Or de Biarritz">Gant d'Or de Biarritz</option>
+                <option value="Cesta Pau Cup">Cesta Pau Cup</option>
+                <option value="Internationaux de St Jean de Luz">Internationaux de St Jean de Luz</option>
+                <option value="Jai Alai League">Jai Alai League</option>
+                <option value="Championnat de France">Championnat de France</option>
+<option value="Championnat du Pays Basque">Championnat du Pays Basque</option>
+                <option value="All Stars">All Star</option>
+                <option value="Summer League">Summer League</option>
+                <option value="Pôle">Pôle</option>
+                <option value="Championnat du Monde">Championnat du Monde</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Date (Format JJ-MM-AAAA)</label>
+            <input type="text" id="qDate" placeholder="Ex: 15-06-2026">
+        </div>
+        <div class="form-group">
+            <label>Heure</label>
+            <input type="time" id="qHeure">
+        </div>
+        <div class="form-group">
+            <label>Lieu</label>
+            <input type="text" id="qLieu" placeholder="Ex: Fronton Jai Alai">
+        </div>
+        <div class="form-group">
+            <label>Lien Vidéo (URL)</label>
+            <input type="url" id="qVideo" placeholder="https://youtube.com/...">
+        </div>
+        <button class="submit-btn" onclick="saveQuickMatch()">Enregistrer dans Firebase</button>
+    </div>
+
+    <div class="section-title">Sélectionnez une Compétition</div>
+
+    <div class="comp-grid">
+        <a href="winter-series.html" class="comp-card"><span>🏆 Winter Series</span><span class="comp-arrow">➔</span></a>
+        <a href="gant-dor.html" class="comp-card"><span>🏆 Gant d'Or de Biarritz</span><span class="comp-arrow">➔</span></a>
+        <a href="pau-cup.html" class="comp-card"><span>🏆 Cesta Pau Cup</span><span class="comp-arrow">➔</span></a>
+        <a href="internationaux.html" class="comp-card"><span>🏆 Internationaux de St Jean de Luz</span><span class="comp-arrow">➔</span></a>
+        <a href="jai-alai.html" class="comp-card"><span>🏆 Jai Alai League</span><span class="comp-arrow">➔</span></a>
+        <a href="championnat.html" class="comp-card"><span>🏆 Championnat de France</span><span class="comp-arrow">➔</span></a>
+        <a href="championnatpb.html" class="comp-card"><span>🏆 Championnat du Pays Basque</span><span class="comp-arrow">➔</span></a>
+        <a href="all-star.html" class="comp-card"><span>🏆 All Star</span><span class="comp-arrow">➔</span></a>
+        <a href="summer-league.html" class="comp-card"><span>🏆 Summer League</span><span class="comp-arrow">➔</span></a>
+        <a href="pole.html" class="comp-card"><span>🏆 Pôle</span><span class="comp-arrow">➔</span></a>
+        <a href="mondial.html" class="comp-card"><span>🏆 Championnat du Monde</span><span class="comp-arrow">➔</span></a>
+    </div>
+</div>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    // Gestion du thème
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggleBtn').innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    function toggleTheme() {
+        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('cesta_theme', t);
+        document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
+    }
+
+    // Gestion des rôles pour l'affichage du bouton d'ajout rapide
+    document.addEventListener("DOMContentLoaded", () => {
+        const userRole = localStorage.getItem('cesta_user_role');
+        const restrictedElements = document.querySelectorAll('.admin-entraineur-only');
+        if (userRole === 'joueur' || !userRole) {
+            restrictedElements.forEach(el => el.style.display = 'none');
+        } else {
+            restrictedElements.forEach(el => el.style.display = 'flex');
+        }
+    });
+
+    // Afficher / Masquer le formulaire rapide
+    function toggleQuickForm() {
+        const formCard = document.getElementById('quickFormCard');
+        formCard.classList.toggle('active');
+    }
+
+    // Initialisation Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // Enregistrer une partie rapide liée à la compétition sélectionnée dans Firebase
+    function saveQuickMatch() {
+        const competition = document.getElementById('qCompetition').value;
+        const dateInput = document.getElementById('qDate').value.trim();
+        const heure = document.getElementById('qHeure').value;
+        const lieu = document.getElementById('qLieu').value.trim();
+        const videoUrl = document.getElementById('qVideo').value.trim();
+
+        // Si l'utilisateur saisit au format JJ-MM-AAAA, on normalise en JJ/MM/AAAA pour garder l'harmonie avec le reste du site si besoin
+        let dateFormatee = dateInput.replace(/-/g, '/');
+
+        db.collection("parties_rapides").add({
+            competition: competition,
+            date: dateFormatee || "",
+            heure: heure || "",
+            lieu: lieu || "Fronton",
+            videoUrl: videoUrl || "",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+            alert("Partie ajoutée avec succès à la compétition " + competition + " !");
+            document.getElementById('qDate').value = '';
+            document.getElementById('qHeure').value = '';
+            document.getElementById('qLieu').value = '';
+            document.getElementById('qVideo').value = '';
+            toggleQuickForm();
+        })
+        .catch((error) => {
+            console.error("Erreur lors de l'ajout : ", error);
+            alert("Erreur lors de l'enregistrement.");
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cesta Punta - Connexion</title>
+    <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- SDK Firebase (compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* --- VARIABLES DE COULEURS (Mode Sombre - Océan & Lagon) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
+            --container-text: #f8fafc;
+            --card-bg: linear-gradient(135deg, #0d1b2a 0%, #0f4c5c 100%);
+            --card-border: #17b890;
+            --card-hover-bg: linear-gradient(135deg, #132238 0%, #125c6e 100%);
+            --accent-color: #00f2fe;
+            --text-muted: #94a3b8;
+            --btn-gradient: linear-gradient(135deg, #0f4c5c 0%, #125c6e 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
+        }
+
+        /* --- VARIABLES DE COULEURS (Mode Clair) --- */
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --container-text: #0f172a;
+            --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --card-border: #cbd5e1;
+            --card-hover-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --accent-color: #0284c7;
+            --text-muted: #64748b;
+            --btn-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            color: var(--container-text); 
+            padding: 10px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s; 
+        }
+
+        .mobile-container { 
+            max-width: 420px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            padding-bottom: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            justify-content: center;
+        }
+        
+        /* En-tête tout en haut */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; }
+        .logo-img { height: 50px; object-fit: contain; }
+        
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        /* Boutons du haut en dégradé lagon */
+        .home-btn, .theme-toggle-btn, .profile-btn { 
+            background: var(--btn-gradient); 
+            border: 1px solid var(--card-border); 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            text-decoration: none; 
+            color: var(--container-text); 
+            font-size: 0.95rem; 
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
+            border-color: var(--accent-color); 
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+        }
+
+        /* Ligne de séparation */
+        .separator { border: none; height: 1px; background-color: var(--card-border); margin: 2px 0; width: 100%; }
+
+        /* Carte du formulaire de connexion */
+        .login-card {
+            background: var(--card-bg);
+            border: 2px solid #17b890;
+            border-radius: 16px;
+            padding: 24px 20px;
+            box-shadow: 0 4px 16px rgba(23, 184, 144, 0.2);
+            box-sizing: border-box;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+
+        .login-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Champs du formulaire */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--container-text);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--card-hover-bg);
+            border: 2px solid var(--card-border);
+            color: var(--container-text);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+        }
+
+        /* Message d'erreur */
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #f87171;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 14px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Bouton de soumission */
+        .btn-submit {
+            width: 100%;
+            background: var(--btn-gradient);
+            color: var(--container-text);
+            border: 2px solid var(--card-border);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+        }
+
+        .btn-submit:hover {
+            background: var(--btn-hover-gradient);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 242, 254, 0.3);
+        }
+
+        .login-footer {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .login-footer a {
+            font-size: 0.78rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .login-footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- En-tête du site -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="index.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Séparateur -->
+    <hr class="separator">
+
+    <!-- Carte de Connexion -->
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-title">Connexion</div>
+            <div class="login-subtitle">Entrez votre identifiant ou téléphone</div>
+        </div>
+
+        <!-- Alerte d'erreur -->
+        <div id="errorAlert" class="error-message"></div>
+
+        <!-- Formulaire de connexion -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="userInput">Identifiant ou Téléphone</label>
+                <input class="form-input" type="text" id="userInput" name="userInput" required placeholder="ex: j.dupont ou 0612345678">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" for="password">Mot de passe</label>
+                <input class="form-input" type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+
+            <button class="btn-submit" type="submit" id="submitBtn">
+                Se connecter
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <a href="#">Mot de passe oublié ?</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURATION FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    // Initialisation de Firebase (Version Compat)
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // --- GESTION DE LA SOUMMISSION DU FORMULAIRE ---
+    const loginForm = document.getElementById('loginForm');
+    const userInput = document.getElementById('userInput');
+    const passwordInput = document.getElementById('password');
+    const errorAlert = document.getElementById('errorAlert');
+    const submitBtn = document.getElementById('submitBtn');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorAlert.style.display = 'none';
+        submitBtn.textContent = 'Connexion en cours...';
+        submitBtn.disabled = true;
+
+        const saisie = userInput.value.trim();
+        const password = passwordInput.value;
+
+        // Transformation de l'identifiant en faux e-mail unique pour Firebase Auth
+        const fauxEmail = saisie.includes('@') ? saisie : `${saisie.toLowerCase().replace(/\s+/g, '')}@cesta.app`;
+
+        try {
+            // 1. Authentification Firebase Auth avec l'e-mail généré
+            const userCredential = await auth.signInWithEmailAndPassword(fauxEmail, password);
+            const user = userCredential.user;
+
+            // 2. Récupération du rôle dans la collection Firestore "users"
+            const userDoc = await db.collection("users").doc(user.uid).get();
+
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                const role = userData.role || 'joueur';
+
+                // 3. Sauvegarde dans le localStorage pour le site
+                localStorage.setItem('cesta_user_role', role);
+                localStorage.setItem('cesta_user_email', user.email);
+                localStorage.setItem('cesta_user_uid', user.uid);
+                localStorage.setItem('cesta_user_id', user.uid);
+                localStorage.setItem('cesta_user_name', userData.nom || saisie);
+
+                // 4. Redirection vers l'accueil (ou l'accueil de l'application)
+                window.location.href = "accueil.html";
+            } else {
+                throw new Error("Aucun profil associé à cet utilisateur dans la base de données.");
+            }
+
+        } catch (error) {
+            console.error("Erreur de connexion :", error);
+            errorAlert.textContent = "Identifiant ou mot de passe incorrect, ou profil introuvable.";
+            errorAlert.style.display = 'block';
+            submitBtn.textContent = 'Se connecter';
+            submitBtn.disabled = false;
+        }
+    });
+
+    // --- GESTION DU THÈME CLAIR / SOMBRE ---
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+</script>
+
+</body>
+</html>

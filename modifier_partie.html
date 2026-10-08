@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Modifier / Supprimer une Partie</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        .form-input, .form-select {
+            width: 100%;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            color: var(--container-text);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus { border-color: var(--accent-color); }
+        .form-select option { background: #111827; color: #ffffff; }
+
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.3);
+        }
+        .btn-submit:hover { opacity: 0.9; }
+
+        .btn-secondary-action {
+            width: 100%;
+            background: rgba(23, 184, 144, 0.15);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .btn-secondary-action:hover { background: rgba(23, 184, 144, 0.3); }
+
+        .btn-delete {
+            width: 100%;
+            background: #EF4444;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .btn-delete:hover { opacity: 0.9; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .stat-field-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px; }
+        .stat-field-box label { font-size: 0.7rem; color: var(--container-text); display: block; margin-bottom: 3px; font-weight: 600; }
+        .stat-field-box input { width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--container-text); padding: 5px; border-radius: 6px; font-size: 0.8rem; text-align: center; }
+
+        .stat-row-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+        .stat-row-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--container-text);
+            margin-bottom: 6px;
+        }
+        .stat-row-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+        .stat-row-inputs.has-4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 5px;
+        }
+        .input-with-pct {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-with-pct label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .input-with-pct input {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--container-text);
+            padding: 5px 2px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .pct-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 3px;
+            color: var(--accent-color);
+        }
+        
+        .block-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .block-total-pct {
+            font-size: 0.75rem;
+            background: rgba(23, 184, 144, 0.15);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+        .block-cd-rev-config {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            background: rgba(255,255,255,0.04);
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 10px;
+        }
+        .config-field {
+            display: flex;
+            flex-direction: column;
+        }
+        .config-field label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .config-field input {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--container-text);
+            padding: 5px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div class="section-title">Modifier la partie & statistiques</div>
+
+    <form id="editMatchForm" onsubmit="mettreAJourPartie(event)">
+        <!-- SÉLECTION DU MATCH À MODIFIER -->
+        <div class="form-group">
+            <label class="form-label">Sélectionner la partie à modifier</label>
+            <select id="matchSelect" class="form-select" onchange="chargerDonneesMatchSelectionne()">
+                <option value="">-- Choisir une partie --</option>
+            </select>
+        </div>
+
+        <!-- RATTACHER UN NOUVEAU JOUEUR À CE MATCH -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px dashed var(--accent-color); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:8px; color: var(--accent-color);">➕ Rattacher un autre joueur</div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label">Sélectionner un joueur à ajouter à cette partie</label>
+                <select id="selectNouveauJoueur" class="form-select">
+                    <option value="">-- Chargement des joueurs... --</option>
+                </select>
+            </div>
+            <button type="button" class="btn-secondary-action" onclick="ajouterJoueurAuMatchActuel()">Ajouter ce joueur à la partie</button>
+        </div>
+
+        <!-- INFORMATIONS GÉNÉRALES & SCORES -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:8px;">📌 Infos & Scores</div>
+            
+            <div class="form-group">
+                <label class="form-label">Compétition / Titre</label>
+                <input type="text" id="competition" class="form-input" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Équipe 1</label>
+                    <input type="text" id="equipe1" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Score Équipe 1 (ex: 13/13)</label>
+                    <input type="text" id="scoreEquipe1" class="form-input" placeholder="ex: 13/13" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Équipe 2</label>
+                    <input type="text" id="equipe2" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Score Équipe 2 (ex: 15/15)</label>
+                    <input type="text" id="scoreEquipe2" class="form-input" placeholder="ex: 15/15" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Lieu</label>
+                    <input type="text" id="lieu" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date (JJ/MM/AAAA)</label>
+                    <input type="text" id="dateMatch" class="form-input" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Résultat</label>
+                    <select id="resultat" class="form-select">
+                        <option value="Victoire">Victoire</option>
+                        <option value="Défaite">Défaite</option>
+                        <option value="Nul">Nul</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lien vidéo (URL)</label>
+                    <input type="url" id="lienVideo" class="form-input">
+                </div>
+            </div>
+        </div>
+
+        <!-- PELOTES & POINTS -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:8px;">🥎 Pelotes & Points</div>
+            <div class="stats-grid">
+                <div class="stat-field-box">
+                    <label>Pelotes jouées / totales</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="pelotesJouees" value="0" oninput="calculerPourcentagesGlobaux()">
+                        <input type="number" id="pelotesTotales" value="0" oninput="calculerPourcentagesGlobaux()">
+                    </div>
+                    <div id="pctPelotes" class="pct-badge">0%</div>
+                </div>
+                <div class="stat-field-box">
+                    <label>Pts gagnés / totaux</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="ptsGagnes" value="0" oninput="calculerPourcentagesGlobaux()">
+                        <input type="number" id="ptsGagnesTotaux" value="0" oninput="calculerPourcentagesGlobaux()">
+                    </div>
+                    <div id="pctPtsGagnes" class="pct-badge" style="color:#10B981;">0%</div>
+                </div>
+                <div class="stat-field-box" style="grid-column: span 2;">
+                    <label>Pts perdus / totaux</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="ptsPerdus" value="0" oninput="calculerPourcentagesGlobaux()">
+                        <input type="number" id="ptsPerdusTotaux" value="0" oninput="calculerPourcentagesGlobaux()">
+                    </div>
+                    <div id="pctPtsPerdus" class="pct-badge" style="color:#EF4444;">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOC UNIQUE % COUP DROIT -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="block-cd-rev-config" style="margin-bottom: 0;">
+                <div class="config-field">
+                    <label>% Coup Droit</label>
+                    <input type="number" id="coupDroitGlobalPct" value="100" min="0" max="100">
+                </div>
+            </div>
+        </div>
+
+        <!-- RÉCEPTIONS -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="block-header-flex">
+                <div class="item-title" style="margin-bottom:0;">📥 Réceptions</div>
+                <div class="block-total-pct" id="totalBlockPct_receptions">Réussite Bloc : 0%</div>
+            </div>
+            
+            <div id="receptionsContainer">
+                <script>
+                    const receptionsLignes = [
+                        {id: 'aire', label: 'Aire'},
+                        {id: 'bote', label: 'Bote'},
+                        {id: 'boteCorrido', label: 'Bote corrido'},
+                        {id: 'botePronto', label: 'Bote pronto'},
+                        {id: 'erebote', label: 'Erebote'},
+                        {id: 'pumpa', label: 'Pumpa'}
+                    ];
+                    receptionsLignes.forEach(r => {
+                        let totalId = (r.id === 'pumpa') ? 'pumpa' : r.id + 'Total';
+                        document.write(`
+                            <div class="stat-row-item" data-prefix="${r.id}">
+                                <div class="stat-row-header">${r.label}</div>
+                                <div class="stat-row-inputs">
+                                    <div class="input-with-pct">
+                                        <label>Total</label>
+                                        <input type="number" id="${totalId}" value="0" oninput="calculerLigneStats('${r.id}')">
+                                        <span class="pct-badge" id="pct_tot_${r.id}" style="color:var(--text-muted);">0%</span>
+                                    </div>
+                                    <div class="input-with-pct"><label>Positif</label><input type="number" id="${r.id}Positif" value="0" oninput="calculerLigneStats('${r.id}')"><span class="pct-badge" id="pct_pos_${r.id}">0%</span></div>
+                                    <div class="input-with-pct"><label>Négatif</label><input type="number" id="${r.id}Negatif" value="0" oninput="calculerLigneStats('${r.id}')"><span class="pct-badge" id="pct_neg_${r.id}" style="color:#EF4444;">0%</span></div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
+            </div>
+        </div>
+
+        <!-- FRAPPES -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="block-header-flex">
+                <div class="item-title" style="margin-bottom:0;">⚡ Frappes</div>
+                <div class="block-total-pct" id="totalBlockPct_frappes">Réussite Bloc : 0%</div>
+            </div>
+            
+            <div id="frappesContainer">
+                <script>
+                    const frappesNoms = [
+                        {id: 'frappesClassiques', label: 'Classique'},
+                        {id: 'frappesAttaque', label: 'Attaque'},
+                        {id: 'picada', label: 'Picada'},
+                        {id: 'dejada', label: 'Dejada'},
+                        {id: 'txikTxak', label: 'Txik Txak'},
+                        {id: 'txula', label: 'Txula'},
+                        {id: 'cortada', label: 'Cortada'},
+                        {id: 'gaucheGauche', label: 'Gauche gauche'},
+                        {id: 'gaucheDroite', label: 'Gauche droite'},
+                        {id: 'deuxMurs', label: '2 Murs'}
+                    ];
+                    frappesNoms.forEach(f => {
+                        document.write(`
+                            <div class="stat-row-item" data-prefix="${f.id}">
+                                <div class="stat-row-header">${f.label}</div>
+                                <div class="stat-row-inputs has-4">
+                                    <div class="input-with-pct">
+                                        <label>Total</label>
+                                        <input type="number" id="${f.id}Total" value="0" oninput="calculerLigneStats('${f.id}')">
+                                        <span class="pct-badge" id="pct_tot_${f.id}" style="color:var(--text-muted);">0%</span>
+                                    </div>
+                                    <div class="input-with-pct"><label>Positif</label><input type="number" id="${f.id}Pos" value="0" oninput="calculerLigneStats('${f.id}')"><span class="pct-badge" id="pct_pos_${f.id}">0%</span></div>
+                                    <div class="input-with-pct"><label>Neutre</label><input type="number" id="${f.id}Neutre" value="0" oninput="calculerLigneStats('${f.id}')"><span class="pct-badge" id="pct_neutre_${f.id}" style="color:var(--text-muted);">0%</span></div>
+                                    <div class="input-with-pct"><label>Négatif</label><input type="number" id="${f.id}Neg" value="0" oninput="calculerLigneStats('${f.id}')"><span class="pct-badge" id="pct_neg_${f.id}" style="color:#EF4444;">0%</span></div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">💾 Enregistrer les modifications</button>
+        <button type="button" class="btn-delete" onclick="supprimerPartie()">🗑 Supprimer cette partie</button>
+    </form>
+</div>
+
+<!-- CHARGEMENT DE FIREBASE CORRIGÉ -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.dbCloud = db;
+    window.getDocsCloud = getDocs;
+    window.getDocCloud = getDoc;
+    window.setDocCloud = setDoc;
+    window.updateDocCloud = updateDoc;
+    window.deleteDocCloud = deleteDoc;
+    window.docCloud = doc;
+    window.collectionCloud = collection;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const matchIdParam = urlParams.get('id');
+        
+        const selectMatch = document.getElementById('matchSelect');
+        const selectJoueur = document.getElementById('selectNouveauJoueur');
+
+        let debugDiv = document.getElementById('debugMessage');
+        if (!debugDiv) {
+            debugDiv = document.createElement('div');
+            debugDiv.id = 'debugMessage';
+            debugDiv.style.cssText = "background: rgba(23, 184, 144, 0.15); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 0.75rem; font-weight: 600;";
+            selectMatch.parentNode.insertBefore(debugDiv, selectMatch);
+        }
+        debugDiv.textContent = "⏳ Connexion à Firebase en cours...";
+
+        try {
+            // 1. Charger les matchs (docMatch utilisé pour éviter le conflit avec l'objet global document)
+            const queryMatchs = await getDocs(collection(db, "matchs"));
+            window.tousLesMatchs = {};
+            
+            selectMatch.innerHTML = '<option value="">-- Choisir une partie --</option>';
+            let countMatchs = 0;
+            
+            queryMatchs.forEach((docMatch) => {
+                countMatchs++;
+                const data = docMatch.data();
+                window.tousLesMatchs[docMatch.id] = data;
+                
+                const opt = document.createElement('option');
+                opt.value = docMatch.id;
+                opt.textContent = `${data.competition || 'Match'} : ${data.equipe1 || 'Équipe 1'} vs ${data.equipe2 || 'Équipe 2'} (${data.date || ''})`;
+                selectMatch.appendChild(opt);
+            });
+
+            // 2. Charger les joueurs
+            const queryJoueurs = await getDocs(collection(db, "joueurs"));
+            selectJoueur.innerHTML = '<option value="">-- Choisir un joueur à ajouter --</option>';
+            let countJoueurs = 0;
+            
+            queryJoueurs.forEach((docJ) => {
+                countJoueurs++;
+                const jData = docJ.data();
+                const optJ = document.createElement('option');
+                optJ.value = docJ.id;
+                optJ.textContent = `${jData.prenom || ''} ${jData.nom || ''}`.trim() || docJ.id;
+                selectJoueur.appendChild(optJ);
+            });
+
+            if (countMatchs === 0 && countJoueurs === 0) {
+                debugDiv.style.background = "rgba(234, 179, 8, 0.2)";
+                debugDiv.style.borderColor = "#EAB308";
+                debugDiv.style.color = "#FACC15";
+                debugDiv.textContent = "⚠️ Connecté à Firebase, mais les collections 'matchs' et 'joueurs' sont actuellement vides.";
+            } else {
+                debugDiv.remove();
+            }
+
+            if (matchIdParam && window.tousLesMatchs[matchIdParam]) {
+                selectMatch.value = matchIdParam;
+                chargerDonneesMatchSelectionne();
+            }
+
+        } catch (e) {
+            console.error(e);
+            debugDiv.style.background = "rgba(239, 68, 68, 0.2)";
+            debugDiv.style.borderColor = "#EF4444";
+            debugDiv.style.color = "#ff8888";
+            debugDiv.textContent = "❌ Erreur Firebase : " + e.message;
+        }
+    });
+</script>
+
+<script>
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
+    }
+
+    async function ajouterJoueurAuMatchActuel() {
+        const matchId = document.getElementById('matchSelect').value;
+        const joueurId = document.getElementById('selectNouveauJoueur').value;
+
+        if (!matchId) {
+            alert("Veuillez d'abord sélectionner une partie !");
+            return;
+        }
+        if (!joueurId) {
+            alert("Veuillez sélectionner un joueur dans la liste.");
+            return;
+        }
+
+        const statsVides = {
+            pelotesJouees: 0,
+            pelotesTotales: 0,
+            ptsGagnes: 0,
+            ptsGagnesTotaux: 0,
+            ptsPerdus: 0,
+            ptsPerdusTotaux: 0
+        };
+
+        try {
+            const matchRef = window.docCloud(window.dbCloud, "matchs", matchId);
+            await window.updateDocCloud(matchRef, {
+                [`statsJoueurs.${joueurId}`]: statsVides
+            });
+            alert("Joueur rattaché avec succès à cette partie !");
+        } catch (error) {
+            console.error("Erreur lors de l'attachement du joueur :", error);
+            alert("Erreur lors de l'ajout du joueur.");
+        }
+    }
+
+    function chargerDonneesMatchSelectionne() {
+        const matchId = document.getElementById('matchSelect').value;
+        if (!matchId || !window.tousLesMatchs || !window.tousLesMatchs[matchId]) return;
+
+        const m = window.tousLesMatchs[matchId];
+        window.currentMatchDocId = matchId;
+
+        document.getElementById('competition').value = m.competition || '';
+        document.getElementById('equipe1').value = m.equipe1 || '';
+        document.getElementById('scoreEquipe1').value = m.scoreEquipe1 || '';
+        document.getElementById('equipe2').value = m.equipe2 || '';
+        document.getElementById('scoreEquipe2').value = m.scoreEquipe2 || '';
+        document.getElementById('lieu').value = m.lieu || '';
+        document.getElementById('dateMatch').value = m.date || '';
+        document.getElementById('resultat').value = m.resultat || 'Victoire';
+        document.getElementById('lienVideo').value = m.lienVideo || '';
+
+        document.getElementById('pelotesJouees').value = m.pelotesJouees || 0;
+        document.getElementById('pelotesTotales').value = m.pelotesTotales || 0;
+        document.getElementById('ptsGagnes').value = m.ptsGagnes || 0;
+        document.getElementById('ptsGagnesTotaux').value = m.ptsGagnesTotaux || 0;
+        document.getElementById('ptsPerdus').value = m.ptsPerdus || 0;
+        document.getElementById('ptsPerdusTotaux').value = m.ptsPerdusTotaux || 0;
+        document.getElementById('coupDroitGlobalPct').value = m.coupDroitGlobalPct || 100;
+
+        // Réceptions
+        const refs = ['aire', 'bote', 'boteCorrido', 'botePronto', 'erebote', 'pumpa'];
+        refs.forEach(r => {
+            let totId = (r === 'pumpa') ? 'pumpa' : r + 'Total';
+            if(document.getElementById(totId)) document.getElementById(totId).value = m[totId] || 0;
+            if(document.getElementById(r + 'Positif')) document.getElementById(r + 'Positif').value = m[r + 'Positif'] || 0;
+            if(document.getElementById(r + 'Negatif')) document.getElementById(r + 'Negatif').value = m[r + 'Negatif'] || 0;
+        });
+
+        // Frappes
+        frappesNoms.forEach(f => {
+            if(document.getElementById(f.id + 'Total')) document.getElementById(f.id + 'Total').value = m[f.id + 'Total'] || 0;
+            if(document.getElementById(f.id + 'Pos')) document.getElementById(f.id + 'Pos').value = m[f.id + 'Pos'] || 0;
+            if(document.getElementById(f.id + 'Neutre')) document.getElementById(f.id + 'Neutre').value = m[f.id + 'Neutre'] || 0;
+            if(document.getElementById(f.id + 'Neg')) document.getElementById(f.id + 'Neg').value = m[f.id + 'Neg'] || 0;
+        });
+
+        calculerTousLesTotauxEtPcts();
+    }
+
+    function calcPct(val, tot) {
+        if (!tot || tot === 0) return '0%';
+        return Math.round((val / tot) * 100) + '%';
+    }
+
+    function calculerPourcentagesGlobaux() {
+        const pJ = parseInt(document.getElementById('pelotesJouees').value) || 0;
+        const pT = parseInt(document.getElementById('pelotesTotales').value) || 0;
+        document.getElementById('pctPelotes').textContent = calcPct(pJ, pT);
+
+        const ptG = parseInt(document.getElementById('ptsGagnes').value) || 0;
+        const ptGT = parseInt(document.getElementById('ptsGagnesTotaux').value) || 0;
+        document.getElementById('pctPtsGagnes').textContent = calcPct(ptG, ptGT);
+
+        const ptP = parseInt(document.getElementById('ptsPerdus').value) || 0;
+        const ptPT = parseInt(document.getElementById('ptsPerdusTotaux').value) || 0;
+        document.getElementById('pctPtsPerdus').textContent = calcPct(ptP, ptPT);
+    }
+
+    function calculerLigneStats(prefix) {
+        calculerPourcentagesGlobaux();
+
+        const totalInput = document.getElementById(prefix === 'pumpa' ? 'pumpa' : prefix + 'Total');
+        const totalVal = totalInput ? (parseInt(totalInput.value) || 0) : 0;
+
+        let posInput = document.getElementById(prefix + 'Positif') || document.getElementById(prefix + 'Pos');
+        let neutreInput = document.getElementById(prefix + 'Neutre');
+        let negInput = document.getElementById(prefix + 'Negatif') || document.getElementById(prefix + 'Neg');
+
+        const posVal = posInput ? (parseInt(posInput.value) || 0) : 0;
+        const neutreVal = neutreInput ? (parseInt(neutreInput.value) || 0) : 0;
+        const negVal = negInput ? (parseInt(negInput.value) || 0) : 0;
+
+        const badgeTot = document.getElementById('pct_tot_' + prefix);
+        const badgePos = document.getElementById('pct_pos_' + prefix);
+        const badgeNeutre = document.getElementById('pct_neutre_' + prefix);
+        const badgeNeg = document.getElementById('pct_neg_' + prefix);
+
+        if (badgeTot) badgeTot.textContent = totalVal > 0 ? '100%' : '0%';
+        if (badgePos) badgePos.textContent = calcPct(posVal, totalVal);
+        if (badgeNeutre) badgeNeutre.textContent = calcPct(neutreVal, totalVal);
+        if (badgeNeg) badgeNeg.textContent = calcPct(negVal, totalVal);
+
+        recalculerPartsGlobalesCat();
+    }
+
+    function recalculerPartsGlobalesCat() {
+        const prefixesReceptions = ['aire', 'bote', 'boteCorrido', 'botePronto', 'erebote', 'pumpa'];
+        let sommeTotaleRec = 0;
+        let sommePositifsRec = 0;
+
+        prefixesReceptions.forEach(p => {
+            const hiddenEl = document.getElementById(p === 'pumpa' ? 'pumpa' : p + 'Total');
+            const posEl = document.getElementById(p + 'Positif');
+            if (hiddenEl) sommeTotaleRec += parseInt(hiddenEl.value) || 0;
+            if (posEl) sommePositifsRec += parseInt(posEl.value) || 0;
+        });
+
+        const blockPctRec = document.getElementById('totalBlockPct_receptions');
+        if (blockPctRec) {
+            blockPctRec.textContent = `Réussite Bloc : ${calcPct(sommePositifsRec, sommeTotaleRec)}`;
+        }
+
+        let sommeTotaleFrappes = 0;
+        let sommePositifsFrappes = 0;
+
+        frappesNoms.forEach(f => {
+            const hiddenEl = document.getElementById(f.id + 'Total');
+            const posEl = document.getElementById(f.id + 'Pos');
+            if (hiddenEl) sommeTotaleFrappes += parseInt(hiddenEl.value) || 0;
+            if (posEl) sommePositifsFrappes += parseInt(posEl.value) || 0;
+        });
+
+        const blockPctFrappes = document.getElementById('totalBlockPct_frappes');
+        if (blockPctFrappes) {
+            blockPctFrappes.textContent = `Réussite Bloc : ${calcPct(sommePositifsFrappes, sommeTotaleFrappes)}`;
+        }
+    }
+
+    function calculerTousLesTotauxEtPcts() {
+        calculerPourcentagesGlobaux();
+        const prefixesReceptions = ['aire', 'bote', 'boteCorrido', 'botePronto', 'erebote', 'pumpa'];
+        prefixesReceptions.forEach(p => calculerLigneStats(p));
+        frappesNoms.forEach(f => calculerLigneStats(f.id));
+    }
+
+    function formaterScoreSaisi(scoreStr) {
+        if (!scoreStr) return "";
+        let str = String(scoreStr).trim();
+        str = str.replace(/[\s,-]+/g, '/');
+        
+        if (!str.includes('/') && /^\d+$/.test(str)) {
+            if (str.length === 4) {
+                str = str.slice(0, 2) + '/' + str.slice(2);
+            } else if (str.length === 5) {
+                str = str.slice(0, 2) + '/' + str.slice(2, 4) + '/' + str.slice(4);
+            } else if (str.length === 6) {
+                str = str.slice(0, 2) + '/' + str.slice(2, 4) + '/' + str.slice(4, 6);
+            }
+        }
+        return str;
+    }
+
+    async function mettreAJourPartie(event) {
+        event.preventDefault();
+
+        if (!window.currentMatchDocId) {
+            alert("Veuillez sélectionner un match à modifier.");
+            return;
+        }
+
+        const matchModifie = {
+            ...window.tousLesMatchs[window.currentMatchDocId],
+            competition: document.getElementById('competition').value,
+            equipe1: document.getElementById('equipe1').value,
+            scoreEquipe1: formaterScoreSaisi(document.getElementById('scoreEquipe1').value),
+            equipe2: document.getElementById('equipe2').value,
+            scoreEquipe2: formaterScoreSaisi(document.getElementById('scoreEquipe2').value),
+            lieu: document.getElementById('lieu').value,
+            date: document.getElementById('dateMatch').value,
+            resultat: document.getElementById('resultat').value,
+            lienVideo: document.getElementById('lienVideo').value,
+
+            pelotesJouees: parseInt(document.getElementById('pelotesJouees').value) || 0,
+            pelotesTotales: parseInt(document.getElementById('pelotesTotales').value) || 0,
+            ptsGagnes: parseInt(document.getElementById('ptsGagnes').value) || 0,
+            ptsGagnesTotaux: parseInt(document.getElementById('ptsGagnesTotaux').value) || 0,
+            ptsPerdus: parseInt(document.getElementById('ptsPerdus').value) || 0,
+            ptsPerdusTotaux: parseInt(document.getElementById('ptsPerdusTotaux').value) || 0,
+            coupDroitGlobalPct: parseInt(document.getElementById('coupDroitGlobalPct').value) || 100,
+
+            aireTotal: parseInt(document.getElementById('aireTotal').value) || 0,
+            airePositif: parseInt(document.getElementById('airePositif').value) || 0,
+            aireNegatif: parseInt(document.getElementById('aireNegatif').value) || 0,
+
+            boteTotal: parseInt(document.getElementById('boteTotal').value) || 0,
+            botePositif: parseInt(document.getElementById('botePositif').value) || 0,
+            boteNegatif: parseInt(document.getElementById('boteNegatif').value) || 0,
+
+            boteCorridoTotal: parseInt(document.getElementById('boteCorridoTotal').value) || 0,
+            boteCorridoPositif: parseInt(document.getElementById('boteCorridoPositif').value) || 0,
+            boteCorridoNegatif: parseInt(document.getElementById('boteCorridoNegatif').value) || 0,
+
+            boteProntoTotal: parseInt(document.getElementById('boteProntoTotal').value) || 0,
+            boteProntoPositif: parseInt(document.getElementById('boteProntoPositif').value) || 0,
+            boteProntoNegatif: parseInt(document.getElementById('boteProntoNegatif').value) || 0,
+
+            ereboteTotal: parseInt(document.getElementById('ereboteTotal').value) || 0,
+            erebotePositif: parseInt(document.getElementById('erebotePositif').value) || 0,
+            ereboteNegatif: parseInt(document.getElementById('ereboteNegatif').value) || 0,
+
+            pumpa: parseInt(document.getElementById('pumpa').value) || 0,
+            pumpaPositif: parseInt(document.getElementById('pumpaPositif').value) || 0,
+            pumpaNegatif: parseInt(document.getElementById('pumpaNegatif').value) || 0,
+
+            frappesClassiquesTotal: parseInt(document.getElementById('frappesClassiquesTotal').value) || 0,
+            frappesClassiquesPos: parseInt(document.getElementById('frappesClassiquesPos').value) || 0,
+            frappesClassiquesNeutre: parseInt(document.getElementById('frappesClassiquesNeutre').value) || 0,
+            frappesClassiquesNeg: parseInt(document.getElementById('frappesClassiquesNeg').value) || 0,
+
+            frappesAttaqueTotal: parseInt(document.getElementById('frappesAttaqueTotal').value) || 0,
+            frappesAttaquePos: parseInt(document.getElementById('frappesAttaquePos').value) || 0,
+            frappesAttaqueNeutre: parseInt(document.getElementById('frappesAttaqueNeutre').value) || 0,
+            frappesAttaqueNeg: parseInt(document.getElementById('frappesAttaqueNeg').value) || 0,
+
+            picadaTotal: parseInt(document.getElementById('picadaTotal').value) || 0,
+            picadaPos: parseInt(document.getElementById('picadaPos').value) || 0,
+            picadaNeutre: parseInt(document.getElementById('picadaNeutre').value) || 0,
+            picadaNeg: parseInt(document.getElementById('picadaNeg').value) || 0,
+
+            dejadaTotal: parseInt(document.getElementById('dejadaTotal').value) || 0,
+            dejadaPos: parseInt(document.getElementById('dejadaPos').value) || 0,
+            dejadaNeutre: parseInt(document.getElementById('dejadaNeutre').value) || 0,
+            dejadaNeg: parseInt(document.getElementById('dejadaNeg').value) || 0,
+
+            txikTxakTotal: parseInt(document.getElementById('txikTxakTotal').value) || 0,
+            txikTxakPos: parseInt(document.getElementById('txikTxakPos').value) || 0,
+            txikTxakNeutre: parseInt(document.getElementById('txikTxakNeutre').value) || 0,
+            txikTxakNeg: parseInt(document.getElementById('txikTxakNeg').value) || 0,
+
+            txulaTotal: parseInt(document.getElementById('txulaTotal').value) || 0,
+            txulaPos: parseInt(document.getElementById('txulaPos').value) || 0,
+            txulaNeutre: parseInt(document.getElementById('txulaNeutre').value) || 0,
+            txulaNeg: parseInt(document.getElementById('txulaNeg').value) || 0,
+
+            cortadaTotal: parseInt(document.getElementById('cortadaTotal').value) || 0,
+            cortadaPos: parseInt(document.getElementById('cortadaPos').value) || 0,
+            cortadaNeutre: parseInt(document.getElementById('cortadaNeutre').value) || 0,
+            cortadaNeg: parseInt(document.getElementById('cortadaNeg').value) || 0,
+
+            gaucheGaucheTotal: parseInt(document.getElementById('gaucheGaucheTotal').value) || 0,
+            gaucheGauchePos: parseInt(document.getElementById('gaucheGauchePos').value) || 0,
+            gaucheGaucheNeutre: parseInt(document.getElementById('gaucheGaucheNeutre').value) || 0,
+            gaucheGaucheNeg: parseInt(document.getElementById('gaucheGaucheNeg').value) || 0,
+
+            gaucheDroiteTotal: parseInt(document.getElementById('gaucheDroiteTotal').value) || 0,
+            gaucheDroitePos: parseInt(document.getElementById('gaucheDroitePos').value) || 0,
+            gaucheDroiteNeutre: parseInt(document.getElementById('gaucheDroiteNeutre').value) || 0,
+            gaucheDroiteNeg: parseInt(document.getElementById('gaucheDroiteNeg').value) || 0,
+
+            deuxMursTotal: parseInt(document.getElementById('deuxMursTotal').value) || 0,
+            deuxMursPos: parseInt(document.getElementById('deuxMursPos').value) || 0,
+            deuxMursNeutre: parseInt(document.getElementById('deuxMursNeutre').value) || 0,
+            deuxMursNeg: parseInt(document.getElementById('deuxMursNeg').value) || 0,
+        };
+
+        try {
+            await window.setDocCloud(window.docCloud(window.dbCloud, "matchs", window.currentMatchDocId), matchModifie);
+            alert("Partie modifiée avec succès sur le Cloud !");
+            window.location.href = `statjoueur.html?id=${matchModifie.joueurId || ''}`;
+        } catch (error) {
+            console.error("Erreur mise à jour Firebase : ", error);
+            alert("Erreur lors de la mise à jour sur le Cloud.");
+        }
+    }
+
+    async function supprimerPartie() {
+        if (!window.currentMatchDocId) {
+            alert("Veuillez d'abord sélectionner un match à supprimer.");
+            return;
+        }
+
+        const confirmation = confirm("Êtes-vous sûr de vouloir supprimer définitivement cette partie de la base de données ?");
+        if (!confirmation) return;
+
+        try {
+            await window.deleteDocCloud(window.docCloud(window.dbCloud, "matchs", window.currentMatchDocId));
+            alert("Partie supprimée avec succès !");
+            window.location.href = "statjoueur.html";
+        } catch (error) {
+            console.error("Erreur lors de la suppression : ", error);
+            alert("Erreur lors de la suppression du match.");
+        }
+    }
+</script>
+
+</body>
+</html>

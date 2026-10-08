@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Fiche Joueur & Suivi</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .profile-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 18px 15px; text-align: center; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .profile-photo { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; object-position: center; display: block; margin: 0 auto 10px auto; border: 2px solid var(--accent-color); background: rgba(0,0,0,0.2); }
+        .profile-name { font-size: 1.15rem; font-weight: 800; margin-bottom: 2px; color: var(--container-text); }
+        .profile-club { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+        
+        .profile-details-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin: 10px 0 10px 0;
+            padding: 8px 4px;
+            background: rgba(15, 76, 92, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+        }
+        .detail-item { display: flex; flex-direction: column; align-items: center; }
+        .detail-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .detail-value { font-size: 0.75rem; color: var(--container-text); font-weight: 700; margin-top: 2px; }
+
+        .badge { background: var(--card-hover-bg); border: 1px solid var(--card-border); color: var(--accent-color); padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+
+        .tabs-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
+        .tab-btn { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 10px; padding: 10px 8px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.1); text-decoration: none; display: flex; align-items: center; justify-content: center; }
+        .tab-btn.full-width { grid-column: span 2; }
+        .tab-btn.active { background: var(--btn-gradient); border-color: var(--accent-color); color: var(--container-text); font-weight: bold; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+
+        .sub-tabs-container { display: none; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 12px; }
+        .sub-tabs-container.active { display: grid; }
+        .sub-tab-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px 4px; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.2s; }
+        .sub-tab-btn.active { background: var(--btn-gradient); border-color: var(--accent-color); color: var(--container-text); font-weight: bold; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+        .stat-box { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; text-align: center; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .stat-num { font-size: 1.5rem; font-weight: 900; color: #34d399; margin-bottom: 2px; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); }
+
+        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.25s ease; position: relative; }
+        .card-item:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
+        .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .item-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        
+        .edit-evo-btn { background: rgba(15, 76, 92, 0.4); border: 1px solid var(--card-border); color: var(--accent-color); font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .edit-evo-btn:hover { background: var(--accent-color); color: var(--container-text); }
+        .evo-textarea { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 6px; color: var(--container-text); font-size: 0.75rem; margin-top: 6px; box-sizing: border-box; font-family: inherit; resize: vertical; height: 50px; }
+        .save-evo-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; margin-top: 4px; }
+
+        .calendar-container { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; color: var(--container-text); font-size: 0.9rem; }
+        .cal-nav-btn { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--card-border); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .calendar-day-name { font-size: 0.65rem; color: var(--text-muted); font-weight: bold; padding-bottom: 4px; }
+        .calendar-day { background: rgba(15, 76, 92, 0.1); border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 2px; font-size: 0.75rem; color: var(--container-text); cursor: pointer; min-height: 32px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; transition: all 0.2s; }
+        .calendar-day:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
+        .calendar-day.empty { background: transparent; border: none; cursor: default; }
+        .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.15); font-weight: bold; color: var(--accent-color); }
+        .calendar-day.selected { border: 2px solid #ffffff; }
+        .match-dot { width: 4px; height: 4px; background-color: var(--accent-color); border-radius: 50%; margin-top: 2px; }
+
+        .match-preview-box { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--accent-color); border-radius: 12px; padding: 10px; margin-bottom: 10px; font-size: 0.78rem; display: none; }
+        .match-preview-box.active { display: block; }
+
+        .coach-form { background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+        .coach-input, .coach-textarea { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; color: var(--container-text); font-size: 0.78rem; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
+        .coach-textarea { resize: vertical; height: 70px; }
+        .coach-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; width: 100%; }
+
+        .convocation-card { background: rgba(15, 76, 92, 0.25); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; margin-top: 8px; }
+        .convocation-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .btn-present { background: #059669; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-absent { background: #e11d48; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-modifier { background: rgba(15, 76, 92, 0.6); border: 1px solid var(--accent-color); color: var(--accent-color); padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; cursor: pointer; margin-left: 8px; }
+        .btn-modifier:hover { background: var(--accent-color); color: var(--container-text); }
+        .motif-box { display: none; margin-top: 6px; }
+
+        .prep-app-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: rgba(15, 76, 92, 0.25); border: 1px solid var(--accent-color); }
+        .prep-app-logo { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; border: 1px solid var(--accent-color); }
+        .prep-app-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: bold; text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+        .prep-app-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="joueurs.html" class="home-btn" title="Retour aux joueurs">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div id="playerProfileContainer">
+        <div style="text-align: center; color: var(--text-muted); padding: 20px;">Chargement du profil...</div>
+    </div>
+
+    <div class="tabs-nav" id="tabsNavContainer">
+        <div class="tab-btn full-width active" id="tabGeneralBtn" onclick="switchTab('stats', this)">Général</div>
+        <div class="tab-btn" id="tabCalendrierBtn" onclick="switchTab('calendrier', this)">Calendrier & Mes Convocations</div>
+        <div class="tab-btn" id="tabEntrainementBtn" onclick="switchTab('entrainement', this)">Entraînement</div>
+        <a href="#" id="statLink" class="tab-btn">Statistiques</a>
+        <a href="#" id="playlistLink" class="tab-btn" onclick="verifierAccesPlaylistFirebase(event)">Playlist</a>
+    </div>
+
+    <div class="sub-tabs-container" id="subTabsEntrainement">
+        <div class="sub-tab-btn active" onclick="switchSubEntrainement('prepa', this)">Prépa physique</div>
+        <div class="sub-tab-btn" onclick="switchSubEntrainement('evolution', this)">Évolution</div>
+        <div class="sub-tab-btn" onclick="switchSubEntrainement('coach', this)">Notes coachs</div>
+    </div>
+
+    <div id="tab-stats" class="tab-content active">
+        <div class="section-title">Statistiques Globales</div>
+        <div class="stats-grid" id="statsGridContainer"></div>
+    </div>
+
+    <div id="tab-calendrier" class="tab-content">
+        <div class="section-title">Calendrier & Mes Convocations</div>
+        
+        <div class="coach-form" style="margin-bottom: 12px;">
+            <div style="font-size: 0.78rem; font-weight: bold; color: var(--container-text); margin-bottom: 8px;">➕ Ajouter un événement personnel</div>
+            <form id="formAjoutEvenement" onsubmit="ajouterEvenementPersonnel(event)">
+                <input type="text" id="inputTitreEvenement" class="coach-input" placeholder="Titre (ex: Kiné, Entraînement perso...)" required>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                    <div>
+                        <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Date de début</label>
+                        <input type="date" id="inputDateDebut" class="coach-input" required>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Date de fin (optionnel)</label>
+                        <input type="date" id="inputDateFin" class="coach-input">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div>
+                        <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Heure de début (optionnel)</label>
+                        <input type="time" id="inputHeureDebut" class="coach-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Heure de fin (optionnel)</label>
+                        <input type="time" id="inputHeureFin" class="coach-input">
+                    </div>
+                </div>
+
+                <button type="submit" class="coach-btn" style="margin-top: 4px;">Enregistrer dans mon calendrier</button>
+            </form>
+        </div>
+
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="cal-nav-btn" onclick="changerMois(-1)">◀</button>
+                <span id="calendarMonthYearTitle">Mois Année</span>
+                <button class="cal-nav-btn" onclick="changerMois(1)">▶</button>
+            </div>
+            
+            <div id="matchPreviewBox" class="match-preview-box">
+                <div id="matchPreviewContent" style="color: var(--container-text); font-weight: 600;">Cliquez sur un jour pour voir les détails.</div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
+
+    <div id="tab-entrainement" class="tab-content">
+        <div id="sub-prepa" class="sub-entrainement-content active">
+            <div class="card-item prep-app-card">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="logojulien.png" alt="Logo Julien Prépa" class="prep-app-logo" onerror="this.src='logoce.png'">
+                    <div>
+                        <div style="font-weight: bold; font-size: 0.82rem; color: var(--container-text);">Application Prépa Physique (Hexfit)</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Accéder au programme et suivi externe</div>
+                    </div>
+                </div>
+                <a href="https://app.hexfit.com/#/signin" target="_blank" class="prep-app-btn">Ouvrir ↗</a>
+            </div>
+
+            <div id="sectionAjoutPrepa">
+                <div class="section-title">Ajouter un suivi / annotation physique</div>
+                <div class="coach-form">
+                    <input type="text" id="prepaNameInput" class="coach-input" placeholder="Votre nom / Rôle (ex: Prépa Physique Julien)">
+                    <textarea id="prepaNoteInput" class="coach-textarea" placeholder="Notez l'état de forme ou le programme de la semaine..."></textarea>
+                    <button type="button" class="coach-btn" onclick="ajouterAnnotationPrepa()">Ajouter l'annotation physique</button>
+                </div>
+            </div>
+
+            <div class="section-title">Historique & Programme Physique</div>
+            <div id="prepaNotesListContainer"></div>
+        </div>
+
+        <div id="sub-evolution" class="sub-entrainement-content" style="display: none;">
+            <div class="section-title">Évolution physique</div>
+            <div id="evolutionContainer"></div>
+        </div>
+
+        <div id="sub-coach" class="sub-entrainement-content" style="display: none;">
+            <div class="section-title">Dernière évaluation du staff</div>
+            <div class="card-item" id="staffEvalDisplayCard">
+                <div class="item-title"><span>Avis du Staff / Entraîneur</span></div>
+                <div class="item-sub" id="staffEvalContent">Aucune évaluation enregistrée par le staff pour le moment.</div>
+            </div>
+
+            <div id="sectionAjoutCoach">
+                <div class="section-title">Ajouter une annotation</div>
+                <div class="coach-form">
+                    <input type="text" id="coachNameInput" class="coach-input" placeholder="Votre nom / Rôle (ex: Coach Pierre)">
+                    <textarea id="coachNoteInput" class="coach-textarea" placeholder="Écrivez votre annotation ici..."></textarea>
+                    <button type="button" class="coach-btn" onclick="ajouterAnnotation()">Ajouter l'annotation</button>
+                </div>
+            </div>
+
+            <div class="section-title">Historique des annotations</div>
+            <div id="annotationsListContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script src="joueurs-data.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerId = urlParams.get('id') || "basque";
+
+    const userRole = urlParams.get('role') || localStorage.getItem('cesta_user_role') || 'joueur';
+    const isCoach = (userRole === 'coach' || userRole === 'admin' || userRole === 'entraineur');
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!isCoach) {
+            const sectionAjoutCoach = document.getElementById('sectionAjoutCoach');
+            if (sectionAjoutCoach) sectionAjoutCoach.style.display = 'none';
+
+            const sectionAjoutPrepa = document.getElementById('sectionAjoutPrepa');
+            if (sectionAjoutPrepa) sectionAjoutPrepa.style.display = 'none';
+        }
+    });
+
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
+    }
+
+    window.switchTab = function(tabName, element) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if(!b.hasAttribute('href')) b.classList.remove('active');
+        });
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        element.classList.add('active');
+
+        const subNav = document.getElementById('subTabsEntrainement');
+        if (tabName === 'entrainement') {
+            subNav.classList.add('active');
+        } else {
+            subNav.classList.remove('active');
+        }
+    }
+
+    window.switchSubEntrainement = function(subName, element) {
+        document.querySelectorAll('.sub-entrainement-content').forEach(c => c.style.display = 'none');
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`sub-${subName}`).style.display = 'block';
+        element.classList.add('active');
+    }
+
+    function calculerAge(dateNaissanceStr) {
+        if (!dateNaissanceStr) return "N/C";
+        const parties = dateNaissanceStr.split('/');
+        if (parties.length !== 3) return "N/C";
+        const naissance = new Date(parties[2], parties[1] - 1, parties[0]);
+        const aujourdHui = new Date();
+        let age = aujourdHui.getFullYear() - naissance.getFullYear();
+        const m = aujourdHui.getMonth() - naissance.getMonth();
+        if (m < 0 || (m === 0 && aujourdHui.getDate() < naissance.getDate())) age--;
+        return age + " ans";
+    }
+
+    let joueur = null;
+
+    window.verifierAccesPlaylistFirebase = function(event) {
+        event.preventDefault();
+
+        const currentUserEmail = localStorage.getItem('cesta_user_email') || "";
+        const currentUserId = localStorage.getItem('cesta_user_id') || "";
+        const userRole = localStorage.getItem('cesta_user_role') || 'joueur';
+        const isAdminOuCoach = (userRole === 'coach' || userRole === 'admin' || userRole === 'entraineur');
+
+        const targetId = joueur ? joueur.id : playerId;
+
+        if (isAdminOuCoach) {
+            window.location.href = `playlist.html?id=${targetId}`;
+            return;
+        }
+
+        const estSonPropreProfil = 
+            (currentUserId && currentUserId === targetId) || 
+            (currentUserEmail && currentUserEmail.toLowerCase().includes(targetId.toLowerCase()));
+
+        if (estSonPropreProfil) {
+            window.location.href = `playlist.html?id=${targetId}`;
+        } else {
+            alert(`🔒 Accès restreint : Vous ne pouvez voir que votre propre playlist.`);
+        }
+    };
+
+    let currentDate = new Date();
+    let selectedDateStr = new Date().toISOString().split('T')[0];
+    let calendrierCloudEvents = [];
+
+    async function chargerCalendrierFirebase() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "entrainements"));
+            calendrierCloudEvents = [];
+
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                calendrierCloudEvents.push({ id: docSnap.id, ...data });
+            });
+
+            renderCalendar();
+            selectCalendarDate(selectedDateStr);
+        } catch (error) {
+            console.error("Erreur lors du chargement des entraînements Firebase :", error);
+        }
+    }
+
+    window.ajouterEvenementPersonnel = async function(event) {
+        event.preventDefault();
+        
+        const titre = document.getElementById('inputTitreEvenement').value.trim();
+        const startDate = document.getElementById('inputDateDebut').value;
+        const endDateInput = document.getElementById('inputDateFin').value;
+        const endDate = endDateInput ? endDateInput : startDate;
+        
+        const heureDebut = document.getElementById('inputHeureDebut').value;
+        const heureFin = document.getElementById('inputHeureFin').value;
+
+        if (!titre || !startDate) {
+            alert("Veuillez remplir le titre et la date de début.");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "entrainements"), {
+                titre: titre,
+                startDate: startDate,
+                endDate: endDate,
+                heureDebut: heureDebut || "",
+                heureFin: heureFin || "",
+                type: "info", 
+                createur: joueur ? `${joueur.prenom} ${joueur.nom}` : playerId
+            });
+
+            alert("Événement ajouté avec succès comme information !");
+            document.getElementById('formAjoutEvenement').reset();
+            await chargerCalendrierFirebase();
+        } catch (e) {
+            console.error("Erreur lors de l'ajout de l'événement :", e);
+            alert("Erreur lors de l'enregistrement.");
+        }
+    }
+
+    function estDansLaPlage(dateStr, event) {
+        const start = event.startDate || event.date;
+        const end = event.endDate || start;
+        if (!start) return false;
+        return dateStr >= start && dateStr <= end;
+    }
+
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const moisNoms = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        document.getElementById('calendarMonthYearTitle').innerText = `${moisNoms[month]} ${year}`;
+
+        const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = `
+            <div class="calendar-day-name">Lun</div><div class="calendar-day-name">Mar</div><div class="calendar-day-name">Mer</div><div class="calendar-day-name">Jeu</div><div class="calendar-day-name">Ven</div><div class="calendar-day-name">Sam</div><div class="calendar-day-name">Dim</div>
+        `;
+
+        for (let i = 0; i < firstDayIndex; i++) {
+            grid.innerHTML += `<div class="calendar-day empty"></div>`;
+        }
+
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const hasMatch = calendrierCloudEvents.some(e => estDansLaPlage(dateStr, e));
+            let matchClass = hasMatch ? 'has-match' : '';
+            if (dateStr === selectedDateStr) matchClass += ' selected';
+
+            grid.innerHTML += `
+                <div class="calendar-day ${matchClass}" onclick="selectCalendarDate('${dateStr}')">
+                    ${day} ${hasMatch ? '<div class="match-dot"></div>' : ''}
+                </div>
+            `;
+        }
+    }
+
+    window.changerMois = function(direction) {
+        currentDate.setMonth(currentDate.getMonth() + direction);
+        renderCalendar();
+    }
+
+    window.selectCalendarDate = function(dateStr) {
+        selectedDateStr = dateStr;
+        const parts = dateStr.split('-');
+        renderCalendar();
+
+        const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
+        const previewBox = document.getElementById('matchPreviewBox');
+        const previewContent = document.getElementById('matchPreviewContent');
+
+        const activePlayerId = joueur ? joueur.id : playerId;
+
+        if (matchingEvents.length > 0) {
+            let htmlText = `📅 <strong>Sessions du ${parts[2]}/${parts[1]}/${parts[0]} :</strong><br>`;
+            
+            matchingEvents.forEach(ev => {
+                const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut}${ev.heureFin ? ' - ' + ev.heureFin : ''}` : '';
+                const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
+                
+                if (ev.type === "info") {
+                    htmlText += `
+                        <div class="convocation-card">
+                            <div style="font-weight:bold; font-size:0.82rem; color:var(--container-text);">${ev.titre || ev.title}</div>
+                            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${heureDebut} ${lieu ? '| ' + lieu : ''}</div>
+                            <div style="font-size: 0.7rem; color: var(--accent-color); margin-top: 6px;">ℹ️ Information ${ev.createur ? '(Ajouté par ' + ev.createur + ')' : ''}</div>
+                        </div>
+                    `;
+                } else {
+                    const convoques = ev.convoques || [];
+                    
+                    const conv = convoques.find(c => 
+                        String(c.id).toLowerCase() === String(activePlayerId).toLowerCase() ||
+                        (joueur && c.nom && c.nom.toLowerCase().includes(joueur.nom.toLowerCase()))
+                    );
+                    
+                    const estConvoque = conv !== undefined;
+                    let actionsHtml = "";
+
+                    if (!estConvoque) {
+                        actionsHtml = `
+                            <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px;">
+                                <span style="font-size:0.75rem; color: var(--text-muted);">🚫 Vous n'êtes pas convoqué pour cet événement.</span>
+                            </div>
+                        `;
+                    } else {
+                        const statutActuel = conv.statut ? String(conv.statut).toLowerCase().trim() : "";
+                        let dejaRepondu = (statutActuel === 'present' || statutActuel === 'absent');
+                        
+                        let statutTexte = "En attente de réponse";
+                        if (statutActuel === 'present') statutTexte = "✅ Présent";
+                        else if (statutActuel === 'absent') statutTexte = `❌ Absent (${conv.motif || 'Aucun motif'})`;
+
+                        if (dejaRepondu) {
+                            actionsHtml = `
+                                <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:0.75rem; color:var(--accent-color);">Mon statut : <strong>${statutTexte}</strong></span>
+                                    <button class="btn-modifier" onclick="basculerModeModification('${ev.id}')">Modifier</button>
+                                </div>
+                                <div id="edit-box-${ev.id}" style="display:none; margin-top:8px;">
+                                    <div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:4px;">Changer ma réponse :</div>
+                                    <div class="convocation-actions">
+                                        <button class="btn-present" onclick="repondreConvocation('${ev.id}', 'present')">Présent</button>
+                                        <button class="btn-absent" onclick="afficherChampMotif('${ev.id}')">Absent</button>
+                                    </div>
+                                    <div id="motif-box-${ev.id}" class="motif-box">
+                                        <input type="text" id="input-motif-${ev.id}" class="coach-input" placeholder="Précisez le motif de l'absence..." style="margin-bottom:4px; font-size:0.7rem;">
+                                        <button class="btn-absent" onclick="validerAbsence('${ev.id}')" style="padding:4px 8px; font-size:0.65rem; width:100%;">Valider l'absence</button>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            actionsHtml = `
+                                <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px;">
+                                    <span style="font-size:0.68rem; color:var(--accent-color); display:block; margin-bottom:4px;">Mon statut : <strong>En attente de réponse</strong></span>
+                                    <div class="convocation-actions">
+                                        <button class="btn-present" onclick="repondreConvocation('${ev.id}', 'present')">Présent</button>
+                                        <button class="btn-absent" onclick="afficherChampMotif('${ev.id}')">Absent</button>
+                                    </div>
+                                    <div id="motif-box-${ev.id}" class="motif-box">
+                                        <input type="text" id="input-motif-${ev.id}" class="coach-input" placeholder="Précisez le motif de l'absence..." style="margin-bottom:4px; font-size:0.7rem;">
+                                        <button class="btn-absent" onclick="validerAbsence('${ev.id}')" style="padding:4px 8px; font-size:0.65rem; width:100%;">Valider l'absence</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    htmlText += `
+                        <div class="convocation-card">
+                            <div style="font-weight:bold; font-size:0.82rem; color:var(--container-text);">${ev.titre || ev.title}</div>
+                            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${heureDebut} ${lieu ? '| ' + lieu : ''}</div>
+                            ${actionsHtml}
+                        </div>
+                    `;
+                }
+            });
+            previewContent.innerHTML = htmlText;
+            previewBox.classList.add('active');
+        } else {
+            previewContent.innerHTML = `📅 Aucun événement prévu le ${parts[2]}/${parts[1]}/${parts[0]}.`;
+            previewBox.classList.add('active');
+        }
+    }
+
+    window.basculerModeModification = function(eventId) {
+        const editBox = document.getElementById(`edit-box-${eventId}`);
+        if (editBox) {
+            editBox.style.display = editBox.style.display === 'block' ? 'none' : 'block';
+        }
+    }
+
+    window.afficherChampMotif = function(eventId) {
+        const box = document.getElementById(`motif-box-${eventId}`);
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.repondreConvocation = async function(eventId, statut, motif = "") {
+        try {
+            const evRef = doc(db, "entrainements", eventId);
+            const evObj = calendrierCloudEvents.find(e => e.id === eventId);
+            if (!evObj) return;
+
+            const activePlayerId = joueur ? joueur.id : playerId;
+            let convoques = evObj.convoques || [];
+            const index = convoques.findIndex(c => 
+                String(c.id).toLowerCase() === String(activePlayerId).toLowerCase() ||
+                (joueur && c.nom && c.nom.toLowerCase().includes(joueur.nom.toLowerCase()))
+            );
+
+            const joueurInfo = {
+                id: activePlayerId,
+                nom: joueur ? `${joueur.prenom} ${joueur.nom}` : activePlayerId,
+                statut: statut,
+                motif: motif
+            };
+
+            if (index >= 0) {
+                convoques[index] = joueurInfo;
+            } else {
+                convoques.push(joueurInfo);
+            }
+
+            await updateDoc(evRef, { convoques: convoques });
+            alert("Réponse enregistrée avec succès !");
+            await chargerCalendrierFirebase();
+            selectCalendarDate(selectedDateStr);
+        } catch (e) {
+            console.error("Erreur lors de la mise à jour de la réponse :", e);
+            alert("Erreur lors de la mise à jour.");
+        }
+    }
+
+    window.validerAbsence = function(eventId) {
+        const motifInput = document.getElementById(`input-motif-${eventId}`);
+        const motif = motifInput ? motifInput.value.trim() : "Non spécifié";
+        if (!motif) {
+            alert("Veuillez indiquer un motif.");
+            return;
+        }
+        repondreConvocation(eventId, 'absent', motif);
+    }
+
+    const evolutionStorageKey = () => `cesta_evolution_joueur_${joueur ? joueur.id : playerId}`;
+    function chargerEvolution() {
+        let evoData = JSON.parse(localStorage.getItem(evolutionStorageKey())) || {
+            poidsText: "📈 Poids stable • Bonne composition corporelle sur le dernier trimestre.",
+            vmaText: "⚡ Amélioration de la détente verticale et des appuis latéraux (+4%)."
+        };
+        
+        const btnModifierHtml = isCoach ? '<button class="edit-evo-btn" onclick="activerEditionEvo(\'poids\')">Modifier</button>' : '';
+        const btnModifierVmaHtml = isCoach ? '<button class="edit-evo-btn" onclick="activerEditionEvo(\'vma\')">Modifier</button>' : '';
+
+        document.getElementById('evolutionContainer').innerHTML = `
+            <div class="card-item">
+                <div class="item-title"><span>Suivi du Poids et Masse Grasse</span>${btnModifierHtml}</div>
+                <div class="item-sub" id="evo-poids-text">${evoData.poidsText}</div>
+            </div>
+            <div class="card-item">
+                <div class="item-title"><span>Tests d'explosivité / VMA</span>${btnModifierVmaHtml}</div>
+                <div class="item-sub" id="evo-vma-text">${evoData.vmaText}</div>
+            </div>
+        `;
+    }
+
+    window.activerEditionEvo = function(type) {
+        if (!isCoach) return;
+        const textElement = document.getElementById(`evo-${type}-text`);
+        textElement.innerHTML = `
+            <textarea class="evo-textarea" id="textarea-${type}">${textElement.innerText}</textarea>
+            <button class="save-evo-btn" onclick="sauvegarderEvolution('${type}')">Enregistrer</button>
+        `;
+    }
+
+    window.sauvegarderEvolution = function(type) {
+        if (!isCoach) return;
+        let evoData = JSON.parse(localStorage.getItem(evolutionStorageKey())) || {};
+        evoData[type === 'poids' ? 'poidsText' : 'vmaText'] = document.getElementById(`textarea-${type}`).value.trim();
+        localStorage.setItem(evolutionStorageKey(), JSON.stringify(evoData));
+        chargerEvolution();
+    }
+
+    const prepaStorageKey = () => `cesta_prepa_joueur_${joueur ? joueur.id : playerId}`;
+    function chargerNotesPrepa() {
+        let notes = JSON.parse(localStorage.getItem(prepaStorageKey())) || [{ date: "24/09/2026", auteur: "Prépa Julien", texte: "🟢 État de forme optimal." }];
+        const container = document.getElementById('prepaNotesListContainer');
+        container.innerHTML = "";
+        notes.forEach(note => {
+            container.innerHTML += `<div class="card-item"><div class="item-title">Suivi du ${note.date} - ${note.auteur}</div><div class="item-sub">"${note.texte}"</div></div>`;
+        });
+    }
+
+    window.ajouterAnnotationPrepa = function() {
+        if (!isCoach) return;
+        const auteur = document.getElementById('prepaNameInput').value.trim();
+        const texte = document.getElementById('prepaNoteInput').value.trim();
+        if (!auteur || !texte) return alert("Remplissez tous les champs.");
+        let notes = JSON.parse(localStorage.getItem(prepaStorageKey())) || [];
+        notes.unshift({ date: new Date().toLocaleDateString('fr-FR'), auteur, texte });
+        localStorage.setItem(prepaStorageKey(), JSON.stringify(notes));
+        document.getElementById('prepaNameInput').value = "";
+        document.getElementById('prepaNoteInput').value = "";
+        chargerNotesPrepa();
+    }
+
+    const notesStorageKey = () => `cesta_notes_joueur_${joueur ? joueur.id : playerId}`;
+    function chargerNotes() {
+        let notes = JSON.parse(localStorage.getItem(notesStorageKey())) || [{ date: "12/05/2026", auteur: "Coach Pierre", texte: "Très bon investissement." }];
+        const container = document.getElementById('annotationsListContainer');
+        container.innerHTML = "";
+        notes.forEach(note => {
+            container.innerHTML += `<div class="card-item"><div class="item-title">Note du ${note.date} - ${note.auteur}</div><div class="item-sub">"${note.texte}"</div></div>`;
+        });
+    }
+
+    window.ajouterAnnotation = function() {
+        if (!isCoach) return;
+        const auteur = document.getElementById('coachNameInput').value.trim();
+        const texte = document.getElementById('coachNoteInput').value.trim();
+        if (!auteur || !texte) return alert("Remplissez tous les champs.");
+        let notes = JSON.parse(localStorage.getItem(notesStorageKey())) || [];
+        notes.unshift({ date: new Date().toLocaleDateString('fr-FR'), auteur, texte });
+        localStorage.setItem(notesStorageKey(), JSON.stringify(notes));
+        document.getElementById('coachNameInput').value = "";
+        document.getElementById('coachNoteInput').value = "";
+        chargerNotes();
+    }
+
+    function parseScoreValue(val) {
+        if (typeof val === 'number') return val;
+        if (!val) return 0;
+        const str = String(val).trim();
+        if (str.includes('/')) {
+            const parts = str.split('/').map(n => Number(n.trim()) || 0);
+            return parts[parts.length - 1];
+        }
+        return Number(str) || 0;
+    }
+
+    async function initialiserPageJoueur() {
+        try {
+            const docRef = doc(db, "joueurs", playerId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                joueur = { id: docSnap.id, ...docSnap.data() };
+            } else {
+                const joueursSnap = await getDocs(collection(db, "joueurs"));
+                let joueurTrouve = null;
+                
+                joueursSnap.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id.toLowerCase();
+                    const paramId = playerId.toLowerCase();
+                    const nomJoueur = (data.nom || "").toLowerCase();
+                    const prenomJoueur = (data.prenom || "").toLowerCase();
+
+                    if (docId === paramId || nomJoueur.includes(paramId) || prenomJoueur.includes(paramId)) {
+                        joueurTrouve = { id: docSnap.id, ...data };
+                    }
+                });
+
+                if (joueurTrouve) {
+                    joueur = joueurTrouve;
+                } else if (typeof joueursData !== 'undefined') {
+                    joueur = joueursData.find(j => String(j.id).toLowerCase() === String(playerId).toLowerCase());
+                }
+            }
+
+            if (!joueur) {
+                joueur = {
+                    id: playerId, prenom: "Joueur", nom: "Inconnu", club: "N/C", dateNaissance: "N/C", taille: "N/C", poids: "N/C", specialite: "N/C", photo: "logoce.png"
+                };
+            }
+
+            document.getElementById('statLink').href = `statjoueur.html?id=${joueur.id}`;
+
+            // =========================================================================
+            // MODIFICATION APPORTÉE ICI :
+            // On supprime la restriction qui masquait les onglets pour les joueurs.
+            // Désormais, quel que soit le rôle connecté, les onglets complets s'affichent.
+            // =========================================================================
+            const btnGeneral = document.getElementById('tabGeneralBtn');
+            const btnCalendrier = document.getElementById('tabCalendrierBtn');
+            const btnEntrainement = document.getElementById('tabEntrainementBtn');
+            const btnPlaylist = document.getElementById('playlistLink');
+            const subNav = document.getElementById('subTabsEntrainement');
+
+            if (btnGeneral) btnGeneral.style.display = 'flex';
+            if (btnCalendrier) btnCalendrier.style.display = 'flex';
+            if (btnEntrainement) btnEntrainement.style.display = 'flex';
+            if (btnPlaylist) btnPlaylist.style.display = 'flex';
+            if (subNav) subNav.style.display = 'grid';
+            
+            const statLink = document.getElementById('statLink');
+            if (statLink) statLink.classList.remove('full-width');
+            // =========================================================================
+
+            let matchsCloud = [];
+            const matchsSnap = await getDocs(collection(db, "matchs"));
+            matchsSnap.forEach((docSnap) => {
+                matchsCloud.push({ id: docSnap.id, ...docSnap.data() });
+            });
+
+            let totalMatches = 0, victoires = 0, defaites = 0;
+            
+            if (Array.isArray(matchsCloud) && matchsCloud.length > 0) {
+                matchsCloud.forEach(match => {
+                    const nomCherche = (joueur.nom || "").toLowerCase().trim();
+                    const prenomCherche = (joueur.prenom || "").toLowerCase().trim();
+                    const idCherche = String(joueur.id || "").toLowerCase().trim();
+
+                    const equipe1Texte = JSON.stringify(match.equipe1 || "").toLowerCase();
+                    const equipe2Texte = JSON.stringify(match.equipe2 || "").toLowerCase();
+
+                    const isInTeam1 = (nomCherche && equipe1Texte.includes(nomCherche)) || 
+                                      (prenomCherche && equipe1Texte.includes(prenomCherche)) ||
+                                      (idCherche && equipe1Texte.includes(idCherche));
+
+                    const isInTeam2 = (nomCherche && equipe2Texte.includes(nomCherche)) || 
+                                      (prenomCherche && equipe2Texte.includes(prenomCherche)) ||
+                                      (idCherche && equipe2Texte.includes(idCherche));
+
+                    if (isInTeam1 || isInTeam2) {
+                        totalMatches++;
+
+                        const raw1 = match.equipe1Score ?? match.score1 ?? match.scoreEquipe1 ?? 0;
+                        const raw2 = match.equipe2Score ?? match.score2 ?? match.scoreEquipe2 ?? 0;
+
+                        const score1 = parseScoreValue(raw1);
+                        const score2 = parseScoreValue(raw2);
+
+                        let team1Won = score1 > score2;
+                        let playerWon = (isInTeam1 && team1Won) || (isInTeam2 && !team1Won);
+
+                        if (playerWon) {
+                            victoires++;
+                        } else {
+                            defaites++;
+                        }
+                    }
+                });
+            }
+            
+            const tauxVictoire = totalMatches > 0 ? Math.round((victoires / totalMatches) * 100) : 0;
+
+            document.getElementById('playerProfileContainer').innerHTML = `
+                <div class="profile-card">
+                    <img src="${joueur.photo || 'logoce.png'}" alt="${joueur.nom}" class="profile-photo" onerror="this.src='logoce.png'">
+                    <div class="profile-name">${joueur.prenom || ''} ${joueur.nom || ''}</div>
+                    <div class="profile-club">${joueur.club || ''}</div>
+                    <div class="profile-details-grid">
+                        <div class="detail-item"><span class="detail-label">Naissance</span><span class="detail-value">${joueur.dateNaissance || "N/C"}</span></div>
+                        <div class="detail-item"><span class="detail-label">Âge</span><span class="detail-value">${calculerAge(joueur.dateNaissance)}</span></div>
+                        <div class="detail-item"><span class="detail-label">Taille</span><span class="detail-value">${joueur.taille || "N/C"}</span></div>
+                        <div class="detail-item"><span class="detail-label">Poids</span><span class="detail-value">${joueur.poids || "N/C"}</span></div>
+                    </div>
+                    <div class="badge">Poste : ${joueur.specialite || "N/C"}</div>
+                </div>
+            `;
+
+            document.getElementById('statsGridContainer').innerHTML = `
+                <div class="stat-box"><div class="stat-num">${victoires}</div><div class="stat-label">Victoires</div></div>
+                <div class="stat-box"><div class="stat-num" style="color: #fb7185;">${defaites}</div><div class="stat-label">Défaites</div></div>
+                <div class="stat-box"><div class="stat-num" style="color: var(--accent-color);">${tauxVictoire}%</div><div class="stat-label">Réussite</div></div>
+                <div class="stat-box"><div class="stat-num" style="color: var(--container-text);">${totalMatches}</div><div class="stat-label">Total Matchs</div></div>
+            `;
+
+            chargerEvolution();
+            chargerNotesPrepa();
+            chargerNotes();
+            await chargerCalendrierFirebase();
+
+        } catch (error) {
+            console.error("Erreur lors du chargement de la fiche joueur depuis Firebase :", error);
+        }
+    }
+
+    initialiserPageJoueur();
+</script>
+
+</body>
+</html>

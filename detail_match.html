@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Statistiques du Match</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .match-details-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .match-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .match-title { font-weight: bold; font-size: 1rem; color: var(--accent-color); }
+        .match-badge { font-size: 0.75rem; color: var(--accent-color); background: rgba(0, 242, 254, 0.1); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.2); font-weight: 600; }
+        
+        .score-board { display: flex; justify-content: space-around; align-items: center; background: rgba(15, 76, 92, 0.2); padding: 12px; border-radius: 12px; margin-bottom: 14px; text-align: center; }
+        .team-block { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .team-name { font-weight: bold; font-size: 0.95rem; color: var(--container-text); }
+        .team-score { font-size: 1.1rem; font-weight: 800; padding: 0 10px; }
+
+        .stats-section { margin-top: 15px; }
+        .stat-item { background: rgba(15, 76, 92, 0.15); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        
+        .footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 10px; margin-top: 12px; }
+        .no-result { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px; }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            background: rgba(0, 242, 254, 0.1);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-action:hover {
+            background: rgba(0, 242, 254, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="winter-series.html" class="home-btn" title="Retour">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <a href="winter-series.html" class="back-link">◀ Retour aux Winter Series</a>
+
+    <div class="section-title">📊 Statistiques Détaillées</div>
+
+    <div id="matchDetailContainer">
+        <div class="no-result">Chargement des statistiques...</div>
+    </div>
+</div>
+
+<!-- Inclusion des données de joueurs si disponibles -->
+<script src="joueurs-data.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggleBtn').innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    
+    window.toggleTheme = function() {
+        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('cesta_theme', t);
+        document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const matchId = urlParams.get('id');
+
+    function determinerVainqueur(s1, s2) {
+        if (s1 === undefined || s2 === undefined) return 0;
+        let str1 = String(s1).trim();
+        let str2 = String(s2).trim();
+
+        let sets1 = str1.split(/[\/\s-]+/).map(Number).filter(n => !isNaN(n));
+        let sets2 = str2.split(/[\/\s-]+/).map(Number).filter(n => !isNaN(n));
+
+        if (sets1.length > 0 && sets2.length > 0) {
+            let wins1 = 0;
+            let wins2 = 0;
+            for (let i = 0; i < Math.min(sets1.length, sets2.length); i++) {
+                if (sets1[i] > sets2[i]) wins1++;
+                else if (sets2[i] > sets1[i]) wins2++;
+            }
+            if (wins1 > wins2) return 1;
+            if (wins2 > wins1) return 2;
+
+            let sum1 = sets1.reduce((a, b) => a + b, 0);
+            let sum2 = sets2.reduce((a, b) => a + b, 0);
+            if (sum1 > sum2) return 1;
+            if (sum2 > sum1) return 2;
+        }
+
+        let num1 = parseFloat(str1);
+        let num2 = parseFloat(str2);
+        if (!isNaN(num1) && !isNaN(num2)) {
+            if (num1 > num2) return 1;
+            if (num2 > num1) return 2;
+        }
+
+        return 0;
+    }
+
+    async function chargerDetailsMatch() {
+        const container = document.getElementById('matchDetailContainer');
+
+        if (!matchId) {
+            container.innerHTML = `<div class="no-result">Aucun identifiant de match spécifié.</div>`;
+            return;
+        }
+
+        try {
+            const docRef = doc(db, "matchs", matchId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                container.innerHTML = `<div class="no-result">Ce match est introuvable dans la base de données.</div>`;
+                return;
+            }
+
+            const match = docSnap.data();
+
+            let actionButtonsHTML = "";
+            let link = match.lienVideo || match.videoUrl || "";
+            
+            let videoBtnHTML = "";
+            if (link.trim() !== "") {
+                videoBtnHTML = `<a href="${link}" target="_blank" class="btn-action">📺 Voir la vidéo de la partie</a>`;
+            }
+
+            // Redirection vers la page "statistiques-partie.html" avec l'ID du match
+            let statsPartieBtnHTML = `<a href="statistiques-partie.html?id=${matchId}" class="btn-action">📈 Statistique de la partie</a>`;
+
+            if (videoBtnHTML || statsPartieBtnHTML) {
+                actionButtonsHTML = `<div class="action-buttons">${statsPartieBtnHTML}${videoBtnHTML}</div>`;
+            }
+
+            let statsJoueursHTML = "";
+            
+            if (match.joueursStats && Array.isArray(match.joueursStats) && match.joueursStats.length > 0) {
+                match.joueursStats.forEach(js => {
+                    const joueurId = js.id || js.joueurId || "";
+                    statsJoueursHTML += `
+                        <div class="stat-item">
+                            <span>
+                                👤 <a href="statistiques-joueur.html?idJoueur=${joueurId}&idMatch=${matchId}&nom=${encodeURIComponent(js.nom)}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
+                                    ${js.nom || 'Joueur'}
+                                </a>
+                            </span>
+                            <span>Points : <strong>${js.points || 0}</strong> | Fautes : <strong>${js.fautes || 0}</strong></span>
+                        </div>
+                    `;
+                });
+            } else {
+                let listeNomsJoueurs = [];
+                if (match.equipe1) {
+                    match.equipe1.split('-').forEach(n => {
+                        let nomNettoye = n.trim();
+                        if (nomNettoye) listeNomsJoueurs.push({ nom: nomNettoye, equipe: match.equipe1 });
+                    });
+                }
+                if (match.equipe2) {
+                    match.equipe2.split('-').forEach(n => {
+                        let nomNettoye = n.trim();
+                        if (nomNettoye) listeNomsJoueurs.push({ nom: nomNettoye, equipe: match.equipe2 });
+                    });
+                }
+
+                if (listeNomsJoueurs.length > 0) {
+                    listeNomsJoueurs.forEach(j => {
+                        let jId = "";
+                        if (typeof joueursData !== 'undefined') {
+                            const trouve = joueursData.find(jd => jd.nom && jd.nom.toLowerCase() === j.nom.toLowerCase());
+                            if (trouve) jId = trouve.id;
+                        }
+
+                        statsJoueursHTML += `
+                            <div class="stat-item">
+                                <span>
+                                    👤 <a href="statistiques-joueur.html?idJoueur=${jId}&idMatch=${matchId}&nom=${encodeURIComponent(j.nom)}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
+                                        ${j.nom}
+                                    </a>
+                                </span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">(${j.equipe})</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    statsJoueursHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">Aucun joueur associé à cette partie.</div>`;
+                }
+            }
+
+            const titreCompetition = match.competition || match.titre || 'Partie de poule';
+            const score1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
+            const score2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
+            
+            let equipe1Nom = match.equipe1 || 'Équipe 1';
+            let equipe2Nom = match.equipe2 || 'Équipe 2';
+            let color1 = 'inherit';
+            let color2 = 'inherit';
+            let badgeTexte = match.resultat || match.nombreManches || 'Détails';
+
+            const vainqueur = determinerVainqueur(score1, score2);
+
+            if (vainqueur === 1) {
+                color1 = '#10B981'; // Vert
+                color2 = '#EF4444'; // Rouge
+                equipe1Nom = `🏆<br>${equipe1Nom}`;
+                badgeTexte = 'Victoire';
+            } else if (vainqueur === 2) {
+                color1 = '#EF4444'; // Rouge
+                color2 = '#10B981'; // Vert
+                equipe2Nom = `🏆<br>${equipe2Nom}`;
+                badgeTexte = 'Victoire';
+            }
+
+            container.innerHTML = `
+                <div class="match-details-card">
+                    <div class="match-header-info">
+                        <span class="match-title">${titreCompetition}</span>
+                        <span class="match-badge">${badgeTexte}</span>
+                    </div>
+
+                    <div class="score-board">
+                        <div class="team-block">
+                            <div class="team-name" style="text-align: center;">${equipe1Nom}</div>
+                        </div>
+                        <div class="team-score">
+                            <span style="color: ${color1};">${score1}</span>
+                            <span style="color: var(--text-muted); margin: 0 6px; font-weight: normal;">-</span>
+                            <span style="color: ${color2};">${score2}</span>
+                        </div>
+                        <div class="team-block">
+                            <div class="team-name" style="text-align: center;">${equipe2Nom}</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-section">
+                        <div class="section-title" style="margin-bottom: 8px;">Joueurs de la partie</div>
+                        ${statsJoueursHTML}
+                    </div>
+
+                    ${actionButtonsHTML}
+
+                    <div class="footer-info">
+                        <span>📍 ${match.lieu || 'Lieu non spécifié'}</span>
+                        <span>📅 ${match.date || 'Date non spécifiée'}</span>
+                    </div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error("Erreur lors du chargement des détails du match :", error);
+            container.innerHTML = `<div class="no-result">Erreur lors de la récupération des détails.</div>`;
+        }
+    }
+
+    chargerDetailsMatch();
+</script>
+</body>
+</html>
+```[cite: 12]

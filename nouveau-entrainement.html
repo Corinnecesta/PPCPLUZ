@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Création d'Entraînement & Convocations</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        
+        /* Boutons d'en-tête ronds harmonisés */
+        .home-btn, .theme-toggle-btn, .profile-btn { 
+            text-decoration: none; 
+            font-size: 1.1rem; 
+            background: var(--card-bg); 
+            border: 1px solid var(--card-border); 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            color: var(--container-text); 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .form-container { background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .form-input, .form-select { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; color: var(--container-text); font-size: 0.78rem; margin-bottom: 10px; box-sizing: border-box; font-family: inherit; }
+        
+        /* Style spécifique pour forcer le texte des options en noir */
+        .form-select option { color: #000000; background: #ffffff; }
+
+        .form-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
+        
+        .players-checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 150px; overflow-y: auto; background: rgba(15, 76, 92, 0.1); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; margin-bottom: 10px; }
+        .player-checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--container-text); }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img" style="height: 35px;">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator" style="margin-bottom: 15px;">
+
+    <div class="section-title">Planifier un nouvel entraînement</div>
+
+    <div class="form-container">
+        <form id="formNouvelEntrainement" onsubmit="creerEntrainement(event)">
+            
+            <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Titre de l'entraînement :</label>
+            <input type="text" id="inputTitre" class="form-input" placeholder="Ex: Entraînement Collectif" required>
+
+            <div style="display: flex; gap: 8px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Date de début :</label>
+                    <input type="date" id="inputStartDate" class="form-input" required>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Date de fin (optionnel) :</label>
+                    <input type="date" id="inputEndDate" class="form-input">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Heure de début :</label>
+                    <input type="time" id="inputHeureDebut" class="form-input" value="18:00" required>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Heure de fin :</label>
+                    <input type="time" id="inputHeureFin" class="form-input" value="19:30" required>
+                </div>
+            </div>
+
+            <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Lieu :</label>
+            <input type="text" id="inputLieu" class="form-input" placeholder="Ex: Jai Alai de Biarritz">
+
+            <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Type de séance :</label>
+            <select id="inputType" class="form-select">
+                <option value="collectif-technique">🎯 Collectif (Technique)</option>
+                <option value="collectif-physique">⚡ Collectif (Physique)</option>
+            </select>
+
+            <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Sélectionner les joueurs convoqués :</label>
+            <div id="playersCheckboxGrid" class="players-checkbox-grid">
+                <!-- Rempli dynamiquement par le script -->
+            </div>
+
+            <button type="submit" class="form-btn">Créer l'entraînement et envoyer les convocations</button>
+        </form>
+    </div>
+</div>
+
+<!-- Fichier contenant la liste des joueurs -->
+<script src="joueurs-data.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
+    }
+
+    document.getElementById('inputStartDate').value = new Date().toISOString().split('T')[0];
+
+    function chargerListeJoueurs() {
+        const grid = document.getElementById('playersCheckboxGrid');
+        if (typeof joueursData === 'undefined' || !Array.isArray(joueursData)) {
+            grid.innerHTML = "<span style='font-size:0.7rem; color:var(--text-muted);'>Aucun joueur trouvé.</span>";
+            return;
+        }
+
+        grid.innerHTML = "";
+        joueursData.forEach(j => {
+            grid.innerHTML += `
+                <div class="player-checkbox-item">
+                    <input type="checkbox" name="convoque" value="${j.id}" data-nom="${j.prenom} ${j.nom}" id="player_${j.id}" checked>
+                    <label for="player_${j.id}">${j.prenom} ${j.nom}</label>
+                </div>
+            `;
+        });
+    }
+
+    chargerListeJoueurs();
+
+    window.creerEntrainement = async function(event) {
+        event.preventDefault();
+
+        const titre = document.getElementById('inputTitre').value.trim();
+        const startDate = document.getElementById('inputStartDate').value;
+        const endDate = document.getElementById('inputEndDate').value || startDate;
+        const heureDebut = document.getElementById('inputHeureDebut').value;
+        const heureFin = document.getElementById('inputHeureFin').value;
+        const lieu = document.getElementById('inputLieu').value.trim() || "Lieu non spécifié";
+        const type = document.getElementById('inputType').value;
+
+        const checkboxes = document.querySelectorAll('input[name="convoque"]:checked');
+        let convoques = [];
+        checkboxes.forEach(cb => {
+            convoques.push({
+                id: cb.value,
+                nom: cb.getAttribute('data-nom'),
+                statut: "en_attente",
+                motif: ""
+            });
+        });
+
+        try {
+            await addDoc(collection(db, "entrainements"), {
+                titre: titre,
+                startDate: startDate,
+                endDate: endDate,
+                heureDebut: heureDebut,
+                heureFin: heureFin,
+                lieu: lieu,
+                type: type,
+                createur: "Entraîneur / Staff",
+                statut: "Ouvert",
+                convoques: convoques,
+                createdAt: new Date().toISOString()
+            });
+
+            alert("Entraînement créé avec succès et convocations envoyées !");
+            window.location.href = "entrainements.html";
+
+        } catch (error) {
+            console.error("Erreur lors de la création de l'entraînement :", error);
+            alert("Erreur lors de l'enregistrement sur Firebase.");
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cesta Punta - Échanges & Tchat</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIABLES DE COULEURS (Mode Sombre - Option 2 : Océan & Lagon) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
+            --container-text: #f8fafc;
+            --card-bg: linear-gradient(135deg, #0d1b2a 0%, #0f4c5c 100%);
+            --card-border: #17b890;
+            --card-hover-bg: linear-gradient(135deg, #132238 0%, #125c6e 100%);
+            --accent-color: #00f2fe;
+            --text-muted: #94a3b8;
+            --btn-gradient: linear-gradient(135deg, #0f4c5c 0%, #125c6e 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
+        }
+
+        /* --- VARIABLES DE COULEURS (Mode Clair) --- */
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --container-text: #0f172a;
+            --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --card-border: #cbd5e1;
+            --card-hover-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --accent-color: #0284c7;
+            --text-muted: #64748b;
+            --btn-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Empêche le défilement global de la page */
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            color: var(--container-text); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            box-sizing: border-box;
+            transition: background 0.3s, color 0.3s; 
+        }
+
+        .mobile-container { 
+            max-width: 420px; 
+            width: 100%; 
+            height: 100%;
+            max-height: 100vh;
+            box-sizing: border-box; 
+            padding: 10px 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+        }
+        
+        /* En-tête */
+        .top-header { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .logo-img { height: 32px; object-fit: contain; }
+        
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        .home-btn, .theme-toggle-btn, .profile-btn { 
+            background: var(--btn-gradient); 
+            border: 1px solid var(--card-border); 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            text-decoration: none; 
+            color: var(--container-text); 
+            font-size: 0.95rem; 
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
+            border-color: var(--accent-color); 
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+        }
+
+        .separator { border: none; height: 1px; background-color: var(--card-border); margin: 0; width: 100%; flex-shrink: 0; }
+
+        /* Styles spécifiques au Tchat adaptés à la hauteur mobile */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+        }
+
+        .chat-header-info {
+            padding: 10px 14px;
+            background: rgba(15, 76, 92, 0.3);
+            border-bottom: 2px solid var(--card-border);
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-message-indicator {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            background-color: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            animation: pulse-badge 2s infinite;
+        }
+
+        .new-message-indicator.active {
+            display: flex;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message.received {
+            background: var(--card-hover-bg);
+            border: 1px solid var(--card-border);
+            color: var(--container-text);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .message.sent {
+            background: var(--btn-gradient);
+            border: 1px solid var(--accent-color);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message-author {
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--accent-color);
+        }
+
+        .message.sent .message-author {
+            color: #d1fae5;
+        }
+
+        .message-time {
+            font-size: 0.6rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .chat-input-area {
+            padding: 10px 12px;
+            background: var(--card-hover-bg);
+            border-top: 2px solid var(--card-border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-gradient);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 9px 14px;
+            color: var(--container-text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
+
+        .chat-send-btn {
+            background: var(--btn-gradient);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(23, 184, 144, 0.2);
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--accent-color);
+            color: #0a192f;
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse-badge {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+
+    <!-- En-tête -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <!-- Conteneur du Tchat -->
+    <div class="chat-container">
+        <div class="chat-header-info">
+            <div class="chat-header-left">
+                💬 Échanges • Pôle Performance
+            </div>
+            <div class="new-message-indicator" id="newMessageIndicator">
+                🔴 Nouveau message
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages" onclick="markMessagesAsRead()">
+            <!-- Messages Firebase -->
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="messageInput" class="chat-input" placeholder="Écrire un message..." onkeypress="handleKeyPress(event)">
+            <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    // Réinitialisation de l'indicateur de nouveau message dès l'ouverture de la page d'échanges
+    localStorage.setItem('cesta_new_message', 'false');
+
+    const firebaseConfig = {
+        apiKey: "VOTRE_API_KEY",
+        authDomain: "VOTRE_PROJET.firebaseapp.com",
+        projectId: "VOTRE_PROJET_ID",
+        storageBucket: "VOTRE_PROJET.appspot.com",
+        messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+        appId: "VOTRE_APP_ID"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    const currentUser = localStorage.getItem('cesta_username') || "Membre";
+    const messagesContainer = document.getElementById('chatMessages');
+    const newMessageIndicator = document.getElementById('newMessageIndicator');
+
+    let lastLoadedCount = 0;
+
+    // Récupération des messages en temps réel
+    db.collection("echanges_messages")
+      .orderBy("timestamp", "asc")
+      .onSnapshot((snapshot) => {
+          messagesContainer.innerHTML = "";
+          let docsArray = [];
+          snapshot.forEach((doc) => {
+              docsArray.push(doc.data());
+          });
+
+          if (docsArray.length > lastLoadedCount && lastLoadedCount > 0) {
+              const latestMessage = docsArray[docsArray.length - 1];
+              if (latestMessage && latestMessage.author !== currentUser) {
+                  newMessageIndicator.classList.add('active');
+                  localStorage.setItem('cesta_new_message', 'true');
+              }
+          }
+          lastLoadedCount = docsArray.length;
+
+          docsArray.forEach((data) => {
+              const isMe = data.author === currentUser;
+              
+              const messageDiv = document.createElement('div');
+              messageDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+              
+              let timeStr = "";
+              if (data.timestamp) {
+                  const date = data.timestamp.toDate();
+                  timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+
+              messageDiv.innerHTML = `
+                  <div class="message-author">${escapeHtml(data.author)}</div>
+                  <div>${escapeHtml(data.text)}</div>
+                  <div class="message-time">${timeStr}</div>
+              `;
+              
+              messagesContainer.appendChild(messageDiv);
+          });
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
+
+    // Marquer les messages comme lus au clic / consultation
+    function markMessagesAsRead() {
+        newMessageIndicator.classList.remove('active');
+        localStorage.setItem('cesta_new_message', 'false');
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+
+        if (text === "") return;
+
+        input.value = "";
+        markMessagesAsRead();
+
+        db.collection("echanges_messages").add({
+            text: text,
+            author: currentUser,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .catch((error) => {
+            console.error("Erreur lors de l'envoi du message : ", error);
+        });
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return "";
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    // Gestion du thème
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateButtonIcon(savedTheme);
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+</script>
+
+</body>
+</html>

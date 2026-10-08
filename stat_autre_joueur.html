@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Statistiques Détaillées (Autre Joueur)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .back-photo-container { display: flex; justify-content: center; margin-bottom: 15px; }
+        .back-photo { 
+            width: 65px; height: 65px; border-radius: 50%; object-fit: cover; object-position: center; 
+            border: 2px solid var(--accent-color); background: rgba(0,0,0,0.2); cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+        }
+        .back-photo:hover { transform: scale(1.08); border-color: var(--container-text); }
+
+        .subtabs-nav { display: flex; gap: 6px; margin-bottom: 12px; }
+        .subtab-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px 12px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; flex: 1; text-align: center; transition: all 0.2s; }
+        .subtab-btn.active { background: var(--card-hover-bg); border-color: var(--accent-color); color: var(--accent-color); }
+        
+        .subtab-content { display: none; }
+        .subtab-content.active { display: block; }
+
+        .match-search-container { margin-bottom: 10px; }
+        .match-search-input {
+            width: 100%; background: var(--card-bg); border: 2px solid var(--card-border); color: var(--container-text);
+            padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; outline: none; box-sizing: border-box; transition: border-color 0.2s;
+        }
+        .match-search-input:focus { border-color: var(--accent-color); }
+
+        .match-select-container { margin-bottom: 12px; }
+        .match-select { 
+            width: 100%; background: var(--card-bg); border: 2px solid var(--card-border); color: var(--container-text); 
+            padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; outline: none; cursor: pointer; 
+        }
+        .match-select option { background: #111827; color: #ffffff; padding: 10px; white-space: normal; }
+
+        .full-match-title-box {
+            background: rgba(15, 76, 92, 0.3); border: 2px solid var(--card-border); border-radius: 14px;
+            padding: 12px; text-align: center; margin-bottom: 14px;
+        }
+        .match-banner-title { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; font-weight: 600; }
+        .match-teams-score { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.9rem; color: var(--container-text); }
+        .score-box { background: var(--card-bg); border: 2px solid var(--accent-color); padding: 4px 10px; border-radius: 8px; color: #34d399; font-size: 0.95rem; }
+
+        .match-actions-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+        .btn-action-edit, .btn-action-delete {
+            flex: 1; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none;
+        }
+        .btn-action-edit { background-color: #f59e0b; color: #fff; }
+        .btn-action-delete { background-color: #ef4444; color: #fff; }
+
+        .edit-form-card {
+            background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 12px; padding: 14px; margin-bottom: 12px;
+        }
+        .edit-form-card h4 { margin: 0 0 10px 0; color: var(--accent-color); font-size: 0.9rem; border-bottom: 1px solid var(--card-border); padding-bottom: 6px; }
+        .edit-form-card label { display: block; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px; }
+        .edit-form-card input {
+            width: 100%; background: var(--card-hover-bg); border: 1px solid var(--card-border); color: var(--container-text); padding: 7px 10px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 8px; box-sizing: border-box;
+        }
+        .edit-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .edit-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .edit-form-buttons { display: flex; gap: 8px; margin-top: 15px; }
+        .btn-save { background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; flex: 1; }
+        .btn-cancel { background: #6b7280; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+        .stat-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .stat-card-title { font-size: 0.85rem; font-weight: bold; color: var(--container-text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        
+        .stats-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: center; }
+        .stats-table th { color: var(--accent-color); font-size: 0.7rem; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--card-border); }
+        .stats-table td { padding: 8px 4px; color: var(--container-text); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .stats-table tr:last-child td { border-bottom: none; }
+        .text-left { text-align: left !important; }
+        .text-green { color: #34d399 !important; font-weight: 700; }
+        .text-red { color: #fb7185 !important; font-weight: 700; }
+
+        .side-bar-container { margin-top: 8px; margin-bottom: 4px; }
+        .side-labels { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
+        .side-bar-track { display: flex; height: 12px; width: 100%; border-radius: 6px; overflow: hidden; background: rgba(255,255,255,0.1); }
+        .side-bar-forehand { background: var(--accent-color, #17b890); transition: width 0.3s ease; }
+        .side-bar-backhand { background: #3b82f6; transition: width 0.3s ease; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <!-- Bouton retour vers la fiche profil de l'autre joueur -->
+    <div class="back-photo-container" id="backPlayerNav"></div>
+
+    <div class="section-title">Statistiques Détaillées (Autre Joueur)</div>
+    
+    <div class="subtabs-nav">
+        <div class="subtab-btn active" onclick="switchSubTab('parpartie', this)">Par partie</div>
+        <div class="subtab-btn" onclick="switchSubTab('totales', this)">Totales</div>
+    </div>
+
+    <div id="subtab-parpartie" class="subtab-content active">
+        <div class="match-search-container">
+            <input type="text" id="matchSearchInput" class="match-search-input" placeholder="🔍 Rechercher une partie..." oninput="filtrerMatchsParRecherche()">
+        </div>
+
+        <div class="match-select-container">
+            <select id="matchSelect" class="match-select" onchange="changerPartieStats(this.value)"></select>
+        </div>
+
+        <div id="fullMatchTitleDisplay"></div>
+
+        <div class="match-actions-bar" id="matchActionsBar" style="display: none;">
+            <button class="btn-action-edit" onclick="ouvrirFormulaireEdition()">✏ Modifier</button>
+            <button class="btn-action-delete" onclick="supprimerPartieActive()">🗑️ Supprimer</button>
+        </div>
+
+        <div id="editFormContainer" style="display: none;"></div>
+        <div id="statsParPartieContenu"></div>
+    </div>
+
+    <div id="subtab-totales" class="subtab-content">
+        <div id="statsTotalesContenu"></div>
+    </div>
+</div>
+
+<script src="joueurs-data.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const playerId = urlParams.get('id') || "autre";
+    window.currentJoueurId = playerId;
+    window.joueurActuel = { id: playerId, prenom: "Autre", nom: "Joueur", photo: "logoce.png" };
+
+    let listeMatchsJoueur = [];
+    let statsParMatchGlobal = {};
+    let matchActuelId = null;
+
+    // Thème clair/sombre
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    }
+
+    window.toggleTheme = function() {
+        const current = htmlElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', next);
+        localStorage.setItem('cesta_theme', next);
+        themeToggleBtn.innerHTML = (next === 'light') ? '☀️' : '🌙';
+    }
+
+    window.switchSubTab = function(tabName, el) {
+        document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.subtab-content').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById(`subtab-${tabName}`).classList.add('active');
+        if (tabName === 'totales') calculerStatsTotales();
+    }
+
+    async function chargerDonnees() {
+        try {
+            // Récupérer les informations du joueur
+            const joueurRef = doc(db, "joueurs", playerId);
+            const joueurSnap = await getDoc(joueurRef);
+            if (joueurSnap.exists()) {
+                window.joueurActuel = { id: joueurSnap.id, ...joueurSnap.data() };
+            }
+
+            document.getElementById('backPlayerNav').innerHTML = `
+                <a href="autre_joueur_4.html?id=${encodeURIComponent(playerId)}" title="Retour au profil">
+                    <img src="${window.joueurActuel.photo || 'logoce.png'}" alt="Profil" class="back-photo" onerror="this.src='logoce.png'">
+                </a>
+            `;
+
+            // Récupérer les matchs de Firestore
+            const querySnapshot = await getDocs(collection(db, "matchs"));
+            const nomComplet = `${window.joueurActuel.prenom || ""} ${window.joueurActuel.nom || ""}`.trim().toLowerCase();
+            const nomSimple = (window.joueurActuel.nom || "").toLowerCase().trim();
+
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const matchId = docSnap.id;
+                const statsJoueurs = data.statsJoueurs || data.statistiques || {};
+
+                let statsTrouvees = null;
+                for (const key in statsJoueurs) {
+                    const k = key.toLowerCase();
+                    if (k === playerId.toLowerCase() || (nomSimple && k.includes(nomSimple)) || (nomComplet && k.includes(nomComplet))) {
+                        statsTrouvees = statsJoueurs[key];
+                        break;
+                    }
+                }
+
+                const eq1 = JSON.stringify(data.equipe1 || "").toLowerCase();
+                const eq2 = JSON.stringify(data.equipe2 || "").toLowerCase();
+                const isParticipating = (nomSimple && (eq1.includes(nomSimple) || eq2.includes(nomSimple))) || statsTrouvees;
+
+                if (isParticipating) {
+                    listeMatchsJoueur.push({ id: matchId, ...data });
+                    statsParMatchGlobal[matchId] = statsTrouvees || {};
+                }
+            });
+
+            remplirSelectMatchs();
+        } catch (e) {
+            console.error("Erreur chargement Firebase :", e);
+        }
+    }
+
+    function remplirSelectMatchs(filtre = "") {
+        const select = document.getElementById('matchSelect');
+        select.innerHTML = '<option value="">-- Sélectionnez une partie --</option>';
+
+        const filtered = listeMatchsJoueur.filter(m => {
+            const titre = (m.competition || m.titre || m.nom || `Match ${m.id}`).toLowerCase();
+            return titre.includes(filtre.toLowerCase());
+        });
+
+        filtered.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.id;
+            opt.textContent = m.competition || m.titre || m.nom || `Match du ${m.date || m.id}`;
+            select.appendChild(opt);
+        });
+
+        if (filtered.length > 0) {
+            select.value = filtered[0].id;
+            changerPartieStats(filtered[0].id);
+        } else {
+            document.getElementById('statsParPartieContenu').innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Aucune partie trouvée.</div>';
+            document.getElementById('fullMatchTitleDisplay').innerHTML = '';
+            document.getElementById('matchActionsBar').style.display = 'none';
+        }
+    }
+
+    window.filtrerMatchsParRecherche = function() {
+        const query = document.getElementById('matchSearchInput').value;
+        remplirSelectMatchs(query);
+    }
+
+    window.changerPartieStats = function(matchId) {
+        matchActuelId = matchId;
+        if (!matchId) {
+            document.getElementById('fullMatchTitleDisplay').innerHTML = '';
+            document.getElementById('matchActionsBar').style.display = 'none';
+            document.getElementById('statsParPartieContenu').innerHTML = '';
+            return;
+        }
+
+        const match = listeMatchsJoueur.find(m => m.id === matchId);
+        if (!match) return;
+
+        // Afficher la bannière de score identique au pôle performance
+        const score1 = match.scoreEquipe1 ?? match.score1 ?? 0;
+        const score2 = match.scoreEquipe2 ?? match.score2 ?? 0;
+        const eq1 = match.equipe1 || "Équipe 1";
+        const eq2 = match.equipe2 || "Équipe 2";
+        const titreMatch = match.competition || match.titre || "Partie de Cesta Punta";
+
+        document.getElementById('fullMatchTitleDisplay').innerHTML = `
+            <div class="match-banner-title">${titreMatch} — ${match.date || ""}</div>
+            <div class="match-teams-score">
+                <span>${eq1}</span>
+                <div class="score-box">${score1} / ${score2}</div>
+                <span>${eq2}</span>
+            </div>
+        `;
+
+        // Afficher les boutons d'action admin
+        document.getElementById('matchActionsBar').style.display = 'flex';
+        afficherRenduStatsMatch(matchId);
+    }
+
+    function afficherRenduStatsMatch(matchId) {
+        const stats = statsParMatchGlobal[matchId] || {};
+        const nomJoueurStr = `${window.joueurActuel.prenom || ""} ${window.joueurActuel.nom || ""}`.trim();
+
+        // Calculs & Valeurs
+        const pelotesJouees = Number(stats.pelotesJouees || stats.pelotes || 0);
+        const totalPartiePelotes = Number(stats.totalPartiePelotes || 300);
+        const pctPelotes = totalPartiePelotes > 0 ? Math.round((pelotesJouees / totalPartiePelotes) * 100) : 0;
+
+        const pointsGagnes = Number(stats.pointsGagnes || stats.gagnes || 0);
+        const totalPartieGagnes = Number(stats.totalPartieGagnes || 20);
+        const pctGagnes = totalPartieGagnes > 0 ? Math.round((pointsGagnes / totalPartieGagnes) * 100) : 0;
+
+        const pointsPerdus = Number(stats.pointsPerdus || stats.perdus || 0);
+        const totalPartiePerdus = Number(stats.totalPartiePerdus || 20);
+        const pctPerdus = totalPartiePerdus > 0 ? Math.round((pointsPerdus / totalPartiePerdus) * 100) : 0;
+
+        // Buts
+        const butsTotal = Number(stats.butsTotal || 0);
+        const butsArriere = Number(stats.butsArriere || 0);
+        const butsAvant = Number(stats.butsAvant || 0);
+        const ace = Number(stats.ace || 0);
+        const pasa = Number(stats.pasa || 0);
+        const falta = Number(stats.falta || 0);
+
+        // Répartition Coup Droit / Revers
+        const coupDroitPct = Number(stats.coupDroitPct || stats.coupDroit || 50);
+        const reversPct = Number(stats.reversPct || stats.revers || (100 - coupDroitPct));
+
+        // Réceptions (Tableau détaillé)
+        const rec = stats.receptions || {};
+        const recTypes = [
+            { key: 'aire', label: 'Aire' },
+            { key: 'bote', label: 'Bote' },
+            { key: 'boteCorrido', label: 'Bote corrido' },
+            { key: 'botePronto', label: 'Bote pronto' },
+            { key: 'erebote', label: 'Erebote' },
+            { key: 'pumpa', label: 'Pumpa' }
+        ];
+
+        let totalRecTot = 0;
+        recTypes.forEach(t => { totalRecTot += Number(rec[t.key]?.tot || rec[t.key] || 0); });
+
+        let recHtml = '';
+        recTypes.forEach(t => {
+            const val = rec[t.key] || {};
+            const tot = Number(val.tot || val || 0);
+            const pct = totalRecTot > 0 ? Math.round((tot / totalRecTot) * 100) : 0;
+            const pos = Number(val.pos || 0);
+            const neg = Number(val.neg || 0);
+            const sumPosNeg = pos + neg;
+            const pctPos = sumPosNeg > 0 ? Math.round((pos / sumPosNeg) * 100) : 0;
+            const pctNeg = sumPosNeg > 0 ? Math.round((neg / sumPosNeg) * 100) : 0;
+
+            recHtml += `
+                <tr>
+                    <td class="text-left" style="font-weight:600;">${t.label}</td>
+                    <td>${tot}</td>
+                    <td>${pct}%</td>
+                    <td>${pos} (${pctPos}%)</td>
+                    <td><span class="text-red">${neg} (${pctNeg}%)</span></td>
+                </tr>
+            `;
+        });
+
+        // Frappes (Tableau détaillé)
+        const fra = stats.frappes || {};
+        const fraTypes = [
+            { key: 'classique', label: 'Classique' },
+            { key: 'attaque', label: 'Attaque' },
+            { key: 'picada', label: 'Picada' },
+            { key: 'dejada', label: 'Dejada' },
+            { key: 'txikTxak', label: 'Txik Txak' },
+            { key: 'txula', label: 'Txula' },
+            { key: 'cortada', label: 'Cortada' },
+            { key: 'gaucheGauche', label: 'Gauche gauche' },
+            { key: 'gaucheDroite', label: 'Gauche droite' },
+            { key: 'murs2', label: '2 Murs' }
+        ];
+
+        let totalFraTot = 0;
+        fraTypes.forEach(f => { totalFraTot += Number(fra[f.key]?.tot || fra[f.key] || 0); });
+
+        let fraHtml = '';
+        fraTypes.forEach(f => {
+            const val = fra[f.key] || {};
+            const tot = Number(val.tot || val || 0);
+            const pct = totalFraTot > 0 ? Math.round((tot / totalFraTot) * 100) : 0;
+            const pos = Number(val.pos || 0);
+            const neutre = Number(val.neutre || 0);
+            const neg = Number(val.neg || 0);
+
+            fraHtml += `
+                <tr>
+                    <td class="text-left" style="font-weight:600;">${f.label}</td>
+                    <td>${tot}</td>
+                    <td>${pct}%</td>
+                    <td class="text-green">${pos}</td>
+                    <td>${neutre}</td>
+                    <td><span class="text-red">${neg}</span></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('statsParPartieContenu').innerHTML = `
+            <!-- Pelotes & Points -->
+            <div class="stat-card">
+                <div class="stat-card-title">🎾 Pelotes & Points (${nomJoueurStr})</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Statistique</th>
+                            <th>Joueur</th>
+                            <th>Total Partie</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left">Pelotes jouées</td>
+                            <td>${pelotesJouees}</td>
+                            <td>${totalPartiePelotes}</td>
+                            <td class="text-green">${pctPelotes}%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Points gagnés</td>
+                            <td>${pointsGagnes}</td>
+                            <td>${totalPartieGagnes}</td>
+                            <td class="text-green">${pctGagnes}%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Points perdus</td>
+                            <td><span class="text-red">${pointsPerdus}</span></td>
+                            <td>${totalPartiePerdus}</td>
+                            <td class="text-red">${pctPerdus}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Buts -->
+            <div class="stat-card">
+                <div class="stat-card-title">🎯 Buts</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Total</th>
+                            <th>Sur arrière</th>
+                            <th>Sur avant</th>
+                            <th>Ace</th>
+                            <th>Pasa</th>
+                            <th>Falta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;">${butsTotal}</td>
+                            <td>${butsArriere}</td>
+                            <td>${butsAvant}</td>
+                            <td class="text-green">${ace}</td>
+                            <td style="color:#fbbf24;">${pasa}</td>
+                            <td class="text-red">${falta}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Répartition des échanges -->
+            <div class="stat-card">
+                <div class="stat-card-title">📊 Répartition des échanges</div>
+                <div class="side-bar-container">
+                    <div class="side-labels">
+                        <span style="color:var(--accent-color);">Coup Droit : ${coupDroitPct}%</span>
+                        <span style="color:#3b82f6;">Revers : ${reversPct}%</span>
+                    </div>
+                    <div class="side-bar-track">
+                        <div class="side-bar-forehand" style="width: ${coupDroitPct}%;"></div>
+                        <div class="side-bar-backhand" style="width: ${reversPct}%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Réceptions -->
+            <div class="stat-card">
+                <div class="stat-card-title">📥 Réceptions</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Type</th>
+                            <th>Tot</th>
+                            <th>%</th>
+                            <th>Pos</th>
+                            <th>Neg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recHtml}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Frappes -->
+            <div class="stat-card">
+                <div class="stat-card-title">⚡ Frappes</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Type</th>
+                            <th>Tot</th>
+                            <th>%</th>
+                            <th>Pos</th>
+                            <th>Neutre</th>
+                            <th>Neg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${fraHtml}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function calculerStatsTotales() {
+        let tPelotes = 0, tPelPart = 0;
+        let tGagnes = 0, tGagPart = 0;
+        let tPerdus = 0, tPerPart = 0;
+        let tButs = 0, tAce = 0, tFalta = 0;
+        let sumCoupDroit = 0, nbMatchs = listeMatchsJoueur.length;
+
+        listeMatchsJoueur.forEach(m => {
+            const stats = statsParMatchGlobal[m.id] || {};
+            tPelotes += Number(stats.pelotesJouees || stats.pelotes || 0);
+            tPelPart += Number(stats.totalPartiePelotes || 300);
+            tGagnes += Number(stats.pointsGagnes || stats.gagnes || 0);
+            tGagPart += Number(stats.totalPartieGagnes || 20);
+            tPerdus += Number(stats.pointsPerdus || stats.perdus || 0);
+            tPerPart += Number(stats.totalPartiePerdus || 20);
+            tButs += Number(stats.butsTotal || 0);
+            tAce += Number(stats.ace || 0);
+            tFalta += Number(stats.falta || 0);
+            sumCoupDroit += Number(stats.coupDroitPct || stats.coupDroit || 50);
+        });
+
+        const pctPelGlobal = tPelPart > 0 ? Math.round((tPelotes / tPelPart) * 100) : 0;
+        const pctGagGlobal = tGagPart > 0 ? Math.round((tGagnes / tGagPart) * 100) : 0;
+        const pctPerGlobal = tPerPart > 0 ? Math.round((tPerdus / tPerPart) * 100) : 0;
+        const avgCoupDroit = nbMatchs > 0 ? Math.round(sumCoupDroit / nbMatchs) : 50;
+        const avgRevers = 100 - avgCoupDroit;
+        const nomJoueurStr = `${window.joueurActuel.prenom || ""} ${window.joueurActuel.nom || ""}`.trim();
+
+        document.getElementById('statsTotalesContenu').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-card-title">📈 Totaux Cumulés (${nbMatchs} parties) — ${nomJoueurStr}</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Statistique</th>
+                            <th>Cumul Joueur</th>
+                            <th>Cumul Total Parties</th>
+                            <th>Moy. / %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-left">Pelotes jouées</td>
+                            <td>${tPelotes}</td>
+                            <td>${tPelPart}</td>
+                            <td class="text-green">${pctPelGlobal}%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Points gagnés</td>
+                            <td>${tGagnes}</td>
+                            <td>${tGagPart}</td>
+                            <td class="text-green">${pctGagGlobal}%</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Points perdus</td>
+                            <td><span class="text-red">${tPerdus}</span></td>
+                            <td>${tPerPart}</td>
+                            <td class="text-red">${pctPerGlobal}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-title">🎯 Synthèse Buts (Total)</div>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Total Buts</th>
+                            <th>Total Aces</th>
+                            <th>Total Faltas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:700;">${tButs}</td>
+                            <td class="text-green">${tAce}</td>
+                            <td class="text-red">${tFalta}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-title">📊 Répartition Moyenne des échanges</div>
+                <div class="side-bar-container">
+                    <div class="side-labels">
+                        <span style="color:var(--accent-color);">Coup Droit : ${avgCoupDroit}%</span>
+                        <span style="color:#3b82f6;">Revers : ${avgRevers}%</span>
+                    </div>
+                    <div class="side-bar-track">
+                        <div class="side-bar-forehand" style="width: ${avgCoupDroit}%;"></div>
+                        <div class="side-bar-backhand" style="width: ${avgRevers}%;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    window.ouvrirFormulaireEdition = function() {
+        if (!matchActuelId) return;
+        const match = listeMatchsJoueur.find(m => m.id === matchActuelId);
+        const stats = statsParMatchGlobal[matchActuelId] || {};
+
+        const container = document.getElementById('editFormContainer');
+        container.style.display = 'block';
+        container.innerHTML = `
+            <div class="edit-form-card">
+                <h4>Modifier les statistiques</h4>
+                <label>Pelotes jouées</label>
+                <input type="number" id="editPelotes" value="${stats.pelotesJouees || stats.pelotes || 0}">
+                <label>Points gagnés</label>
+                <input type="number" id="editGagnes" value="${stats.pointsGagnes || stats.gagnes || 0}">
+                <label>Points perdus</label>
+                <input type="number" id="editPerdus" value="${stats.pointsPerdus || stats.perdus || 0}">
+                <div class="edit-form-buttons">
+                    <button class="btn-save" onclick="sauvegarderModification()">Enregistrer</button>
+                    <button class="btn-cancel" onclick="document.getElementById('editFormContainer').style.display='none'">Annuler</button>
+                </div>
+            </div>
+        `;
+    }
+
+    window.sauvegarderModification = async function() {
+        if (!matchActuelId) return;
+        const newPelotes = Number(document.getElementById('editPelotes').value);
+        const newGagnes = Number(document.getElementById('editGagnes').value);
+        const newPerdus = Number(document.getElementById('editPerdus').value);
+
+        if (!statsParMatchGlobal[matchActuelId]) statsParMatchGlobal[matchActuelId] = {};
+        statsParMatchGlobal[matchActuelId].pelotesJouees = newPelotes;
+        statsParMatchGlobal[matchActuelId].pointsGagnes = newGagnes;
+        statsParMatchGlobal[matchActuelId].pointsPerdus = newPerdus;
+
+        try {
+            const matchRef = doc(db, "matchs", matchActuelId);
+            const matchSnap = await getDoc(matchRef);
+            if (matchSnap.exists()) {
+                const data = matchSnap.data();
+                if (!data.statsJoueurs) data.statsJoueurs = {};
+                // Identifier la clé du joueur dans Firestore
+                let targetKey = playerId;
+                for (const k in data.statsJoueurs) {
+                    if (k.toLowerCase() === playerId.toLowerCase() || k.toLowerCase().includes(window.joueurActuel.nom?.toLowerCase() || "")) {
+                        targetKey = k;
+                        break;
+                    }
+                }
+                if (!data.statsJoueurs[targetKey]) data.statsJoueurs[targetKey] = {};
+                data.statsJoueurs[targetKey].pelotesJouees = newPelotes;
+                data.statsJoueurs[targetKey].pointsGagnes = newGagnes;
+                data.statsJoueurs[targetKey].pointsPerdus = newPerdus;
+
+                await updateDoc(matchRef, { statsJoueurs: data.statsJoueurs });
+            }
+            document.getElementById('editFormContainer').style.display = 'none';
+            changerPartieStats(matchActuelId);
+            alert("Modifications enregistrées avec succès !");
+        } catch (e) {
+            console.error("Erreur lors de la sauvegarde :", e);
+            alert("Erreur lors de l'enregistrement de la modification.");
+        }
+    }
+
+    window.supprimerPartieActive = async function() {
+        if (!matchActuelId) return;
+        if (!confirm("Voulez-vous vraiment supprimer les statistiques de ce match pour ce joueur ?")) return;
+
+        try {
+            const matchRef = doc(db, "matchs", matchActuelId);
+            const matchSnap = await getDoc(matchRef);
+            if (matchSnap.exists()) {
+                const data = matchSnap.data();
+                if (data.statsJoueurs) {
+                    for (const k in data.statsJoueurs) {
+                        if (k.toLowerCase() === playerId.toLowerCase() || k.toLowerCase().includes(window.joueurActuel.nom?.toLowerCase() || "")) {
+                            delete data.statsJoueurs[k];
+                        }
+                    }
+                    await updateDoc(matchRef, { statsJoueurs: data.statsJoueurs });
+                }
+            }
+            listeMatchsJoueur = listeMatchsJoueur.filter(m => m.id !== matchActuelId);
+            remplirSelectMatchs();
+            alert("Statistiques supprimées avec succès.");
+        } catch (e) {
+            console.error("Erreur suppression :", e);
+            alert("Erreur lors de la suppression.");
+        }
+    }
+
+    chargerDonnees();
+</script>
+</body>
+</html>

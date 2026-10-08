@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Entraîneurs & Statistiques</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.5px; }
+
+        /* Grille des indicateurs globaux (2 cartes par ligne) */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 12px; }
+        .stat-box { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 10px; text-align: center; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .stat-num { font-size: 1.5rem; font-weight: 900; color: #34d399; margin-bottom: 2px; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Cartes génériques pour les sections */
+        .custom-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        
+        /* Onglets pour la présence aux entraînements */
+        .tabs-container { display: flex; gap: 6px; margin-bottom: 12px; background: rgba(15, 76, 92, 0.2); padding: 4px; border-radius: 12px; border: 1px solid var(--card-border); }
+        .tab-btn { flex: 1; background: transparent; border: none; padding: 8px 10px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: inherit; text-align: center; }
+        .tab-btn.active { background: var(--btn-gradient); color: var(--container-text); box-shadow: 0 2px 8px rgba(23, 184, 144, 0.3); }
+
+        /* Liste des présences joueurs détaillée */
+        .player-presence-list { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; }
+        .player-presence-row { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 76, 92, 0.15); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--card-border); font-size: 0.8rem; }
+        .player-stats-badges { display: flex; gap: 6px; align-items: center; }
+        .badge-present-count { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid #34d399; padding: 2px 6px; border-radius: 6px; font-weight: bold; font-size: 0.68rem; }
+        .badge-absent-count { background: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid #fb7185; padding: 2px 6px; border-radius: 6px; font-weight: bold; font-size: 0.68rem; }
+        .badge-pct { background: rgba(23, 184, 144, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 2px 6px; border-radius: 6px; font-weight: bold; font-size: 0.68rem; }
+
+        /* Styles pour le module d'évaluation staff */
+        .players-select-container { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .coach-select { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; color: var(--container-text); font-size: 0.85rem; font-family: inherit; margin-bottom: 4px; box-sizing: border-box; }
+
+        .coach-form { background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .coach-input { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; color: var(--container-text); font-size: 0.78rem; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
+        .coach-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 9px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: bold; cursor: pointer; width: 100%; transition: all 0.2s; }
+        .coach-btn:hover { opacity: 0.9; }
+
+        .success-msg { font-size: 0.75rem; color: #34d399; text-align: center; margin-top: 8px; font-weight: 600; display: none; }
+        
+        .player-summary-box { display: flex; align-items: center; gap: 10px; margin-top: 10px; background: rgba(15, 76, 92, 0.15); padding: 8px; border-radius: 12px; border: 1px solid var(--card-border); }
+        .player-thumb { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-color); flex-shrink: 0; }
+        .player-info-text h4 { font-size: 0.9rem; color: var(--container-text); margin: 0; }
+        .player-info-text p { font-size: 0.7rem; color: var(--text-muted); margin: 2px 0 0 0; }
+
+        .trainers-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .user-profile-box { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 12px 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 50px; height: 50px; object-fit: cover; object-position: center; border: 2px solid var(--accent-color); border-radius: 50%; background: rgba(0,0,0,0.2); flex-shrink: 0; }
+        .user-info-details { display: flex; flex-direction: column; justify-content: center; }
+        .user-name { font-weight: bold; font-size: 0.95rem; color: var(--container-text); line-height: 1.2; }
+        .user-role { font-size: 0.75rem; color: var(--accent-color); font-weight: 600; margin-top: 2px; }
+
+        .app-version { text-align: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator" style="margin-bottom: 12px;">
+
+    <!-- 1. Indicateurs Globaux : Technique -->
+    <div class="section-title">Indicateurs Globaux - Technique</div>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-num" id="globalSeancesTechNum">0</div>
+            <div class="stat-label">Séances techniques</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" id="globalAssiduiteTechNum" style="color: var(--accent-color);">0%</div>
+            <div class="stat-label">Taux d'assiduité</div>
+        </div>
+    </div>
+
+    <!-- 2. Indicateurs Globaux : Physique -->
+    <div class="section-title">Indicateurs Globaux - Physique</div>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-num" id="globalSeancesPhysNum" style="color: #38bdf8;">0</div>
+            <div class="stat-label">Séances physiques</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num" id="globalAssiduitePhysNum" style="color: #38bdf8;">0%</div>
+            <div class="stat-label">Taux d'assiduité</div>
+        </div>
+    </div>
+
+    <!-- 3. Bilan des Présences Unifié -->
+    <div class="section-title">Bilan des Présences par Joueur</div>
+    <div class="custom-card">
+        <div class="tabs-container" style="margin-bottom: 12px;">
+            <button class="tab-btn active" id="btnPresTech" onclick="switchPresenceTab('technique')">🎯 Technique</button>
+            <button class="tab-btn" id="btnPresPhys" onclick="switchPresenceTab('physique')">⚡ Physique</button>
+        </div>
+
+        <div id="presenceContentTech" class="presence-sub-content">
+            <div id="playerPresenceList" class="player-presence-list">
+                <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 10px;">Chargement...</div>
+            </div>
+        </div>
+
+        <div id="presenceContentPhys" class="presence-sub-content" style="display: none;">
+            <div id="playerPresenceListPhysique" class="player-presence-list">
+                <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; padding: 10px;">Chargement...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BLOCS STRICTEMENT RÉSERVÉS AU STAFF -->
+    <div id="staffOnlySection" class="staff-only-block">
+        <div class="section-title">Suivi & Évaluation Individuelle (Staff)</div>
+        <div class="players-select-container">
+            <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 600;">Sélectionner un joueur :</label>
+            <select id="playerSelect" class="coach-select" onchange="changerJoueurActif()"></select>
+            <div id="playerSummaryBox" class="player-summary-box"></div>
+        </div>
+
+        <div class="coach-form">
+            <form id="formCoachForme" onsubmit="sauvegarderEvaluationCoach(event)">
+                <div class="card-subtitle" style="margin-top: 0; margin-bottom: 10px;">Formulaire d'évaluation staff</div>
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Charge évaluée par le coach (en %) :</label>
+                    <input type="number" id="inputCoachCharge" class="coach-input" min="0" max="100" placeholder="Ex: 75" required style="margin-bottom: 0;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Indice d'aptitude estimé par le staff (1 à 5) :</label>
+                    <input type="number" id="inputCoachAptitude" class="coach-input" min="1" max="5" step="0.1" placeholder="Ex: 4.5" required style="margin-bottom: 0;">
+                </div>
+                <button type="submit" class="coach-btn">Enregistrer l'évaluation du staff</button>
+                <div id="successCoachMsg" class="success-msg">✅ Évaluation du staff enregistrée avec succès !</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Équipe d'entraîneurs -->
+    <div class="section-title">Équipe d'Entraîneurs</div>
+    <div class="trainers-list" id="trainersContainer"></div>
+
+    <div class="app-version">Cesta Punta Analytics • Version 1.2.0</div>
+</div>
+
+<!-- Chargement de la base de données joueurs -->
+<script src="joueurs-data.js"></script>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function verifierRoleUtilisateur() {
+        const userRole = localStorage.getItem('cesta_user_role');
+        if (userRole === 'player' || userRole === 'joueur') {
+            document.querySelectorAll('.staff-only-block').forEach(el => el.style.display = 'none');
+        }
+    }
+
+    window.switchPresenceTab = function(type) {
+        const btnTech = document.getElementById('btnPresTech');
+        const btnPhys = document.getElementById('btnPresPhys');
+        const contentTech = document.getElementById('presenceContentTech');
+        const contentPhys = document.getElementById('presenceContentPhys');
+
+        if (type === 'technique') {
+            btnTech.classList.add('active');
+            btnPhys.classList.remove('active');
+            contentTech.style.display = 'block';
+            contentPhys.style.display = 'none';
+        } else {
+            btnPhys.classList.add('active');
+            btnTech.classList.remove('active');
+            contentPhys.style.display = 'block';
+            contentTech.style.display = 'none';
+        }
+    }
+
+    async function analyserCalendrierCollectif() {
+        let totalSeancesTechnique = 0;
+        let totalSeancesPhysique = 0;
+        window.statsPresencesJoueurs = {};
+
+        let totalTechPresences = 0;
+        let totalTechInscriptions = 0;
+        let totalPhysPresences = 0;
+        let totalPhysInscriptions = 0;
+
+        try {
+            const querySnapshot = await getDocs(collection(db, "entrainements"));
+
+            if (!querySnapshot.empty) {
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const typeSeance = String(data.type || "").trim().toLowerCase();
+
+                    if (typeSeance === "info" || typeSeance.includes("info")) {
+                        return;
+                    }
+
+                    let estPhysique = (typeSeance === "collectif-physique" || typeSeance.includes("physique"));
+                    let estTechnique = (typeSeance === "collectif-technique" || typeSeance === "collectif" || typeSeance.includes("technique"));
+
+                    if (estPhysique) {
+                        totalSeancesPhysique++;
+                    } else if (estTechnique) {
+                        totalSeancesTechnique++;
+                    } else {
+                        return;
+                    }
+
+                    let convoquesList = data.convoques;
+                    if (!convoquesList || !Array.isArray(convoquesList)) return;
+
+                    convoquesList.forEach(conv => {
+                        const idJ = String(conv.id);
+                        const statutStr = String(conv.statut || "").trim().toLowerCase();
+                        
+                        const estPresent = (statutStr === 'present' || statutStr === 'présent');
+                        const estAbsent = (statutStr === 'absent');
+
+                        if (!window.statsPresencesJoueurs[idJ]) {
+                            window.statsPresencesJoueurs[idJ] = { techP: 0, techA: 0, physP: 0, physA: 0 };
+                        }
+
+                        if (estPhysique && (estPresent || estAbsent)) {
+                            totalPhysInscriptions++;
+                            if (estPresent) {
+                                window.statsPresencesJoueurs[idJ].physP++;
+                                totalPhysPresences++;
+                            } else {
+                                window.statsPresencesJoueurs[idJ].physA++;
+                            }
+                        }
+                        
+                        if (estTechnique && (estPresent || estAbsent)) {
+                            totalTechInscriptions++;
+                            if (estPresent) {
+                                window.statsPresencesJoueurs[idJ].techP++;
+                                totalTechPresences++;
+                            } else {
+                                window.statsPresencesJoueurs[idJ].techA++;
+                            }
+                        }
+                    });
+                });
+            }
+        } catch (error) {
+            console.error("Erreur : ", error);
+        }
+
+        document.getElementById('globalSeancesTechNum').innerText = totalSeancesTechnique;
+        const tauxTechGlobal = totalTechInscriptions > 0 ? Math.round((totalTechPresences / totalTechInscriptions) * 100) : 0;
+        document.getElementById('globalAssiduiteTechNum').innerText = tauxTechGlobal + "%";
+
+        document.getElementById('globalSeancesPhysNum').innerText = totalSeancesPhysique;
+        const tauxPhysGlobal = totalPhysInscriptions > 0 ? Math.round((totalPhysPresences / totalPhysInscriptions) * 100) : 0;
+        document.getElementById('globalAssiduitePhysNum').innerText = tauxPhysGlobal + "%";
+
+        afficherBilanPresencesTechnique();
+        afficherBilanPresencesPhysique();
+    }
+
+    function afficherBilanPresencesTechnique() {
+        const container = document.getElementById('playerPresenceList');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (typeof joueursData === 'undefined' || joueursData.length === 0) return;
+
+        joueursData.forEach(j => {
+            const idJoueur = String(j.id);
+            const stats = window.statsPresencesJoueurs?.[idJoueur] || { techP: 0, techA: 0 };
+            
+            let nbPresents = stats.techP || 0;
+            let nbAbsents = stats.techA || 0;
+            const total = nbPresents + nbAbsents;
+            const taux = total > 0 ? Math.round((nbPresents / total) * 100) : 0;
+
+            const row = document.createElement('div');
+            row.className = 'player-presence-row';
+            row.innerHTML = `
+                <span style="font-weight: 600; color: var(--container-text);">${j.prenom} ${j.nom}</span>
+                <div class="player-stats-badges">
+                    <span class="badge-present-count" title="Présences">✔ ${nbPresents}</span>
+                    <span class="badge-absent-count" title="Absences">✖ ${nbAbsents}</span>
+                    <span class="badge-pct" title="Taux de présence">${taux}%</span>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function afficherBilanPresencesPhysique() {
+        const container = document.getElementById('playerPresenceListPhysique');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (typeof joueursData === 'undefined' || joueursData.length === 0) return;
+
+        joueursData.forEach(j => {
+            const idJoueur = String(j.id);
+            const stats = window.statsPresencesJoueurs?.[idJoueur] || { physP: 0, physA: 0 };
+            
+            let nbPresents = stats.physP || 0;
+            let nbAbsents = stats.physA || 0;
+            const total = nbPresents + nbAbsents;
+            const taux = total > 0 ? Math.round((nbPresents / total) * 100) : 0;
+
+            const row = document.createElement('div');
+            row.className = 'player-presence-row';
+            row.innerHTML = `
+                <span style="font-weight: 600; color: var(--container-text);">${j.prenom} ${j.nom}</span>
+                <div class="player-stats-badges">
+                    <span class="badge-present-count" title="Présences">✔ ${nbPresents}</span>
+                    <span class="badge-absent-count" title="Absences">✖ ${nbAbsents}</span>
+                    <span class="badge-pct" title="Taux de présence">${taux}%</span>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    let currentSelectedPlayerId = 1;
+
+    function initialiserSelecteurJoueurs() {
+        const select = document.getElementById('playerSelect');
+        if (!select) return; 
+        select.innerHTML = '';
+        if (typeof joueursData !== 'undefined' && joueursData.length > 0) {
+            joueursData.forEach(j => {
+                const option = document.createElement('option');
+                option.value = j.id;
+                option.textContent = `${j.prenom} ${j.nom} (${j.specialite})`;
+                select.appendChild(option);
+            });
+            currentSelectedPlayerId = joueursData[0].id;
+        }
+        chargerDonneesJoueurActif();
+    }
+
+    window.changerJoueurActif = function() {
+        const select = document.getElementById('playerSelect');
+        if (!select) return;
+        currentSelectedPlayerId = parseInt(select.value);
+        chargerDonneesJoueurActif();
+    }
+
+    function chargerDonneesJoueurActif() {
+        const summaryBox = document.getElementById('playerSummaryBox');
+        if (!summaryBox || typeof joueursData === 'undefined') return;
+
+        const joueur = joueursData.find(j => j.id == currentSelectedPlayerId);
+        if (!joueur) return;
+
+        summaryBox.innerHTML = `
+            <img src="${joueur.photo}" alt="${joueur.nom}" class="player-thumb" onerror="this.src='logoce.png'">
+            <div class="player-info-text">
+                <h4>${joueur.prenom} ${joueur.nom}</h4>
+                <p>Club : ${joueur.club} | Poste : ${joueur.specialite}</p>
+            </div>
+        `;
+
+        const savedCoachData = localStorage.getItem(`cesta_forme_coach_${currentSelectedPlayerId}`);
+        if (savedCoachData) {
+            try {
+                const dataCoach = JSON.parse(savedCoachData);
+                document.getElementById('inputCoachCharge').value = dataCoach.charge ?? '';
+                document.getElementById('inputCoachAptitude').value = dataCoach.aptitude ?? '';
+            } catch(e) { viderFormulaireCoach(); }
+        } else { viderFormulaireCoach(); }
+    }
+
+    function viderFormulaireCoach() {
+        if (document.getElementById('inputCoachCharge')) document.getElementById('inputCoachCharge').value = '';
+        if (document.getElementById('inputCoachAptitude')) document.getElementById('inputCoachAptitude').value = '';
+    }
+
+    window.sauvegarderEvaluationCoach = function(event) {
+        event.preventDefault();
+        const donneesCoach = {
+            charge: Number(document.getElementById('inputCoachCharge').value),
+            aptitude: Number(document.getElementById('inputCoachAptitude').value),
+            date: new Date().toISOString()
+        };
+        localStorage.setItem(`cesta_forme_coach_${currentSelectedPlayerId}`, JSON.stringify(donneesCoach));
+        const msg = document.getElementById('successCoachMsg');
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    }
+
+    const entraineursData = [
+        { prenom: "Philippe", nom: "ETCHEBERRY", role: "Entraîneur Technique", photo: "philippe.jpg", secours: "fifi.jpg" },
+        { prenom: "Eric", nom: "IRASTORZA", role: "Entraîneur Technique", photo: "irastorza.png", secours: "fifi.jpg" },
+        { prenom: "Dany", nom: "ERDOCIO", role: "Entraîneur Technique", photo: "dany.jpeg", secours: "fifi.jpg" }
+    ];
+
+    const trainersContainer = document.getElementById('trainersContainer');
+    if (trainersContainer) {
+        trainersContainer.innerHTML = '';
+        entraineursData.forEach(coach => {
+            const box = document.createElement('div');
+            box.className = 'user-profile-box';
+            box.innerHTML = `
+                <img src="${coach.photo}" alt="${coach.prenom} ${coach.nom}" class="user-avatar" onerror="this.src='${coach.secours}'">
+                <div class="user-info-details">
+                    <div class="user-name">${coach.prenom} ${coach.nom}</div>
+                    <div class="user-role">${coach.role}</div>
+                </div>
+            `;
+            trainersContainer.appendChild(box);
+        });
+    }
+
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = savedTheme === 'light' ? '☀️' : '🌙';
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = newTheme === 'light' ? '☀️' : '🌙';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        verifierRoleUtilisateur();
+        if (localStorage.getItem('cesta_user_role') !== 'player' && localStorage.getItem('cesta_user_role') !== 'joueur') {
+            initialiserSelecteurJoueurs();
+        }
+        analyserCalendrierCollectif();
+    });
+</script>
+
+</body>
+</html>

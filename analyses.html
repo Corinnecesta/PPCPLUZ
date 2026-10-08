@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Analyses Vidéos</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Styles spécifiques à la page Analyses Vidéos */
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        /* Lecteur vidéo simulé principal */
+        .main-player { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .player-screen { height: 200px; background: rgba(0, 0, 0, 0.2); display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--card-border); }
+        .play-btn-big { width: 50px; height: 50px; background: rgba(0, 242, 254, 0.2); border: 2px solid var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-color); font-size: 1.2rem; padding-left: 3px; cursor: pointer; transition: transform 0.2s; }
+        .play-btn-big:hover { transform: scale(1.1); }
+        .player-details { padding: 15px; }
+        .player-video-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 6px; color: var(--container-text); }
+        .player-video-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Séquences / Chapitres du match */
+        .timeline-box { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .timeline-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: var(--container-text); }
+        .timeline-item:last-child { border-bottom: none; }
+        .time-badge { background: var(--btn-gradient); border: 1px solid var(--card-border); padding: 4px 8px; border-radius: 6px; color: var(--accent-color); font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .time-badge:hover { border-color: var(--accent-color); background: var(--btn-hover-gradient); }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- En-tête global avec logo et actions -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Trait de séparation -->
+    <hr class="separator">
+
+    <div class="section-title">Analyse Technique Avancée</div>
+
+    <div class="main-player">
+        <div class="player-screen">
+            <div class="play-btn-big">▶</div>
+        </div>
+        <div class="player-details">
+            <div class="player-video-title">Décorticage : Geste de Rebot - M. Dupont</div>
+            <div class="player-video-sub">Ralenti 0.5x • Séquence enregistrée à Biarritz</div>
+        </div>
+    </div>
+
+    <div class="section-title">Séquences clés de la partie</div>
+    <div class="timeline-box">
+        <div class="timeline-item">
+            <span>01:15 • Saco (Service gagnant)</span>
+            <span class="time-badge">Voir</span>
+        </div>
+        <div class="timeline-item">
+            <span>04:30 • Échange tendu fond de court</span>
+            <span class="time-badge">Voir</span>
+        </div>
+        <div class="timeline-item">
+            <span>09:50 • Cortada décisive (Balle de match)</span>
+            <span class="time-badge" style="border-color: #10b981; color: #34d399;">Voir</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Synchronisation automatique du thème sur toutes les pages
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+</script>
+
+</body>
+</html>

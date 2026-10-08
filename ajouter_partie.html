@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Ajouter une Partie</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        .form-input, .form-select {
+            width: 100%;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            color: var(--container-text);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus { border-color: var(--accent-color); }
+        .form-select option { background: #111827; color: #ffffff; }
+
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.3);
+        }
+        .btn-submit:hover { opacity: 0.9; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .stat-field-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 8px; border-radius: 10px; }
+        .stat-field-box label { font-size: 0.7rem; color: var(--container-text); display: block; margin-bottom: 3px; font-weight: 600; }
+        .stat-field-box input { width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--container-text); padding: 5px; border-radius: 6px; font-size: 0.8rem; text-align: center; }
+
+        .stat-row-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+        }
+        .stat-row-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--container-text);
+            margin-bottom: 6px;
+        }
+        .stat-row-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+        .stat-row-inputs.has-4 {
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 5px;
+        }
+        .input-with-pct {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-with-pct label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .input-with-pct input {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--container-text);
+            padding: 5px 2px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .pct-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 3px;
+            color: var(--accent-color);
+        }
+        
+        .block-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .block-total-pct {
+            font-size: 0.75rem;
+            background: rgba(23, 184, 144, 0.15);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+        .block-header-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .block-detail-badge {
+            font-size: 0.65rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--container-text);
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .block-detail-badge span {
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-left: 3px;
+        }
+
+        .block-cd-rev-config {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            background: rgba(255,255,255,0.04);
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 10px;
+        }
+        .config-field {
+            display: flex;
+            flex-direction: column;
+        }
+        .config-field label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .config-field input {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--container-text);
+            padding: 5px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .joueurs-tabs {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            margin-bottom: 15px !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+        .joueur-tab {
+            background: var(--card-bg) !important;
+            border: 2px solid var(--card-border) !important;
+            color: var(--container-text) !important;
+            padding: 10px 16px !important;
+            border-radius: 10px !important;
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            pointer-events: auto !important;
+            transition: all 0.2s ease !important;
+        }
+        .joueur-tab:hover {
+            border-color: var(--accent-color) !important;
+        }
+        .joueur-tab.active {
+            background: var(--accent-color) !important;
+            color: #000000 !important;
+            border-color: var(--accent-color) !important;
+            font-weight: 800 !important;
+            box-shadow: 0 0 15px rgba(23, 184, 144, 0.6) !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img" onerror="this.style.display='none'">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div class="section-title">Ajouter une nouvelle partie</div>
+
+    <form id="addMatchForm" onsubmit="enregistrerPartie(event)">
+        <!-- CHOIX DES JOUEURS CONCERNÉS (SÉLECTEUR PAR CATÉGORIES) -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:8px;">👤 Joueurs suivis dans ce match</div>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">Sélectionner un joueur à ajouter</label>
+                <select id="selecteurAjoutJoueur" class="form-select" onchange="ajouterJoueurDepuisSelect(this)">
+                    <option value="">-- Choisir un joueur dans la liste --</option>
+                </select>
+            </div>
+
+            <!-- Conteneur caché de compatibilité pour le script -->
+            <div id="joueursCheckboxContainer" style="display: none;"></div>
+
+            <!-- Liste visuelle des joueurs sélectionnés -->
+            <label class="form-label" style="margin-top: 8px;">Joueurs sélectionnés pour ce match :</label>
+            <div id="joueursSelectionnesTags" style="display: flex; flex-wrap: wrap; gap: 6px; min-height: 35px; padding: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 10px;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Aucun joueur sélectionné</span>
+            </div>
+        </div>
+
+        <!-- INFORMATIONS GÉNÉRALES -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:8px;">📌 Infos de la partie</div>
+            <div class="form-group">
+                <label class="form-label">Titre du match (ex : Finale - Winter Series)</label>
+                <input type="text" id="titreMatch" class="form-input" placeholder="Optionnel (généré auto si vide)">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Compétition</label>
+                    <input type="text" id="competition" class="form-input" placeholder="ex: Championnat" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lieu</label>
+                    <input type="text" id="lieu" class="form-input" placeholder="ex: Biarritz" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Date (JJ/MM/AAAA)</label>
+                    <input type="text" id="dateMatch" class="form-input" placeholder="ex: 14/09/2026" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Heure (HH:MM)</label>
+                    <input type="text" id="heureMatch" class="form-input" placeholder="ex: 18:30">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nombre de manches</label>
+                <select id="nombreManches" class="form-select" onchange="changerFormatScores()">
+                    <option value="2">2 manches</option>
+                    <option value="3">3 manches</option>
+                </select>
+            </div>
+
+            <div class="form-row" style="margin-top: 10px;">
+                <div class="form-group">
+                    <label class="form-label">Équipe 1</label>
+                    <input type="text" id="equipe1" class="form-input" placeholder="ex: Basque - Olharan" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Score Équipe 1</label>
+                    <input type="text" id="scoreEquipe1" class="form-input" placeholder="ex: 15/15" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Équipe 2</label>
+                    <input type="text" id="equipe2" class="form-input" placeholder="ex: Tambourindeguy - Lopez" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Score Équipe 2</label>
+                    <input type="text" id="scoreEquipe2" class="form-input" placeholder="ex: 12/10" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Lien vidéo (URL)</label>
+                <input type="url" id="lienVideo" class="form-input" placeholder="ex: https://youtube.com/...">
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Résultat global (pour l'Équipe 1)</label>
+                <select id="resultat" class="form-select">
+                    <option value="Victoire">Victoire</option>
+                    <option value="Défaite">Défaite</option>
+                    <option value="Nul">Nul</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- SECTION STATISTIQUES PAR JOUEUR (AVEC ONGLETS) -->
+        <div class="section-title">Statistiques individuelles</div>
+        
+        <div id="joueursTabsContainer" class="joueurs-tabs"></div>
+
+        <!-- PELOTES & POINTS -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:8px;">🥎 Pelotes & Points <span id="nomJoueurActuelTitre" style="color:var(--accent-color); font-size:0.75rem; font-weight:700;"></span></div>
+            <div class="stats-grid">
+                <div class="stat-field-box">
+                    <label>Pelotes jouées / totales</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="pelotesJouees" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Jouées">
+                        <input type="number" id="pelotesTotales" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Totales">
+                    </div>
+                    <div id="pctPelotes" class="pct-badge">0%</div>
+                </div>
+                <div class="stat-field-box">
+                    <label>Pts gagnés / totaux</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="ptsGagnes" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Gagnés">
+                        <input type="number" id="ptsGagnesTotaux" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Totaux">
+                    </div>
+                    <div id="pctPtsGagnes" class="pct-badge" style="color:#10B981;">0%</div>
+                </div>
+                <div class="stat-field-box" style="grid-column: span 2;">
+                    <label>Pts perdus / totaux</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="ptsPerdus" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Perdus">
+                        <input type="number" id="ptsPerdusTotaux" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Totaux">
+                    </div>
+                    <div id="pctPtsPerdus" class="pct-badge" style="color:#EF4444;">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOC UNIQUE % COUP DROIT -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="block-cd-rev-config" style="margin-bottom: 0;">
+                <div class="config-field">
+                    <label>% Coup Droit</label>
+                    <input type="number" id="coupDroitGlobalPct" value="100" min="0" max="100" oninput="sauvegarderEtatActuel()">
+                </div>
+            </div>
+        </div>
+
+        <!-- BUTS -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div class="item-title" style="margin-bottom:10px; color: var(--accent-color);">⚽ Buts</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Buts Totaux</label>
+                    <input type="number" id="butsTotal" value="0" class="form-input" oninput="sauvegarderEtatActuel()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sur Arrière</label>
+                    <input type="number" id="butsSurArriere" value="0" class="form-input" oninput="sauvegarderEtatActuel()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Sur Avant</label>
+                    <input type="number" id="butsSurAvant" value="0" class="form-input" oninput="sauvegarderEtatActuel()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ace</label>
+                    <input type="number" id="butsAce" value="0" class="form-input" oninput="sauvegarderEtatActuel()">
+                </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom: 0;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Pasa</label>
+                    <input type="number" id="butsPasa" value="0" class="form-input" oninput="sauvegarderEtatActuel()">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Falta</label>
+                    <input type="number" id="butsFalta" value="0" class="form-input" oninput="sauvegarderEtatActuel()">
+                </div>
+            </div>
+        </div>
+
+        <!-- RÉCEPTIONS -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div style="display: flex; flex-direction: column; margin-bottom: 10px;">
+                <div class="block-header-flex" style="margin-bottom: 0;">
+                    <div class="item-title" style="margin-bottom:0;">📥 Réceptions</div>
+                    <div class="block-total-pct" id="totalBlockPct_receptions">Total : 0%</div>
+                </div>
+                <div class="block-header-details" id="blockHeaderDetails_receptions">
+                    <span class="block-detail-badge">Aire: <span id="hdr_pct_aire">0%</span></span>
+                    <span class="block-detail-badge">Bote: <span id="hdr_pct_bote">0%</span></span>
+                    <span class="block-detail-badge">Bote corrido: <span id="hdr_pct_boteCorrido">0%</span></span>
+                    <span class="block-detail-badge">Bote pronto: <span id="hdr_pct_botePronto">0%</span></span>
+                    <span class="block-detail-badge">Erebote: <span id="hdr_pct_erebote">0%</span></span>
+                    <span class="block-detail-badge">Pumpa: <span id="hdr_pct_pumpa">0%</span></span>
+                </div>
+            </div>
+            
+            <div id="receptionsContainer">
+                <script>
+                    const receptionsLignes = [
+                        {id: 'aire', label: 'Aire'},
+                        {id: 'bote', label: 'Bote'},
+                        {id: 'boteCorrido', label: 'Bote corrido'},
+                        {id: 'botePronto', label: 'Bote pronto'},
+                        {id: 'erebote', label: 'Erebote'},
+                        {id: 'pumpa', label: 'Pumpa'}
+                    ];
+                    receptionsLignes.forEach(r => {
+                        let totalId = (r.id === 'pumpa') ? 'pumpa' : r.id + 'Total';
+                        document.write(`
+                            <div class="stat-row-item" data-prefix="${r.id}">
+                                <div class="stat-row-header">${r.label}</div>
+                                <div class="stat-row-inputs">
+                                    <div class="input-with-pct">
+                                        <label>Total</label>
+                                        <input type="number" id="${totalId}" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${r.id}')">
+                                        <span class="pct-badge" id="pct_tot_${r.id}" style="color:var(--text-muted);">0%</span>
+                                    </div>
+                                    <div class="input-with-pct"><label>Positif</label><input type="number" id="${r.id}Positif" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${r.id}')"><span class="pct-badge" id="pct_pos_${r.id}">0%</span></div>
+                                    <div class="input-with-pct"><label>Négatif</label><input type="number" id="${r.id}Negatif" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${r.id}')"><span class="pct-badge" id="pct_neg_${r.id}" style="color:#EF4444;">0%</span></div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
+            </div>
+        </div>
+
+        <!-- FRAPPES -->
+        <div class="card-item" style="background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px;">
+            <div style="display: flex; flex-direction: column; margin-bottom: 10px;">
+                <div class="block-header-flex" style="margin-bottom: 0;">
+                    <div class="item-title" style="margin-bottom:0;">⚡ Frappes</div>
+                    <div class="block-total-pct" id="totalBlockPct_frappes">Total : 0%</div>
+                </div>
+                <div class="block-header-details" id="blockHeaderDetails_frappes">
+                    <span class="block-detail-badge">Classique: <span id="hdr_pct_frappesClassiques">0%</span></span>
+                    <span class="block-detail-badge">Attaque: <span id="hdr_pct_frappesAttaque">0%</span></span>
+                    <span class="block-detail-badge">Picada: <span id="hdr_pct_picada">0%</span></span>
+                    <span class="block-detail-badge">Dejada: <span id="hdr_pct_dejada">0%</span></span>
+                    <span class="block-detail-badge">Txik Txak: <span id="hdr_pct_txikTxak">0%</span></span>
+                    <span class="block-detail-badge">Txula: <span id="hdr_pct_txula">0%</span></span>
+                    <span class="block-detail-badge">Cortada: <span id="hdr_pct_cortada">0%</span></span>
+                    <span class="block-detail-badge">Gauche gauche: <span id="hdr_pct_gaucheGauche">0%</span></span>
+                    <span class="block-detail-badge">Gauche droite: <span id="hdr_pct_gaucheDroite">0%</span></span>
+                    <span class="block-detail-badge">2 Murs: <span id="hdr_pct_deuxMurs">0%</span></span>
+                </div>
+            </div>
+            
+            <div id="frappesContainer">
+                <script>
+                    const frappesNoms = [
+                        {id: 'frappesClassiques', label: 'Classique'},
+                        {id: 'frappesAttaque', label: 'Attaque'},
+                        {id: 'picada', label: 'Picada'},
+                        {id: 'dejada', label: 'Dejada'},
+                        {id: 'txikTxak', label: 'Txik Txak'},
+                        {id: 'txula', label: 'Txula'},
+                        {id: 'cortada', label: 'Cortada'},
+                        {id: 'gaucheGauche', label: 'Gauche gauche'},
+                        {id: 'gaucheDroite', label: 'Gauche droite'},
+                        {id: 'deuxMurs', label: '2 Murs'}
+                    ];
+                    frappesNoms.forEach(f => {
+                        document.write(`
+                            <div class="stat-row-item" data-prefix="${f.id}">
+                                <div class="stat-row-header">${f.label}</div>
+                                <div class="stat-row-inputs has-4">
+                                    <div class="input-with-pct">
+                                        <label>Total</label>
+                                        <input type="number" id="${f.id}Total" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${f.id}')">
+                                        <span class="pct-badge" id="pct_tot_${f.id}" style="color:var(--text-muted);">0%</span>
+                                    </div>
+                                    <div class="input-with-pct"><label>Positif</label><input type="number" id="${f.id}Pos" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${f.id}')"><span class="pct-badge" id="pct_pos_${f.id}">0%</span></div>
+                                    <div class="input-with-pct"><label>Neutre</label><input type="number" id="${f.id}Neutre" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${f.id}')"><span class="pct-badge" id="pct_neutre_${f.id}" style="color:var(--text-muted);">0%</span></div>
+                                    <div class="input-with-pct"><label>Négatif</label><input type="number" id="${f.id}Neg" value="0" oninput="sauvegarderEtatActuel(); calculerLigneStats('${f.id}')"><span class="pct-badge" id="pct_neg_${f.id}" style="color:#EF4444;">0%</span></div>
+                                </div>
+                            </div>
+                        `);
+                    });
+                </script>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">💾 Enregistrer les stats de tous les joueurs sélectionnés</button>
+    </form>
+</div>
+
+<!-- CHARGEMENT DES FICHIERS DE DONNÉES -->
+<script src="joueurs-data.js"></script>
+<script src="stats-data.js"></script>
+
+<!-- CHARGEMENT DE FIREBASE (SDK Web v10) -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.dbCloud = db;
+    window.setDocCloud = setDoc;
+    window.docCloud = doc;
+    window.collectionCloud = collection;
+    window.getDocs = getDocs;
+</script>
+
+<script>
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
+    }
+
+    let donneesParJoueur = {};
+    let joueurActuelId = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const selectEl = document.getElementById('selecteurAjoutJoueur');
+        const containerCheckboxes = document.getElementById('joueursCheckboxContainer');
+
+        // Création des groupes pour le menu déroulant
+        const optGroupPole = document.createElement('optgroup');
+        optGroupPole.label = "Pôle Performance";
+
+        const optGroupAutres = document.createElement('optgroup');
+        optGroupAutres.label = "Autres Joueurs";
+
+        // Fonction d'aide pour insérer un joueur dans le DOM et les checkboxes cachées
+        function ajouterJoueurAuDOM(id, prenom, nom, groupeCible) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = `${prenom} ${nom}`;
+
+            if (groupeCible === 'autres') {
+                optGroupAutres.appendChild(option);
+            } else {
+                optGroupPole.appendChild(option);
+            }
+
+            const label = document.createElement('label');
+            label.className = 'joueur-checkbox-label';
+            label.innerHTML = `
+                <input type="checkbox" value="${id}" data-nom="${prenom} ${nom}" onchange="mettreAJourSelectionJoueurs()">
+                ${prenom} ${nom}
+            `;
+            containerCheckboxes.appendChild(label);
+        }
+
+        // Tableaux temporaires pour stocker et trier les joueurs
+        let listePole = [];
+        let listeAutres = [];
+
+        // 1. Récupérer les joueurs locaux du fichier joueurs-data.js
+        if (typeof joueursData !== 'undefined') {
+            joueursData.forEach(j => {
+                listePole.push({ id: j.id, prenom: j.prenom, nom: j.nom });
+            });
+        }
+
+        // 2. Attendre que Firebase soit initialisé puis récupérer les autres joueurs
+        let tentatives = 0;
+        while (!window.dbCloud && tentatives < 10) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            tentatives++;
+        }
+
+        if (window.dbCloud && window.getDocs) {
+            try {
+                const snapshot = await window.getDocs(window.collectionCloud(window.dbCloud, "joueurs"));
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const idJoueur = docSnap.id;
+                    
+                    if (idJoueur === 'autres' || data.categorie === 'autres' || data.type === 'autres' || String(idJoueur).toLowerCase().includes('autre')) {
+                        const prenom = data.prenom || "Autre";
+                        const nom = data.nom || idJoueur;
+                        
+                        listeAutres.push({ id: idJoueur, prenom: prenom, nom: nom });
+                    }
+                });
+            } catch (e) {
+                console.log("Erreur lors de la récupération des joueurs Firebase :", e);
+            }
+        }
+
+        // 3. Tri alphabétique des listes par le nom (puis prénom)
+        const triAlphabetique = (a, b) => {
+            const nomA = `${a.nom} ${a.prenom}`.toLowerCase();
+            const nomB = `${b.nom} ${b.prenom}`.toLowerCase();
+            return nomA.localeCompare(nomB, 'fr', { sensitivity: 'base' });
+        };
+
+        listePole.sort(triAlphabetique);
+        listeAutres.sort(triAlphabetique);
+
+        // 4. Injection des joueurs triés dans le DOM
+        listePole.forEach(j => ajouterJoueurAuDOM(j.id, j.prenom, j.nom, 'pole'));
+        listeAutres.forEach(j => ajouterJoueurAuDOM(j.id, j.prenom, j.nom, 'autres'));
+
+        // Ajouter les groupes au menu déroulant s'ils contiennent des éléments
+        if (optGroupPole.children.length > 0) selectEl.appendChild(optGroupPole);
+        if (optGroupAutres.children.length > 0) selectEl.appendChild(optGroupAutres);
+
+        donneesParJoueur = {};
+        joueurActuelId = null;
+        
+        document.getElementById('titreMatch').value = '';
+        document.getElementById('competition').value = '';
+        document.getElementById('lieu').value = '';
+        document.getElementById('dateMatch').value = '';
+        document.getElementById('heureMatch').value = '';
+        document.getElementById('equipe1').value = '';
+        document.getElementById('equipe2').value = '';
+        document.getElementById('scoreEquipe1').value = '';
+        document.getElementById('scoreEquipe2').value = '';
+        document.getElementById('lienVideo').value = '';
+
+        changerFormatScores();
+        viderFormulaireStats();
+    });
+
+    function ajouterJoueurDepuisSelect(selectElement) {
+        const idJoueur = selectElement.value;
+        if (!idJoueur) return;
+
+        const checkbox = document.querySelector(`#joueursCheckboxContainer input[type="checkbox"][value="${idJoueur}"]`);
+        if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            mettreAJourSelectionJoueurs();
+        }
+        selectElement.value = "";
+    }
+
+    function retirerJoueurSelection(idJoueur) {
+        const checkbox = document.querySelector(`#joueursCheckboxContainer input[type="checkbox"][value="${idJoueur}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+            mettreAJourSelectionJoueurs();
+        }
+    }
+
+    function mettreAJourSelectionJoueurs() {
+        const checkboxes = document.querySelectorAll('#joueursCheckboxContainer input[type="checkbox"]:checked');
+        const tagsContainer = document.getElementById('joueursSelectionnesTags');
+        tagsContainer.innerHTML = '';
+
+        let idsSelectionnes = Array.from(checkboxes).map(cb => isNaN(cb.value) ? cb.value : Number(cb.value));
+
+        if (idsSelectionnes.length === 0) {
+            if (joueurActuelId !== null) {
+                sauvegarderEtatActuel();
+            }
+            joueurActuelId = null;
+            document.getElementById('nomJoueurActuelTitre').textContent = "(Aucun joueur sélectionné)";
+            tagsContainer.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Aucun joueur sélectionné</span>';
+            viderFormulaireStats();
+            document.getElementById('joueursTabsContainer').innerHTML = '';
+            return;
+        }
+
+        checkboxes.forEach(cb => {
+            const id = isNaN(cb.value) ? cb.value : Number(cb.value);
+            const nom = cb.getAttribute('data-nom');
+
+            const tag = document.createElement('div');
+            tag.style.cssText = "display: flex; align-items: center; gap: 6px; background: rgba(23, 184, 144, 0.15); border: 1px solid var(--accent-color); padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; color: var(--container-text); font-weight: 600;";
+            tag.innerHTML = `
+                ${nom} 
+                <button type="button" onclick="retirerJoueurSelection('${id}')" style="background: none; border: none; color: var(--accent-color); cursor: pointer; font-weight: bold; font-size: 0.8rem; padding: 0 2px;">✕</button>
+            `;
+            tagsContainer.appendChild(tag);
+        });
+
+        if (joueurActuelId === null || !idsSelectionnes.includes(joueurActuelId)) {
+            joueurActuelId = idsSelectionnes[0];
+        }
+
+        redessinerOngletsEtTitre();
+        chargerEtatJoueur(joueurActuelId);
+        calculerTousLesTotauxEtPcts();
+    }
+
+    function changerJoueurOnglet(id) {
+        if (id === joueurActuelId) return;
+
+        if (joueurActuelId !== null) {
+            sauvegarderEtatActuel();
+        }
+
+        joueurActuelId = id;
+        chargerEtatJoueur(joueurActuelId);
+        redessinerOngletsEtTitre();
+        calculerTousLesTotauxEtPcts();
+    }
+
+    function redessinerOngletsEtTitre() {
+        const checkboxes = document.querySelectorAll('#joueursCheckboxContainer input[type="checkbox"]:checked');
+        const ongletsContainer = document.getElementById('joueursTabsContainer');
+        ongletsContainer.innerHTML = '';
+
+        checkboxes.forEach(cb => {
+            const id = isNaN(cb.value) ? cb.value : Number(cb.value);
+            const nom = cb.getAttribute('data-nom');
+
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.className = 'joueur-tab' + (id === joueurActuelId ? ' active' : '');
+            tab.textContent = nom;
+
+            tab.onclick = (e) => {
+                e.preventDefault();
+                changerJoueurOnglet(id);
+            };
+
+            ongletsContainer.appendChild(tab);
+
+            if (id === joueurActuelId) {
+                const titreEl = document.getElementById('nomJoueurActuelTitre');
+                if (titreEl) titreEl.textContent = `(Actif : ${nom})`;
+            }
+        });
+    }
+
+    function obtenirTousLesChampsIds() {
+        let ids = [
+            'pelotesJouees', 'pelotesTotales', 'ptsGagnes', 'ptsGagnesTotaux', 'ptsPerdus', 'ptsPerdusTotaux', 
+            'coupDroitGlobalPct', 'pumpa', 'pumpaPositif', 'pumpaNegatif',
+            'butsTotal', 'butsSurArriere', 'butsSurAvant', 'butsAce', 'butsPasa', 'butsFalta'
+        ];
+
+        const prefixesReceptions = ['aire', 'bote', 'boteCorrido', 'botePronto', 'erebote'];
+        prefixesReceptions.forEach(p => {
+            ids.push(p + 'Total', p + 'Positif', p + 'Negatif');
+        });
+
+        frappesNoms.forEach(f => {
+            ids.push(f.id + 'Total', f.id + 'Pos', f.id + 'Neutre', f.id + 'Neg');
+        });
+
+        return ids;
+    }
+
+    function sauvegarderEtatActuel() {
+        if (joueurActuelId === null) return;
+        if (!donneesParJoueur[joueurActuelId]) {
+            donneesParJoueur[joueurActuelId] = {};
+        }
+        obtenirTousLesChampsIds().forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                donneesParJoueur[joueurActuelId][id] = parseInt(el.value) || 0;
+            }
+        });
+    }
+
+    function chargerEtatJoueur(id) {
+        const donnees = (donneesParJoueur && donneesParJoueur[id]) ? donneesParJoueur[id] : {};
+        obtenirTousLesChampsIds().forEach(champId => {
+            const el = document.getElementById(champId);
+            if (el) {
+                if (donnees[champId] !== undefined) {
+                    el.value = donnees[champId];
+                } else {
+                    el.value = (champId === 'coupDroitGlobalPct' ? 100 : 0);
+                }
+            }
+        });
+    }
+
+    function viderFormulaireStats() {
+        obtenirTousLesChampsIds().forEach(champId => {
+            const el = document.getElementById(champId);
+            if (el) {
+                el.value = (champId === 'coupDroitGlobalPct' ? 100 : 0);
+            }
+        });
+        calculerTousLesTotauxEtPcts();
+    }
+
+    function changerFormatScores() {
+        const nbManches = document.getElementById('nombreManches').value;
+        const scoreEq1 = document.getElementById('scoreEquipe1');
+        const scoreEq2 = document.getElementById('scoreEquipe2');
+        if (nbManches === "3") {
+            scoreEq1.placeholder = "ex: 15/10/5";
+            scoreEq2.placeholder = "ex: 10/15/3";
+        } else {
+            scoreEq1.placeholder = "ex: 15/15";
+            scoreEq2.placeholder = "ex: 12/10";
+        }
+    }
+
+    function calcPct(val, tot) {
+        if (!tot || tot === 0) return '0%';
+        return Math.round((val / tot) * 100) + '%';
+    }
+
+    function calculerPourcentagesGlobaux() {
+        const pJ = parseInt(document.getElementById('pelotesJouees').value) || 0;
+        const pT = parseInt(document.getElementById('pelotesTotales').value) || 0;
+        document.getElementById('pctPelotes').textContent = calcPct(pJ, pT);
+
+        const ptG = parseInt(document.getElementById('ptsGagnes').value) || 0;
+        const ptGT = parseInt(document.getElementById('ptsGagnesTotaux').value) || 0;
+        document.getElementById('pctPtsGagnes').textContent = calcPct(ptG, ptGT);
+
+        const ptP = parseInt(document.getElementById('ptsPerdus').value) || 0;
+        const ptPT = parseInt(document.getElementById('ptsPerdusTotaux').value) || 0;
+        document.getElementById('pctPtsPerdus').textContent = calcPct(ptP, ptPT);
+    }
+
+    function calculerLigneStats(prefix) {
+        calculerPourcentagesGlobaux();
+
+        const totalInput = document.getElementById(prefix === 'pumpa' ? 'pumpa' : prefix + 'Total');
+        const totalVal = totalInput ? (parseInt(totalInput.value) || 0) : 0;
+
+        let posInput = document.getElementById(prefix + 'Positif') || document.getElementById(prefix + 'Pos');
+        let neutreInput = document.getElementById(prefix + 'Neutre');
+        let negInput = document.getElementById(prefix + 'Negatif') || document.getElementById(prefix + 'Neg');
+
+        const posVal = posInput ? (parseInt(posInput.value) || 0) : 0;
+        const neutreVal = neutreInput ? (parseInt(neutreInput.value) || 0) : 0;
+        const negVal = negInput ? (parseInt(negInput.value) || 0) : 0;
+
+        const badgeTot = document.getElementById('pct_tot_' + prefix);
+        const badgePos = document.getElementById('pct_pos_' + prefix);
+        const badgeNeutre = document.getElementById('pct_neutre_' + prefix);
+        const badgeNeg = document.getElementById('pct_neg_' + prefix);
+
+        if (badgeTot) badgeTot.textContent = totalVal > 0 ? '100%' : '0%';
+        if (badgePos) badgePos.textContent = calcPct(posVal, totalVal);
+        if (badgeNeutre) badgeNeutre.textContent = calcPct(neutreVal, totalVal);
+        if (badgeNeg) badgeNeg.textContent = calcPct(negVal, totalVal);
+
+        const hdrBadge = document.getElementById('hdr_pct_' + prefix);
+        if (hdrBadge) {
+            hdrBadge.textContent = calcPct(posVal, totalVal);
+        }
+
+        recalculerPartsGlobalesCat();
+    }
+
+    function recalculerPartsGlobalesCat() {
+        const prefixesReceptions = ['aire', 'bote', 'boteCorrido', 'botePronto', 'erebote', 'pumpa'];
+        let sommeTotaleRec = 0;
+        let sommePositifsRec = 0;
+
+        prefixesReceptions.forEach(p => {
+            const hiddenEl = document.getElementById(p === 'pumpa' ? 'pumpa' : p + 'Total');
+            const posEl = document.getElementById(p + 'Positif');
+            if (hiddenEl) sommeTotaleRec += parseInt(hiddenEl.value) || 0;
+            if (posEl) sommePositifsRec += parseInt(posEl.value) || 0;
+        });
+
+        const blockPctRec = document.getElementById('totalBlockPct_receptions');
+        if (blockPctRec) {
+            blockPctRec.textContent = `Total : ${calcPct(sommePositifsRec, sommeTotaleRec)}`;
+        }
+
+        let sommeTotaleFrappes = 0;
+        let sommePositifsFrappes = 0;
+
+        frappesNoms.forEach(f => {
+            const hiddenEl = document.getElementById(f.id + 'Total');
+            const posEl = document.getElementById(f.id + 'Pos');
+            if (hiddenEl) sommeTotaleFrappes += parseInt(hiddenEl.value) || 0;
+            if (posEl) sommePositifsFrappes += parseInt(posEl.value) || 0;
+        });
+
+        const blockPctFrappes = document.getElementById('totalBlockPct_frappes');
+        if (blockPctFrappes) {
+            blockPctFrappes.textContent = `Total : ${calcPct(sommePositifsFrappes, sommeTotaleFrappes)}`;
+        }
+    }
+
+    function calculerTousLesTotauxEtPcts() {
+        calculerPourcentagesGlobaux();
+        const prefixesReceptions = ['aire', 'bote', 'boteCorrido', 'botePronto', 'erebote', 'pumpa'];
+        prefixesReceptions.forEach(p => calculerLigneStats(p));
+        frappesNoms.forEach(f => calculerLigneStats(f.id));
+    }
+
+    function nettoyerPourId(texte) {
+        return texte
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "_");
+    }
+
+    function formaterScoreSaisi(scoreStr) {
+        if (!scoreStr) return "";
+        let str = String(scoreStr).trim();
+        str = str.replace(/[\s,-]+/g, '/');
+        if (!str.includes('/') && /^\d+$/.test(str)) {
+            if (str.length === 4) {
+                str = str.slice(0, 2) + '/' + str.slice(2);
+            } else if (str.length === 3) {
+                str = str.slice(0, 2) + '/' + str.slice(2);
+            } else if (str.length === 5) {
+                str = str.slice(0, 2) + '/' + str.slice(2, 4) + '/' + str.slice(4);
+            } else if (str.length === 6) {
+                str = str.slice(0, 2) + '/' + str.slice(2, 4) + '/' + str.slice(4, 6);
+            }
+        }
+        return str;
+    }
+
+    async function enregistrerPartie(event) {
+        event.preventDefault();
+
+        if (!window.dbCloud) {
+            alert("Connexion au cloud en cours de chargement, réessayez dans une seconde.");
+            return;
+        }
+
+        sauvegarderEtatActuel();
+
+        const checkboxes = document.querySelectorAll('#joueursCheckboxContainer input[type="checkbox"]:checked');
+        if (checkboxes.length === 0) {
+            alert("Veuillez sélectionner au moins un joueur concerné par cette partie.");
+            return;
+        }
+
+        const competition = document.getElementById('competition').value;
+        const lieu = document.getElementById('lieu').value;
+        const date = document.getElementById('dateMatch').value;
+        const heure = document.getElementById('heureMatch').value;
+        const nombreManches = document.getElementById('nombreManches').value;
+        const lienVideo = document.getElementById('lienVideo').value;
+        const titreUser = document.getElementById('titreMatch').value.trim();
+
+        const equipe1 = document.getElementById('equipe1').value;
+        const equipe2 = document.getElementById('equipe2').value;
+        const scoreEquipe1 = formaterScoreSaisi(document.getElementById('scoreEquipe1').value);
+        const scoreEquipe2 = formaterScoreSaisi(document.getElementById('scoreEquipe2').value);
+        const resultat = document.getElementById('resultat').value;
+
+        const statsParJoueurObj = {};
+        checkboxes.forEach(cb => {
+            const id = isNaN(cb.value) ? cb.value : Number(cb.value);
+            statsParJoueurObj[id] = donneesParJoueur[id] || {
+                pelotesJouees: 0, pelotesTotales: 0, ptsGagnes: 0, ptsGagnesTotaux: 0,
+                ptsPerdus: 0, ptsPerdusTotaux: 0, coupDroitGlobalPct: 100,
+                butsTotal: 0, butsSurArriere: 0, butsSurAvant: 0, butsAce: 0, butsPasa: 0, butsFalta: 0
+            };
+        });
+
+        const nouveauMatch = {
+            competition: competition,
+            lieu: lieu,
+            date: date,
+            heure: heure,
+            nombreManches: nombreManches,
+            scoreEquipe1: scoreEquipe1,
+            scoreEquipe2: scoreEquipe2,
+            lienVideo: lienVideo,
+            equipe1: equipe1,
+            equipe2: equipe2,
+            resultat: resultat,
+            titre: titreUser !== "" ? titreUser : `${competition} — ${lieu} (${date})`,
+            statsParJoueur: statsParJoueurObj,
+            createdAt: new Date().toISOString()
+        };
+
+        try {
+            const idPropre = `${nettoyerPourId(competition)}_${nettoyerPourId(equipe1)}_${date.replace(/\//g, '-')}`;
+            await window.setDocCloud(window.docCloud(window.dbCloud, "matchs", idPropre), nouveauMatch);
+
+            alert("Partie et statistiques de tous les joueurs enregistrées avec succès sur le Cloud !");
+            
+            const premierCb = checkboxes[0];
+            const premierId = isNaN(premierCb.value) ? premierCb.value : Number(premierCb.value);
+            window.location.href = `statjoueur.html?id=${premierId}`;
+        } catch (error) {
+            console.error("Erreur lors de l'enregistrement Firebase : ", error);
+            alert("Erreur lors de l'enregistrement sur le Cloud. Vérifiez votre connexion internet.");
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+// Données centralisées des joueurs de Cesta Punta avec leurs photos et caractéristiques physiques
+const joueursData = [
+    {
+        id: "basque",
+        prenom: "Thibault",
+        nom: "BASQUE",
+        club: "Bidart",
+        specialite: "Arrière",
+        victoires: 34,
+        defaites: 10,
+        dateNaissance: "20/06/1996",
+        taille: "1m80",
+        poids: "76 kg",
+        photo: "basque.png"
+    },
+    {
+        id: "oyhenard",
+        prenom: "Guillen",
+        nom: "OYHENARD",
+        club: "Mauléon",
+        specialite: "Arrière",
+        victoires: 28,
+        defaites: 15,
+        dateNaissance: "13/01/1999",
+        taille: "1m88",
+        poids: "86 kg",
+        photo: "oyhenard.png"
+    },
+    {
+        id: "laborde",
+        prenom: "Théo",
+        nom: "LABORDE",
+        club: "St-Jean-de-Luz",
+        specialite: "Arrière",
+        victoires: 31,
+        defaites: 12,
+        dateNaissance: "01/08/1998",
+        taille: "1m89",
+        poids: "84 kg",
+        photo: "laborde.png"
+    },
+    {
+        id: "caparrus",
+        prenom: "Paul",
+        nom: "CAPARRUS",
+        club: "Pau",
+        specialite: "Arrière",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "21/06/2005",
+        taille: "1m90",
+        poids: "80 kg",
+        photo: "caparrus.png"
+    },
+    {
+        id: "laduche",
+        prenom: "Ludovic",
+        nom: "LADUCHE",
+        club: "Guethary",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "15/03/1994",
+        taille: "1m83",
+        poids: "84 kg",
+        photo: "laduche.png"
+    },
+    {
+        id: "libois",
+        prenom: "Emeric",
+        nom: "LIBOIS",
+        club: "Mauléon",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "27/08/2003",
+        taille: "1m86",
+        poids: "75 kg",
+        photo: "libois.png"
+    },
+    {
+        id: "garcia",
+        prenom: "Clément",
+        nom: "GARCIA",
+        club: "Biarritz",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "08/08/2001",
+        taille: "1m87",
+        poids: "80 kg",
+        photo: "garcia.png"
+    },
+    {
+        id: "bonnin",
+        prenom: "Charles",
+        nom: "BONNIN",
+        club: "St-Jean-de-Luz",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "01/04/2004",
+        taille: "1m77",
+        poids: "70 kg",
+        photo: "bonnin.png"
+    }
+];

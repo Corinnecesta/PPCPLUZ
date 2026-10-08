@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark"> <!-- Mode sombre par défaut -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cesta Punta - Accueil</title>
+    <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIABLES DE COULEURS (Mode Sombre - Option 2 : Océan & Lagon) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
+            --container-text: #f8fafc;
+            --card-bg: linear-gradient(135deg, #0d1b2a 0%, #0f4c5c 100%);
+            --card-border: #17b890;
+            --card-hover-bg: linear-gradient(135deg, #132238 0%, #125c6e 100%);
+            --accent-color: #00f2fe;
+            --text-muted: #94a3b8;
+            --btn-gradient: linear-gradient(135deg, #0f4c5c 0%, #125c6e 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
+        }
+
+        /* --- VARIABLES DE COULEURS (Mode Clair) --- */
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --container-text: #0f172a;
+            --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --card-border: #cbd5e1;
+            --card-hover-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --accent-color: #0284c7;
+            --text-muted: #64748b;
+            --btn-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            color: var(--container-text); 
+            padding: 10px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s; 
+        }
+
+        .mobile-container { 
+            max-width: 420px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            padding-bottom: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        
+        /* En-tête tout en haut */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; }
+        .logo-img { height: 50px; object-fit: contain; }
+        
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        /* Boutons du haut en dégradé lagon */
+        .home-btn, .theme-toggle-btn, .profile-btn { 
+            background: var(--btn-gradient); 
+            border: 1px solid var(--card-border); 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            text-decoration: none; 
+            color: var(--container-text); 
+            font-size: 0.95rem; 
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
+            border-color: var(--accent-color); 
+            background: var(--btn-hover-gradient);
+            transform: translateY(-2px);
+        }
+
+        /* Ligne de séparation */
+        .separator { border: none; height: 1px; background-color: var(--card-border); margin: 2px 0; width: 100%; }
+
+        /* --- CLASSE COMMUNE POUR HARMONISER LA LARGEUR DES BLOCS --- */
+        .full-width-block {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--card-bg);
+            border: 2px solid #17b890;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+        }
+
+        /* --- BLOC TITRE PLEINE LARGEUR --- */
+        .header-banner-card {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .header-text-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        /* Bannière photo principale */
+        .hero-banner { 
+            height: auto; 
+            overflow: hidden;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .hero-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* --- CARTE "PROCHAIN ENTRAÎNEMENT" --- */
+        .full-width-event-card {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--container-text);
+            transition: all 0.25s ease;
+        }
+        .full-width-event-card:hover {
+            background: var(--card-hover-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        .full-width-event-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .event-icon-box {
+            background: linear-gradient(135deg, rgba(15, 76, 92, 0.4) 0%, rgba(23, 184, 144, 0.3) 100%);
+            border: 1px solid var(--accent-color);
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .event-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+        }
+        .event-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+        .event-details {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--container-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .event-arrow {
+            font-size: 1rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        /* --- CARTE ACTION RAPIDE : NOUVELLE PARTIE & MODIFIER PARTIE --- */
+        .action-add-card {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--container-text);
+            transition: all 0.25s ease;
+        }
+        .action-add-card:hover {
+            background: var(--card-hover-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
+        }
+
+        /* --- GRILLE DES ONGLETS --- */
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        
+        .menu-card { 
+            background: var(--card-bg); 
+            border: 2px solid #17b890;
+            border-radius: 16px; 
+            padding: 16px 10px; 
+            text-decoration: none; 
+            color: var(--container-text); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            text-align: center; 
+            gap: 10px; 
+            transition: all 0.25s ease; 
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .menu-card:hover { 
+            background: var(--card-hover-bg); 
+            border-color: var(--accent-color);
+            transform: translateY(-3px); 
+            box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
+        }
+        
+        .menu-card.active-primary { 
+            background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%); 
+            border: 2px solid #00f2fe;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(23, 184, 144, 0.4);
+        }
+        .menu-card.active-primary .menu-label, 
+        .menu-card.active-primary .menu-icon-wrapper { color: #ffffff; }
+
+        .menu-icon-wrapper { font-size: 1.8rem; position: relative; } 
+        .menu-label { font-weight: bold; font-size: 0.85rem; } 
+
+        /* --- BADGE DE NOTIFICATION --- */
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 10px;
+            border: 2px solid #0d1b2a;
+            animation: pulse-badge 2s infinite;
+            display: none;
+        }
+
+        .notification-badge.active {
+            display: block;
+        }
+
+        @keyframes pulse-badge {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- En-tête tout en haut avec logo et actions à droite -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Séparation -->
+    <hr class="separator">
+
+    <!-- CONTENEUR D'ALERTE ANNIVERSAIRE (Dynamique) -->
+    <div id="birthdayAlertContainer"></div>
+
+    <!-- Bloc titre pleine largeur -->
+    <div class="header-banner-card full-width-block">
+        <div class="header-text-group">
+            <div class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</div>
+        </div>
+    </div>
+
+    <!-- Photo principale du Pôle Performance en entier -->
+    <div class="hero-banner full-width-block">
+        <img src="titre.png" alt="Pôle Performance Cesta Punta" class="hero-img">
+    </div>
+
+    <!-- Carte "Prochain entraînement" dynamique -->
+    <a href="entrainements.html" class="full-width-event-card full-width-block" id="nextTrainingCard">
+        <div class="full-width-event-left">
+            <div class="event-icon-box">⏳</div>
+            <div class="event-info">
+                <div class="event-label">Prochain entraînement</div>
+                <div class="event-details" id="nextTrainingDetails">Chargement...</div>
+            </div>
+        </div>
+        <div class="event-arrow">➔</div>
+    </a>
+
+    <!-- BOUTON D'ACCÈS RAPIDE : NOUVELLE PARTIE (Réservé exclusivement à l'Admin) -->
+    <a href="ajouter_partie.html" class="action-add-card full-width-block admin-only" style="display: none;">
+        <div class="full-width-event-left">
+            <div class="event-icon-box" style="background: rgba(0, 242, 254, 0.2); border-color: var(--accent-color);">➕</div>
+            <div class="event-info">
+                <div class="event-label">Saisie rapide</div>
+                <div class="event-details" style="font-size: 0.82rem;">Ajouter une nouvelle partie</div>
+            </div>
+        </div>
+        <div class="event-arrow">➔</div>
+    </a>
+
+    <!-- BOUTON D'ACCÈS RAPIDE : MODIFIER UNE PARTIE (Réservé exclusivement à l'Admin) -->
+    <a href="modifier_partie.html" class="action-add-card full-width-block admin-only" style="display: none;">
+        <div class="full-width-event-left">
+            <div class="event-icon-box" style="background: rgba(0, 242, 254, 0.2); border-color: var(--accent-color);">✏️</div>
+            <div class="event-info">
+                <div class="event-label">Gestion des scores</div>
+                <div class="event-details" style="font-size: 0.82rem;">Modifier une partie</div>
+            </div>
+        </div>
+        <div class="event-arrow">➔</div>
+    </a>
+
+    <!-- Grille des onglets -->
+    <div class="menu-grid">
+        <!-- 1. Entraînements -->
+        <a href="entrainements.html" class="menu-card active-primary">
+            <div class="menu-icon-wrapper">🏟️</div>
+            <div class="menu-label">Entraînements</div>
+        </a>
+        <!-- 2. Joueurs -->
+        <a href="joueurs.html" class="menu-card">
+            <div class="menu-icon-wrapper">👥</div>
+            <div class="menu-label">Joueurs</div>
+        </a>
+        <!-- 3. Parties -->
+        <a href="match.html" class="menu-card">
+            <div class="menu-icon-wrapper">🎯</div>
+            <div class="menu-label">Parties</div>
+        </a>
+        <!-- 4. Entraîneurs -->
+        <a href="entraineurs.html" class="menu-card">
+            <div class="menu-icon-wrapper">👨‍🏫</div>
+            <div class="menu-label">Entraîneurs</div>
+        </a>
+        <!-- 5. Classement -->
+        <a href="comparaison.html" class="menu-card">
+            <div class="menu-icon-wrapper">🏆</div>
+            <div class="menu-label">Classement</div>
+        </a>
+        <!-- 6. Staff -->
+        <a href="staff.html" class="menu-card">
+            <div class="menu-icon-wrapper">👔</div>
+            <div class="menu-label">Staff</div>
+        </a>
+        <!-- 7. Analyses (Caché) -->
+        <a href="analyses.html" class="menu-card" style="display: none;">
+            <div class="menu-icon-wrapper">📊</div>
+            <div class="menu-label">Analyses</div>
+        </a>
+        <!-- 8. Vidéos (Caché) -->
+        <a href="video.html" class="menu-card" style="display: none;">
+            <div class="menu-icon-wrapper">🎥</div>
+            <div class="menu-label">Vidéos</div>
+        </a>
+        <!-- 9. Échanges (Caché) -->
+        <a href="echanges.html" class="menu-card" style="display: none;">
+            <div class="menu-icon-wrapper">
+                💬
+                <span class="notification-badge active" id="echangesBadge">N</span>
+            </div>
+            <div class="menu-label">Échanges</div>
+        </a>
+    </div>
+</div>
+
+<!-- Fichiers de données (joueurs et staff) -->
+<script src="joueurs-data.js"></script>
+<script src="staff-data.js"></script>
+
+<!-- Firebase SDK Compat pour écouter les messages en temps réel -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    // Gestion de la bascule de thème clair / sombre
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+
+    // --- GESTION DES RÔLES (Affichage admin) ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const userRole = localStorage.getItem('cesta_user_role'); // 'admin', 'entraineur', 'player' ou 'joueur'
+        const adminElements = document.querySelectorAll('.admin-only');
+
+        if (userRole === 'admin') {
+            adminElements.forEach(el => {
+                el.style.display = 'flex';
+            });
+        } else {
+            adminElements.forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        verifierAnniversaires();
+        chargerProchainEntrainement();
+    });
+
+    // --- VÉRIFICATION AUTOMATIQUE DES ANNIVERSAIRES ---
+    function verifierAnniversaires() {
+        const aujourdHui = new Date();
+        const jourActuel = String(aujourdHui.getDate()).padStart(2, '0');
+        const moisActuel = String(aujourdHui.getMonth() + 1).padStart(2, '0');
+        const dateDuJourStr = `${jourActuel}/${moisActuel}`;
+
+        let anniversairesDuJour = [];
+
+        if (typeof joueursData !== 'undefined') {
+            joueursData.forEach(joueur => {
+                if (joueur.dateNaissance) {
+                    const dateNaisCourt = joueur.dateNaissance.substring(0, 5);
+                    if (dateNaisCourt === dateDuJourStr) {
+                        anniversairesDuJour.push({
+                            nomComplet: `${joueur.prenom} ${joueur.nom}`,
+                            type: "Joueur",
+                            id: joueur.id
+                        });
+                    }
+                }
+            });
+        }
+
+        if (typeof staffData !== 'undefined') {
+            staffData.forEach(membre => {
+                if (membre.dateNaissance) {
+                    const dateNaisCourt = membre.dateNaissance.substring(0, 5);
+                    if (dateNaisCourt === dateDuJourStr) {
+                        anniversairesDuJour.push({
+                            nomComplet: `${membre.prenom} ${membre.nom}`,
+                            type: "Staff"
+                        });
+                    }
+                }
+            });
+        }
+
+        const alertContainer = document.getElementById('birthdayAlertContainer');
+        if (anniversairesDuJour.length > 0) {
+            let htmlContent = '';
+            anniversairesDuJour.forEach(personne => {
+                htmlContent += `
+                    <div style="background: linear-gradient(135deg, rgba(23, 184, 144, 0.25), rgba(15, 76, 92, 0.45)); border: 2px solid var(--accent-color); border-radius: 16px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.25);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">🎉</span>
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--container-text);">Joyeux Anniversaire !</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">C'est l'anniversaire de <strong>${personne.nomComplet}</strong> (${personne.type}) aujourd'hui ! 🎂</div>
+                            </div>
+                        </div>
+                        ${personne.id ? `<a href="joueur.html?id=${personne.id}" style="background: var(--btn-gradient); color: var(--container-text); padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-decoration: none; white-space: nowrap;">Voir profil</a>` : ''}
+                    </div>
+                `;
+            });
+            alertContainer.innerHTML = htmlContent;
+        }
+    }
+
+    // --- MISE À JOUR AUTOMATIQUE DU PROCHAIN ENTRAÎNEMENT ---
+    function chargerProchainEntrainement() {
+        let trainingsData = null;
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.includes('trainings') || key.includes('entrainement') || key.includes('calendar'))) {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem(key));
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        const hasDate = parsed.some(item => item.dateIso || item.date || item.start);
+                        if (hasDate) {
+                            trainingsData = parsed;
+                            break;
+                        }
+                    }
+                } catch(e) {}
+            }
+        }
+
+        if (!trainingsData || trainingsData.length === 0) {
+            trainingsData = [
+                { id: "def-1", titre: "Atelier Sorties de mur & Rebonds", dateString: "Demain, 18h00", dateIso: "2026-09-24T18:00", lieu: "Fronton Jai Alai", statut: "Confirmé" },
+                { id: "def-2", titre: "Physique & Gammes techniques", dateString: "Jeudi 28, 19h00", dateIso: "2026-09-28T19:00", lieu: "Trinquet Municipal", statut: "Ouvert" },
+                { id: "def-3", titre: "Mise en situation / Matchs amicaux", dateString: "Samedi 30, 10h00", dateIso: "2026-09-30T10:00", lieu: "Fronton Principal", statut: "Complet" }
+            ];
+            localStorage.setItem('cesta_trainings', JSON.stringify(trainingsData));
+        }
+
+        const maintenant = new Date();
+        let evenementsFuturs = trainingsData.map(item => {
+            const rawDate = item.dateIso || item.date || item.start || item.jour;
+            return {
+                ...item,
+                dateObj: new Date(rawDate)
+            };
+        }).filter(item => !isNaN(item.dateObj) && item.dateObj >= maintenant);
+
+        evenementsFuturs.sort((a, b) => a.dateObj - b.dateObj);
+        const detailsContainer = document.getElementById('nextTrainingDetails');
+
+        if (evenementsFuturs.length > 0) {
+            const prochain = evenementsFuturs[0];
+            const options = { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
+            let dateFormatee = prochain.dateObj.toLocaleDateString('fr-FR', options);
+            dateFormatee = dateFormatee.charAt(0).toUpperCase() + dateFormatee.slice(1);
+
+            const lieu = prochain.lieu || prochain.emplacement || "Fronton Jai Alai";
+            detailsContainer.textContent = `${dateFormatee} • ${lieu}`;
+        } else if (trainingsData.length > 0) {
+            const fallback = trainingsData[0];
+            const texteDate = fallback.dateString || fallback.date || "Date à définir";
+            const lieu = fallback.lieu || "Fronton Jai Alai";
+            detailsContainer.textContent = `${texteDate} • ${lieu}`;
+        } else {
+            detailsContainer.textContent = "Aucun entraînement programmé";
+        }
+    }
+
+    // --- VÉRIFICATION DES NOUVEAUX MESSAGES POUR LE BADGE "ÉCHANGES" ---
+    const echangesBadge = document.getElementById('echangesBadge');
+
+    try {
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+            authDomain: "ppcestapunta64500.firebaseapp.com",
+            projectId: "ppcestapunta64500",
+            storageBucket: "ppcestapunta64500.firebasestorage.app",
+            messagingSenderId: "80945272911",
+            appId: "1:80945272911:web:154437e054b190e7ebb23a",
+            measurementId: "G-SCYGWMW7VF"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
+
+        db.collection("echanges_messages")
+          .orderBy("timestamp", "desc")
+          .limit(1)
+          .onSnapshot((snapshot) => {
+              if (!snapshot.empty) {
+                  const latestMsg = snapshot.docs[0].data();
+                  if (latestMsg && latestMsg.author !== currentUser) {
+                      echangesBadge.classList.add('active');
+                  }
+              }
+          });
+    } catch (e) {
+        console.log("Firebase non configuré pour les messages, le badge reste actif par défaut pour test.");
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Tableau de bord</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Styles spécifiques au tableau de bord */
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        /* Cartes de KPI Globaux (2x2) */
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+        .kpi-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .kpi-value { font-size: 1.4rem; font-weight: 800; color: var(--accent-color); margin-bottom: 4px; }
+        .kpi-label { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Section Analyse des coups (Barres de progression) */
+        .stats-section { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .bar-item { margin-bottom: 12px; }
+        .bar-item:last-child { margin-bottom: 0; }
+        .bar-info { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; font-weight: 600; color: var(--container-text); }
+        .bar-bg { background: var(--btn-gradient); height: 8px; border-radius: 4px; overflow: hidden; border: 1px solid var(--card-border); }
+        .bar-fill { background: linear-gradient(90deg, #00f2fe, #38bdf8); height: 100%; border-radius: 4px; }
+        .bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+
+        /* Liste des derniers tournois / matchs analysés */
+        .match-history { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: var(--container-text); }
+        .history-row:last-child { border-bottom: none; }
+        .win-tag { color: #34d399; font-weight: bold; }
+        .loss-tag { color: #f43f5e; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+
+    <!-- En-tête global avec logo et actions -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Trait de séparation -->
+    <hr class="separator">
+
+    <div class="section-title">Indicateurs Globaux</div>
+
+    <!-- Grille des KPI -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-value">142</div>
+            <div class="kpi-label">Matchs enregistrés</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value" style="color: #10b981;">71.8%</div>
+            <div class="kpi-label">Taux de victoire moy.</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value">24.5</div>
+            <div class="kpi-label">Points moy. / match</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value" style="color: #f43f5e;">12.3</div>
+            <div class="kpi-label">Fautes moy. / match</div>
+        </div>
+    </div>
+
+    <div class="section-title">Efficacité par type de coup</div>
+
+    <!-- Graphique en barres des coups -->
+    <div class="stats-section">
+        <div class="bar-item">
+            <div class="bar-info">
+                <span>Rebot (Fond de court)</span>
+                <span style="color: var(--accent-color);">42%</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 42%;"></div></div>
+        </div>
+        <div class="bar-item">
+            <div class="bar-info">
+                <span>Cortada (Amorti fronton)</span>
+                <span style="color: #34d399;">28%</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill green" style="width: 28%;"></div></div>
+        </div>
+        <div class="bar-item">
+            <div class="bar-info">
+                <span>Dos paredes (Double mur)</span>
+                <span style="color: var(--accent-color);">18%</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 18%;"></div></div>
+        </div>
+        <div class="bar-item">
+            <div class="bar-info">
+                <span>Saco (Service)</span>
+                <span style="color: #34d399;">12%</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill green" style="width: 12%;"></div></div>
+        </div>
+    </div>
+
+    <div class="section-title">Dernières rencontres analysées</div>
+
+    <!-- Historique -->
+    <div class="match-history">
+        <div class="history-row">
+            <span>Biarritz vs Hendaye</span>
+            <span class="win-tag">Victoire (25-18)</span>
+        </div>
+        <div class="history-row">
+            <span>Saint-Jean-de-Luz vs Bayonne</span>
+            <span class="win-tag">Victoire (25-22)</span>
+        </div>
+        <div class="history-row">
+            <span>Biarritz vs Saint-Pée</span>
+            <span class="loss-tag">Défaite (20-25)</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Synchronisation automatique du thème sur toutes les pages
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+</script>
+
+</body>
+</html>

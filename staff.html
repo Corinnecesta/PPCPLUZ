@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Staff</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Styles spécifiques à la page Staff */
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.5px; }
+
+        .staff-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px; }
+        
+        .staff-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 12px 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.25s ease; }
+        .staff-card:hover { border-color: var(--accent-color); background: var(--card-hover-bg); transform: translateY(-2px); }
+        
+        .staff-photo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); background: rgba(0,0,0,0.2); margin-bottom: 2px; }
+        
+        .staff-name { font-weight: bold; font-size: 0.82rem; color: var(--container-text); line-height: 1.2; }
+        .staff-role { font-size: 0.7rem; font-weight: 600; color: #34d399; line-height: 1.2; margin-bottom: 2px; }
+
+        /* Styles pour les contacts (email et téléphone) */
+        .staff-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            width: 100%;
+            margin-top: 3px;
+            font-size: 0.68rem;
+        }
+
+        .contact-link {
+            background: rgba(15, 76, 92, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 1px 6px;
+            color: var(--container-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .contact-link:hover {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: #0a192f;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <!-- En-tête -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <!-- Bouton retour accueil avec icône maison -->
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <!-- Bouton de bascule de thème -->
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <!-- Bouton profil / compte -->
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Trait de séparation -->
+    <hr class="separator">
+
+    <!-- Titre de la page -->
+    <div class="section-title">L'Équipe & Staff Technique</div>
+
+    <!-- Grille des membres du staff (Style onglets) -->
+    <div class="staff-grid">
+        
+        <!-- Membre 1 -->
+        <div class="staff-card">
+            <img src="fred.jpeg" alt="Photo" class="staff-photo">
+            <div class="staff-name">Frédéric CADET</div>
+            <div class="staff-role">Directeur</div>
+            <div class="staff-contact">
+                <a href="mailto:frederic.cadet@sjdl.fr" class="contact-link" title="Envoyer un e-mail">✉️ frederic.cadet@...</a>
+                <a href="tel:+33611037756" class="contact-link" title="Appeler">📞 06 11 03 77 56</a>
+            </div>
+        </div>
+
+        <!-- Membre 2 -->
+        <div class="staff-card">
+            <img src="fifi.jpg" alt="Photo" class="staff-photo">
+            <div class="staff-name">Philippe ETCHEBERRY</div>
+            <div class="staff-role">Entraîneur</div>
+            <div class="staff-contact">
+                <a href="mailto:fifi.etcheberry@icloud.com" class="contact-link" title="Envoyer un e-mail">✉️ fifi.etcheberry@...</a>
+                <a href="tel:+33681748869" class="contact-link" title="Appeler">📞 06 81 74 88 69</a>
+            </div>
+        </div>
+
+        <!-- Membre 3 -->
+        <div class="staff-card">
+            <img src="irastorza.png" alt="Photo" class="staff-photo">
+            <div class="staff-name">Eric IRASTORZA</div>
+            <div class="staff-role">Entraîneur</div>
+            <div class="staff-contact">
+                <a href="mailto:bitxi@msn.com" class="contact-link" title="Envoyer un e-mail">✉️ bitxi@...</a>
+                <a href="tel:+33608984919" class="contact-link" title="Appeler">📞 06 08 98 49 19</a>
+            </div>
+        </div>
+
+        <!-- Membre 4 -->
+        <div class="staff-card">
+            <img src="dany.jpeg" alt="Photo" class="staff-photo">
+            <div class="staff-name">Dany ERDOCIO</div>
+            <div class="staff-role">Entraîneur</div>
+            <div class="staff-contact">
+                <a href="mailto:lohitzun23@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ lohitzun23@...</a>
+                <a href="tel:+33681739919" class="contact-link" title="Appeler">📞 06 81 73 99 19</a>
+            </div>
+        </div>
+
+        <!-- Membre 5 -->
+        <div class="staff-card">
+            <img src="herve.png" alt="Photo" class="staff-photo">
+            <div class="staff-name">Hervé MURILLO</div>
+            <div class="staff-role">Président Luzean</div>
+            <div class="staff-contact">
+                <a href="mailto:herve.murillo@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ herve.murillo@...</a>
+                <a href="tel:+33622544410" class="contact-link" title="Appeler">📞 06 22 54 44 10</a>
+            </div>
+        </div>
+
+        <!-- Membre 6 -->
+        <div class="staff-card">
+            <img src="julien.png" alt="Photo" class="staff-photo">
+            <div class="staff-name">Julien GUTIEREZ</div>
+            <div class="staff-role">Préparateur physique</div>
+            <div class="staff-contact">
+                <a href="mailto:jgutierez.coaching@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ jgutierez.coaching@...</a>
+                <a href="tel:+33637107384" class="contact-link" title="Appeler">📞 06 37 10 73 84</a>
+            </div>
+        </div>
+
+        <!-- Membre 7 -->
+        <div class="staff-card">
+            <img src="deborah.png" alt="Photo" class="staff-photo">
+            <div class="staff-name">Déborah LECONTE</div>
+            <div class="staff-role">Préparatrice mentale</div>
+            <div class="staff-contact">
+                <a href="mailto:deborah.energetique@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ deborah.energetique@...</a>
+                <a href="tel:+33650238137" class="contact-link" title="Appeler">📞 06 50 23 81 37</a>
+            </div>
+        </div>
+
+        <!-- Membre 8 -->
+        <div class="staff-card">
+            <img src="corinne.png" alt="Photo" class="staff-photo">
+            <div class="staff-name">Corinne ELISSALDE</div>
+            <div class="staff-role">Analyste Vidéo & Data</div>
+            <div class="staff-contact">
+                <a href="mailto:koko.elissalde@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ koko.elissalde@...</a>
+                <a href="tel:+33658242059" class="contact-link" title="Appeler">📞 06 58 24 20 59</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Lecture et synchronisation automatique du thème au chargement
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateButtonIcon(savedTheme);
+
+    // Fonction de bascule de thème
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+</script>
+
+</body>
+</html>

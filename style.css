@@ -1,0 +1,88 @@
+/* --- VARIABLES DE COULEURS (Mode Sombre - Option 2 : Océan & Lagon) --- */
+:root {
+    --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
+    --container-text: #f8fafc;
+    --card-bg: linear-gradient(135deg, #0d1b2a 0%, #0f4c5c 100%);
+    --card-border: #17b890;
+    --card-hover-bg: linear-gradient(135deg, #132238 0%, #125c6e 100%);
+    --accent-color: #00f2fe;
+    --text-muted: #94a3b8;
+    --btn-gradient: linear-gradient(135deg, #0f4c5c 0%, #125c6e 100%);
+    --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
+}
+
+/* --- VARIABLES DE COULEURS (Mode Clair) --- */
+[data-theme="light"] {
+    --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    --container-text: #0f172a;
+    --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    --card-border: #cbd5e1;
+    --card-hover-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    --accent-color: #0284c7;
+    --text-muted: #64748b;
+    --btn-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
+body { 
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
+    background: var(--bg-gradient); 
+    background-attachment: fixed;
+    color: var(--container-text); 
+    margin: 0; 
+    padding: 15px; 
+    display: flex; 
+    justify-content: center; 
+    min-height: 100vh;
+    box-sizing: border-box;
+    transition: background 0.3s, color 0.3s; 
+}
+.mobile-container { max-width: 420px; width: 100%; box-sizing: border-box; padding-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+/* En-tête tout en haut */
+.top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; }
+.logo-img {
+    height: 50px; /* Ajustez cette valeur pour l'agrandir (par défaut elle était probablement plus petite) */
+    width: auto;
+    object-fit: contain;
+}
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* Boutons du haut en dégradé lagon */
+.home-btn, .theme-toggle-btn, .profile-btn { 
+    background: var(--btn-gradient); 
+    border: 1px solid var(--card-border); 
+    width: 38px; 
+    height: 38px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    text-decoration: none; 
+    color: var(--container-text); 
+    font-size: 1rem; 
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
+    border-color: var(--accent-color); 
+    background: var(--btn-hover-gradient);
+    transform: translateY(-2px);
+}
+
+/* Ligne de séparation */
+.separator { border: none; height: 1px; background-color: var(--card-border); margin: 2px 0 2px 0; width: 100%; }
+
+/* --- ÉLÉMENTS COMMUNS --- */
+.header-banner-card, .full-width-event-card, .menu-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+    transition: all 0.25s ease;
+    color: var(--container-text);
+    text-decoration: none;
+    box-sizing: border-box;
+}

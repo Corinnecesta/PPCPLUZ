@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Vidéos & Séquences</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Styles spécifiques à la page Vidéos & Séquences */
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        /* Filtres rapides de vidéos */
+        .filter-row { display: flex; gap: 8px; margin-bottom: 6px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-chip { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 20px; padding: 6px 14px; font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; cursor: pointer; font-weight: 600; transition: all 0.25s ease; box-shadow: 0 2px 6px rgba(23, 184, 144, 0.1); }
+        .filter-chip.active { background: var(--btn-gradient); color: var(--container-text); border-color: var(--accent-color); }
+        .filter-chip:hover { border-color: var(--accent-color); background: var(--card-hover-bg); transform: translateY(-1px); }
+
+        /* Grille des cartes vidéos */
+        .video-list { display: flex; flex-direction: column; gap: 15px; }
+        .video-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.25s ease; }
+        .video-card:hover { border-color: var(--accent-color); background: var(--card-hover-bg); transform: translateY(-2px); }
+
+        /* Miniature vidéo (Simulation lecteur) */
+        .video-thumb { position: relative; height: 160px; background: var(--card-hover-bg); display: flex; align-items: center; justify-content: center; border-bottom: 2px solid var(--card-border); transition: all 0.3s; }
+        .play-icon { width: 45px; height: 45px; background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-color); font-size: 1.1rem; padding-left: 3px; cursor: pointer; box-shadow: 0 4px 10px rgba(23, 184, 144, 0.3); transition: all 0.25s ease; }
+        .play-icon:hover { background: var(--accent-color); color: var(--bg-color); transform: scale(1.05); }
+        .video-duration { position: absolute; bottom: 8px; right: 8px; background: rgba(7, 11, 20, 0.85); border: 1px solid var(--card-border); padding: 2px 6px; border-radius: 6px; font-size: 0.65rem; color: #f8fafc; font-weight: bold; }
+
+        /* Infos de la vidéo */
+        .video-info { padding: 12px 15px; }
+        .video-title { font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; color: var(--container-text); }
+        .video-details { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+        .video-tag { color: #34d399; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+
+    <!-- En-tête -->
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <!-- Bouton retour accueil avec icône maison -->
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <!-- Bouton de bascule de thème -->
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <!-- Bouton profil / compte -->
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <!-- Trait de séparation -->
+    <hr class="separator">
+
+    <div class="section-title">Vidéos et Séquences Clés</div>
+
+    <!-- Filtres -->
+    <div class="filter-row">
+        <div class="filter-chip active">Tous</div>
+        <div class="filter-chip">Rebots gagnants</div>
+        <div class="filter-chip">Services (Sacos)</div>
+        <div class="filter-chip">Fautes</div>
+    </div>
+
+    <!-- Liste des vidéos -->
+    <div class="video-list">
+
+        <div class="video-card">
+            <div class="video-thumb">
+                <div class="play-icon">▶</div>
+                <div class="video-duration">0:45</div>
+            </div>
+            <div class="video-info">
+                <div class="video-title">Dupont vs Larroque - Échange décisif</div>
+                <div class="video-details">
+                    <span>Jai Alai Biarritz • Hier</span>
+                    <span class="video-tag">Rebot</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="video-card">
+            <div class="video-thumb">
+                <div class="play-icon">▶</div>
+                <div class="video-duration">0:30</div>
+            </div>
+            <div class="video-info">
+                <div class="video-title">Série de services - Tournoi Junior</div>
+                <div class="video-details">
+                    <span>Hendaye • Il y a 3 jours</span>
+                    <span class="video-tag" style="color: var(--accent-color);">Service</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // Lecture et synchronisation automatique du thème au chargement
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateButtonIcon(savedTheme);
+
+    // Fonction de bascule de thème
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+</script>
+
+</body>
+</html>

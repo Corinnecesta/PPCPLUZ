@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Statistiques Générales de la Partie</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .match-details-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .stats-section { margin-top: 15px; }
+        .stat-item { background: rgba(15, 76, 92, 0.15); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .no-result { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px; }
+        .back-link { display: inline-block; margin-bottom: 15px; font-size: 0.8rem; color: var(--accent-color); text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+
+        /* Styles du formulaire admin */
+        .admin-form-container { background: rgba(0, 242, 254, 0.05); border: 2px dashed var(--accent-color); border-radius: 16px; padding: 16px; margin-bottom: 20px; display: none; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.78rem; color: var(--accent-color); font-weight: 600; margin-bottom: 3px; }
+        .form-control { width: 100%; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--container-text); font-size: 0.8rem; box-sizing: border-box; text-align: center; }
+        .form-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+        .form-row label { flex: 1; text-align: left; margin-bottom: 0; font-size: 0.8rem; color: var(--container-text); }
+        .form-row input { flex: 0.8; }
+        .btn-submit { background: var(--accent-color); color: #000; font-weight: bold; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 0.85rem; margin-top: 15px; transition: opacity 0.2s; }
+        .btn-submit:hover { opacity: 0.9; }
+
+        .stat-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; margin-bottom: 15px; }
+        .stat-table th, .stat-table td { border: 1px solid var(--card-border); padding: 6px 8px; text-align: center; }
+        .stat-table th { background: rgba(15, 76, 92, 0.4); color: var(--accent-color); }
+        .stat-table td:first-child { text-align: left; font-weight: 600; }
+        
+        .team-section-title { font-size: 0.85rem; color: var(--accent-color); font-weight: bold; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid var(--card-border); padding-bottom: 4px; text-transform: uppercase; }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .grid-2col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="match.html" class="home-btn" title="Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <a id="backToMatchDetail" href="#" class="back-link">◀ Retour aux détails du match</a>
+
+    <div class="section-title">📊 Statistiques Générales de la Partie</div>
+
+    <!-- FORMULAIRE ADMIN (Visible uniquement pour admin / entraîneur) -->
+    <div id="adminFormSection" class="admin-form-container">
+        <div class="section-title" style="margin-bottom: 10px;">⚙️ Saisie Administrateur Détaillée</div>
+        <form id="generalStatsForm">
+            <div class="form-group">
+                <label>Nom de la compétition</label>
+                <input type="text" id="adminCompetition" class="form-control" placeholder="Ex: Winter Series" style="text-align: left;">
+            </div>
+            <div class="form-row" style="margin-bottom: 8px;">
+                <div class="form-group" style="flex:1;"><label>Équipe 1</label><input type="text" id="adminEquipe1" class="form-control" placeholder="Nom équipe 1" style="text-align: left;"></div>
+                <div class="form-group" style="flex:1;"><label>Équipe 2</label><input type="text" id="adminEquipe2" class="form-control" placeholder="Nom équipe 2" style="text-align: left;"></div>
+            </div>
+            <div class="form-row" style="margin-bottom: 8px;">
+                <div class="form-group" style="flex:1;"><label>Lieu</label><input type="text" id="adminLieu" class="form-control" placeholder="Lieu" style="text-align: left;"></div>
+                <div class="form-group" style="flex:1;"><label>Date</label><input type="text" id="adminDate" class="form-control" placeholder="JJ/MM/AAAA" style="text-align: left;"></div>
+                <div class="form-group" style="flex:1;"><label>Heure</label><input type="text" id="adminHeure" class="form-control" placeholder="HH:MM" style="text-align: left;"></div>
+            </div>
+            <div class="form-row" style="margin-bottom: 8px;">
+                <div class="form-group" style="flex:1;"><label>Temps de jeu total</label><input type="text" id="adminTempsTotal" class="form-control" placeholder="1h15" style="text-align: left;"></div>
+                <div class="form-group" style="flex:1;"><label>Temps effectif</label><input type="text" id="adminTempsEffectif" class="form-control" placeholder="45m" style="text-align: left;"></div>
+            </div>
+
+            <!-- BUTS -->
+            <div class="team-section-title">🎯 Buts</div>
+            <div class="grid-2col">
+                <div>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block;">Équipe 1</label>
+                    <div class="form-row"><label>Ace</label><input type="number" id="b1_ace" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Arrière</label><input type="number" id="b1_ar" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Avant</label><input type="number" id="b1_av" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Pasa</label><input type="number" id="b1_pasa" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Falta</label><input type="number" id="b1_falta" class="form-control" placeholder="0"></div>
+                </div>
+                <div>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block;">Équipe 2</label>
+                    <div class="form-row"><label>Ace</label><input type="number" id="b2_ace" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Arrière</label><input type="number" id="b2_ar" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Avant</label><input type="number" id="b2_av" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Pasa</label><input type="number" id="b2_pasa" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Falta</label><input type="number" id="b2_falta" class="form-control" placeholder="0"></div>
+                </div>
+            </div>
+
+            <!-- RÉCEPTIONS -->
+            <div class="team-section-title">🛡️ Réceptions</div>
+            <div class="form-row" style="margin-bottom: 10px;">
+                <div class="form-group" style="flex:1;"><label>Éq1 Résultat (%)</label><input type="text" id="rec_res1" class="form-control" placeholder="ex: 96% (212/220)" style="text-align: left;"></div>
+                <div class="form-group" style="flex:1;"><label>Éq2 Résultat (%)</label><input type="text" id="rec_res2" class="form-control" placeholder="ex: 94% (215/229)" style="text-align: left;"></div>
+            </div>
+            <div class="grid-2col">
+                <div>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block;">Équipe 1</label>
+                    <div class="form-row"><label>Aire</label><input type="text" id="r1_aire_m" class="form-control" placeholder="-"><input type="text" id="r1_aire_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Bote</label><input type="text" id="r1_bote_m" class="form-control" placeholder="-"><input type="text" id="r1_bote_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Bote corrido</label><input type="text" id="r1_bcorr_m" class="form-control" placeholder="-"><input type="text" id="r1_bcorr_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Bote pronto</label><input type="text" id="r1_bpro_m" class="form-control" placeholder="-"><input type="text" id="r1_bpro_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Erebote</label><input type="text" id="r1_ere_m" class="form-control" placeholder="-"><input type="text" id="r1_ere_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Pumpa</label><input type="text" id="r1_pumpa_m" class="form-control" placeholder="-"><input type="text" id="r1_pumpa_p" class="form-control" placeholder="+"></div>
+                </div>
+                <div>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block;">Équipe 2</label>
+                    <div class="form-row"><label>Aire</label><input type="text" id="r2_aire_m" class="form-control" placeholder="-"><input type="text" id="r2_aire_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Bote</label><input type="text" id="r2_bote_m" class="form-control" placeholder="-"><input type="text" id="r2_bote_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Bote corrido</label><input type="text" id="r2_bcorr_m" class="form-control" placeholder="-"><input type="text" id="r2_bcorr_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Bote pronto</label><input type="text" id="r2_bpro_m" class="form-control" placeholder="-"><input type="text" id="r2_bpro_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Erebote</label><input type="text" id="r2_ere_m" class="form-control" placeholder="-"><input type="text" id="r2_ere_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Pumpa</label><input type="text" id="r2_pumpa_m" class="form-control" placeholder="-"><input type="text" id="r2_pumpa_p" class="form-control" placeholder="+"></div>
+                </div>
+            </div>
+
+            <!-- FRAPPES -->
+            <div class="team-section-title">💥 Frappes</div>
+            <div class="form-row" style="margin-bottom: 10px;">
+                <div class="form-group" style="flex:1;"><label>Éq1 Résultat (%)</label><input type="text" id="fra_res1" class="form-control" placeholder="ex: 100% (212/212)" style="text-align: left;"></div>
+                <div class="form-group" style="flex:1;"><label>Éq2 Résultat (%)</label><input type="text" id="fra_res2" class="form-control" placeholder="ex: 98% (210/215)" style="text-align: left;"></div>
+            </div>
+            <div class="grid-2col">
+                <div>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block;">Équipe 1</label>
+                    <div class="form-row"><label>Classique</label><input type="text" id="f1_clas_m" class="form-control" placeholder="-"><input type="text" id="f1_clas_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Picada</label><input type="text" id="f1_pic_m" class="form-control" placeholder="-"><input type="text" id="f1_pic_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Dejada</label><input type="text" id="f1_dej_m" class="form-control" placeholder="-"><input type="text" id="f1_dej_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Txik Txak</label><input type="text" id="f1_txik_m" class="form-control" placeholder="-"><input type="text" id="f1_txik_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Txula</label><input type="text" id="f1_txu_m" class="form-control" placeholder="-"><input type="text" id="f1_txu_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Cortada</label><input type="text" id="f1_cort_m" class="form-control" placeholder="-"><input type="text" id="f1_cort_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Gauche gauche</label><input type="text" id="f1_gg_m" class="form-control" placeholder="-"><input type="text" id="f1_gg_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Gauche droite</label><input type="text" id="f1_gd_m" class="form-control" placeholder="-"><input type="text" id="f1_gd_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>2 murs</label><input type="text" id="f1_2m_m" class="form-control" placeholder="-"><input type="text" id="f1_2m_p" class="form-control" placeholder="+"></div>
+                </div>
+                <div>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block;">Équipe 2</label>
+                    <div class="form-row"><label>Classique</label><input type="text" id="f2_clas_m" class="form-control" placeholder="-"><input type="text" id="f2_clas_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Picada</label><input type="text" id="f2_pic_m" class="form-control" placeholder="-"><input type="text" id="f2_pic_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Dejada</label><input type="text" id="f2_dej_m" class="form-control" placeholder="-"><input type="text" id="f2_dej_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Txik Txak</label><input type="text" id="f2_txik_m" class="form-control" placeholder="-"><input type="text" id="f2_txik_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Txula</label><input type="text" id="f2_txu_m" class="form-control" placeholder="-"><input type="text" id="f2_txu_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Cortada</label><input type="text" id="f2_cort_m" class="form-control" placeholder="-"><input type="text" id="f2_cort_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Gauche gauche</label><input type="text" id="f2_gg_m" class="form-control" placeholder="-"><input type="text" id="f2_gg_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>Gauche droite</label><input type="text" id="f2_gd_m" class="form-control" placeholder="-"><input type="text" id="f2_gd_p" class="form-control" placeholder="+"></div>
+                    <div class="form-row"><label>2 murs</label><input type="text" id="f2_2m_m" class="form-control" placeholder="-"><input type="text" id="f2_2m_p" class="form-control" placeholder="+"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">💾 Enregistrer les statistiques</button>
+        </form>
+    </div>
+
+    <!-- CONTENEUR D'AFFICHAGE GLOBAL -->
+    <div id="generalStatsContainer">
+        <div class="no-result">Chargement des statistiques globales...</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggleBtn').innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+    
+    window.toggleTheme = function() {
+        const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('cesta_theme', t);
+        document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const matchId = urlParams.get('id');
+
+    if (matchId) {
+        document.getElementById('backToMatchDetail').href = `detail_match.html?id=${matchId}`;
+    }
+
+    function verifierRoleInterface() {
+        const roleActuel = localStorage.getItem('user_role') || 'joueur';
+        const formSection = document.getElementById('adminFormSection');
+        if (roleActuel === 'admin' || roleActuel === 'entraineur') {
+            formSection.style.display = 'block';
+        } else {
+            formSection.style.display = 'none';
+        }
+    }
+
+    const recKeys = ['aire', 'bote', 'bcorr', 'bpro', 'ere', 'pumpa'];
+    const fraKeys = ['clas', 'pic', 'dej', 'txik', 'txu', 'cort', 'gg', 'gd', '2m'];
+
+    async function chargerStatistiquesGenerales() {
+        const container = document.getElementById('generalStatsContainer');
+
+        if (!matchId) {
+            container.innerHTML = `<div class="no-result">Aucun match spécifié.</div>`;
+            return;
+        }
+
+        try {
+            const docRef = doc(db, "matchs", matchId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                container.innerHTML = `<div class="no-result">Partie introuvable.</div>`;
+                return;
+            }
+
+            const match = docSnap.data();
+            
+            // Remplissage Admin
+            document.getElementById('adminCompetition').value = match.competition || match.titre || '';
+            document.getElementById('adminEquipe1').value = match.equipe1 || '';
+            document.getElementById('adminEquipe2').value = match.equipe2 || '';
+            document.getElementById('adminLieu').value = match.lieu || '';
+            document.getElementById('adminDate').value = match.date || '';
+            document.getElementById('adminHeure').value = match.heure || '';
+            document.getElementById('adminTempsTotal').value = match.tempsTotal || '';
+            document.getElementById('adminTempsEffectif').value = match.tempsEffectif || '';
+
+            ['ace', 'ar', 'av', 'pasa', 'falta'].forEach(k => {
+                document.getElementById(`b1_${k}`).value = match[`b1_${k}`] || '';
+                document.getElementById(`b2_${k}`).value = match[`b2_${k}`] || '';
+            });
+
+            document.getElementById('rec_res1').value = match.rec_res1 || '';
+            document.getElementById('rec_res2').value = match.rec_res2 || '';
+            recKeys.forEach(k => {
+                document.getElementById(`r1_${k}_m`).value = match[`r1_${k}_m`] || '';
+                document.getElementById(`r1_${k}_p`).value = match[`r1_${k}_p`] || '';
+                document.getElementById(`r2_${k}_m`).value = match[`r2_${k}_m`] || '';
+                document.getElementById(`r2_${k}_p`).value = match[`r2_${k}_p`] || '';
+            });
+
+            document.getElementById('fra_res1').value = match.fra_res1 || '';
+            document.getElementById('fra_res2').value = match.fra_res2 || '';
+            fraKeys.forEach(k => {
+                document.getElementById(`f1_${k}_m`).value = match[`f1_${k}_m`] || '';
+                document.getElementById(`f1_${k}_p`).value = match[`f1_${k}_p`] || '';
+                document.getElementById(`f2_${k}_m`).value = match[`f2_${k}_m`] || '';
+                document.getElementById(`f2_${k}_p`).value = match[`f2_${k}_p`] || '';
+            });
+
+            const titre = match.competition || match.titre || 'Partie';
+            const s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
+            const s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
+            const eq1Nom = match.equipe1 || 'Équipe 1';
+            const eq2Nom = match.equipe2 || 'Équipe 2';
+
+            let statsHtml = "";
+            if (match.joueursStats && Array.isArray(match.joueursStats)) {
+                match.joueursStats.forEach(js => {
+                    statsHtml += `
+                        <div class="stat-item">
+                            <span>👤 <strong>${js.nom || 'Joueur'}</strong></span>
+                            <span>Points : <strong>${js.points || 0}</strong> | Fautes : <strong>${js.fautes || 0}</strong></span>
+                        </div>
+                    `;
+                });
+            } else {
+                statsHtml = `<div class="no-result" style="padding:10px;">Aucune statistique détaillée enregistrée pour les joueurs.</div>`;
+            }
+
+            let recTableRows = "";
+            const recLabels = { aire: 'Aire', bote: 'Bote', bcorr: 'Bote corrido', bpro: 'Bote pronto', ere: 'Erebote', pumpa: 'Pumpa' };
+            recKeys.forEach(k => {
+                recTableRows += `<tr>
+                    <td>${match[`r1_${k}_m`] || 0}</td>
+                    <td>${match[`r1_${k}_p`] || 0}</td>
+                    <td><strong>${recLabels[k]}</strong></td>
+                    <td>${match[`r2_${k}_p`] || 0}</td>
+                    <td>${match[`r2_${k}_m`] || 0}</td>
+                </tr>`;
+            });
+
+            let fraTableRows = "";
+            const fraLabels = { clas: 'Classique', pic: 'Picada', dej: 'Dejada', txik: 'Txik Txak', txu: 'Txula', cort: 'Cortada', gg: 'Gauche gauche', gd: 'Gauche droite', '2m': '2 murs' };
+            fraKeys.forEach(k => {
+                fraTableRows += `<tr>
+                    <td>${match[`f1_${k}_m`] || 0}</td>
+                    <td>${match[`f1_${k}_p`] || 0}</td>
+                    <td><strong>${fraLabels[k]}</strong></td>
+                    <td>${match[`f2_${k}_p`] || 0}</td>
+                    <td>${match[`f2_${k}_m`] || 0}</td>
+                </tr>`;
+            });
+
+            container.innerHTML = `
+                <div class="match-details-card">
+                    <div style="font-weight: bold; color: var(--accent-color); margin-bottom: 8px;">${titre}</div>
+                    <div style="font-size: 0.9rem; margin-bottom: 10px;">
+                        <strong>${eq1Nom}</strong> (${s1}) <span style="color: var(--text-muted);">vs</span> <strong>${eq2Nom}</strong> (${s2})
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">
+                        📍 ${match.lieu || 'Lieu non spécifié'} | 📅 ${match.date || ''} ${match.heure ? 'à ' + match.heure : ''}
+                        ${match.tempsTotal ? `<br>⏱️ Temps de jeu : ${match.tempsTotal} (Effectif :${match.tempsEffectif || 'N/C'})` : ''}
+                    </div>
+
+                    <div class="section-title">Récapitulatif des joueurs</div>
+                    <div class="stats-section" style="margin-bottom: 15px;">
+                        ${statsHtml}
+                    </div>
+
+                    <div class="section-title">🎯 Buts</div>
+                    <table class="stat-table">
+                        <tr><th>Type de But</th><th>${eq1Nom}</th><th>${eq2Nom}</th></tr>
+                        <tr><td>Ace</td><td>${match.b1_ace || 0}</td><td>${match.b2_ace || 0}</td></tr>
+                        <tr><td>Avant</td><td>${match.b1_av || 0}</td><td>${match.b2_av || 0}</td></tr>
+                        <tr><td>Arrière</td><td>${match.b1_ar || 0}</td><td>${match.b2_ar || 0}</td></tr>
+                        <tr><td>Pasa</td><td>${match.b1_pasa || 0}</td><td>${match.b2_pasa || 0}</td></tr>
+                        <tr><td>Falta</td><td>${match.b1_falta || 0}</td><td>${match.b2_falta || 0}</td></tr>
+                    </table>
+
+                    <div class="section-title" style="margin-top:20px;">🛡️ Réceptions</div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; background: rgba(15, 76, 92, 0.2); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px;">
+                        <span><strong>${eq1Nom} :</strong> ${match.rec_res1 || 'N/C'}</span>
+                        <span><strong>${eq2Nom} :</strong> ${match.rec_res2 || 'N/C'}</span>
+                    </div>
+                    <table class="stat-table">
+                        <tr><th>-</th><th>+</th><th>Type Réception</th><th>+</th><th>-</th></tr>
+                        ${recTableRows}
+                    </table>
+
+                    <div class="section-title" style="margin-top:20px;">💥 Frappes</div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; background: rgba(15, 76, 92, 0.2); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px;">
+                        <span><strong>${eq1Nom} :</strong> ${match.fra_res1 || 'N/C'}</span>
+                        <span><strong>${eq2Nom} :</strong> ${match.fra_res2 || 'N/C'}</span>
+                    </div>
+                    <table class="stat-table">
+                        <tr><th>-</th><th>+</th><th>Type Frappe</th><th>+</th><th>-</th></tr>
+                        ${fraTableRows}
+                    </table>
+                </div>
+            `;
+        } catch (error) {
+            console.error("Erreur chargement stats globales :", error);
+            container.innerHTML = `<div class="no-result">Erreur lors du chargement des statistiques.</div>`;
+        }
+    }
+
+    document.getElementById('generalStatsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!matchId) return;
+
+        try {
+            const docRef = doc(db, "matchs", matchId);
+            const dataToUpdate = {
+                competition: document.getElementById('adminCompetition').value,
+                equipe1: document.getElementById('adminEquipe1').value,
+                equipe2: document.getElementById('adminEquipe2').value,
+                lieu: document.getElementById('adminLieu').value,
+                date: document.getElementById('adminDate').value,
+                heure: document.getElementById('adminHeure').value,
+                tempsTotal: document.getElementById('adminTempsTotal').value,
+                tempsEffectif: document.getElementById('adminTempsEffectif').value,
+                rec_res1: document.getElementById('rec_res1').value,
+                rec_res2: document.getElementById('rec_res2').value,
+                fra_res1: document.getElementById('fra_res1').value,
+                fra_res2: document.getElementById('fra_res2').value
+            };
+
+            ['ace', 'ar', 'av', 'pasa', 'falta'].forEach(k => {
+                dataToUpdate[`b1_${k}`] = document.getElementById(`b1_${k}`).value;
+                dataToUpdate[`b2_${k}`] = document.getElementById(`b2_${k}`).value;
+            });
+
+            recKeys.forEach(k => {
+                dataToUpdate[`r1_${k}_m`] = document.getElementById(`r1_${k}_m`).value;
+                dataToUpdate[`r1_${k}_p`] = document.getElementById(`r1_${k}_p`).value;
+                dataToUpdate[`r2_${k}_m`] = document.getElementById(`r2_${k}_m`).value;
+                dataToUpdate[`r2_${k}_p`] = document.getElementById(`r2_${k}_p`).value;
+            });
+
+            fraKeys.forEach(k => {
+                dataToUpdate[`f1_${k}_m`] = document.getElementById(`f1_${k}_m`).value;
+                dataToUpdate[`f1_${k}_p`] = document.getElementById(`f1_${k}_p`).value;
+                dataToUpdate[`f2_${k}_m`] = document.getElementById(`f2_${k}_m`).value;
+                dataToUpdate[`f2_${k}_p`] = document.getElementById(`f2_${k}_p`).value;
+            });
+
+            await updateDoc(docRef, dataToUpdate);
+
+            alert("Statistiques générales mises à jour avec succès !");
+            chargerStatistiquesGenerales();
+        } catch (err) {
+            console.error("Erreur mise à jour :", err);
+            alert("Erreur lors de l'enregistrement.");
+        }
+    });
+
+    verifierRoleInterface();
+    chargerStatistiquesGenerales();
+</script>
+</body>
+</html>

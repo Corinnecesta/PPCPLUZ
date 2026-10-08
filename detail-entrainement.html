@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Détail Entraînement</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .hero-banner { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .hero-title { font-size: 0.95rem; font-weight: 700; color: var(--accent-color); margin-bottom: 6px; }
+        .hero-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin: 0; }
+
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        .attendance-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .attendance-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.2s; }
+        .attendance-card:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
+
+        .attendance-main-row { display: flex; align-items: center; justify-content: space-between; }
+        .player-info-container { display: flex; align-items: center; gap: 12px; }
+        .player-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); }
+        .player-name { font-weight: bold; font-size: 0.88rem; color: var(--container-text); }
+
+        .attendance-actions { display: flex; gap: 6px; }
+        .status-btn { background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .status-btn:hover { border-color: var(--accent-color); }
+
+        .status-btn.present.active { background: rgba(23, 184, 144, 0.25); border-color: #17b890; color: #17b890; }
+        .status-btn.absent.active { background: rgba(255, 77, 77, 0.25); border-color: #ff4d4d; color: #ff4d4d; }
+
+        /* Conteneur de la raison d'absence */
+        .reason-container { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--card-border); display: none; }
+        .reason-container.visible { display: block; }
+        .reason-input { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; color: var(--container-text); font-size: 0.78rem; font-family: inherit; box-sizing: border-box; }
+        .reason-input:focus { outline: none; border-color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="entrainements.html" class="home-btn" title="Retour Entraînements">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div class="hero-banner" id="eventInfoContainer">
+        <div class="hero-title" id="eventTitle">Chargement...</div>
+        <p class="hero-desc" id="eventDetails">Récupération des informations de l'événement...</p>
+    </div>
+
+    <div class="section-title">
+        <span>Feuille de présence & Justificatifs</span>
+    </div>
+
+    <div class="attendance-list" id="attendanceListContainer">
+        <!-- Généré dynamiquement en JS -->
+    </div>
+</div>
+
+<!-- Import de la base de données des joueurs -->
+<script src="joueurs-data.js"></script>
+
+<script>
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateButtonIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
+    }
+
+    // Récupération de l'ID de l'événement depuis l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('id');
+
+    function loadEventDetails() {
+        if (!eventId) return;
+
+        let trainingsData = JSON.parse(localStorage.getItem('cesta_trainings')) || [];
+        let event = trainingsData.find(e => e.id === eventId);
+
+        if (event) {
+            document.getElementById('eventTitle').innerText = event.titre;
+            document.getElementById('eventDetails').innerHTML = `📅 ${event.dateString || event.dateIso}<br>📍 Lieu : ${event.lieu}<br>📌 Statut : ${event.statut || 'Confirmé'}`;
+        } else {
+            let foundPlayerEvent = null;
+            for (let i = 1; i <= 8; i++) {
+                let playerEvents = JSON.parse(localStorage.getItem(`cesta_calendar_joueur_${i}`) || '[]');
+                let match = playerEvents.find(pe => pe.id === eventId);
+                if (match) {
+                    foundPlayerEvent = match;
+                    break;
+                }
+            }
+            if (foundPlayerEvent) {
+                document.getElementById('eventTitle').innerText = foundPlayerEvent.title || foundPlayerEvent.titre || 'Partie / Événement';
+                document.getElementById('eventDetails').innerHTML = `📅 ${foundPlayerEvent.dateString || foundPlayerEvent.date || foundPlayerEvent.dateIso}<br>📍 Lieu : ${foundPlayerEvent.location || foundPlayerEvent.lieu || 'Non spécifié'}<br>📌 Statut : ${foundPlayerEvent.statut || 'Planifié'}`;
+            } else {
+                document.getElementById('eventTitle').innerText = "Entraînement général";
+                document.getElementById('eventDetails').innerHTML = "📅 Date à définir<br>📍 Lieu : Fronton principal<br>📌 Statut : Confirmé";
+            }
+        }
+    }
+
+    function renderAttendanceList() {
+        const container = document.getElementById('attendanceListContainer');
+        container.innerHTML = '';
+
+        const joueurs = (typeof joueursData !== 'undefined') ? joueursData : [
+            { id: 1, prenom: "Thibault", nom: "BASQUE" },
+            { id: 2, prenom: "Guillen", nom: "OYHENARD" },
+            { id: 3, prenom: "Théo", nom: "LABORDE" },
+            { id: 4, prenom: "Paul", nom: "CAPARRUS" },
+            { id: 5, prenom: "Ludovic", nom: "LADUCHE" },
+            { id: 6, prenom: "Emeric", nom: "LIBOIS" },
+            { id: 7, prenom: "Clément", nom: "GARCIA" },
+            { id: 8, prenom: "Charles", nom: "BONNIN" }
+        ];
+
+        const attendanceStorageKey = `cesta_attendance_${eventId}`;
+        let attendanceData = JSON.parse(localStorage.getItem(attendanceStorageKey)) || {};
+
+        joueurs.forEach(j => {
+            const jId = j.id;
+            const fullName = `${j.prenom || ''} ${j.nom || ''}`.trim() || `Joueur ${jId}`;
+            const avatarSrc = j.photo || 'logoce.png'; 
+
+            const record = attendanceData[jId] || { status: '', reason: '' };
+            const currentStatus = typeof record === 'string' ? record : record.status;
+            const currentReason = typeof record === 'object' ? (record.reason || '') : '';
+
+            const card = document.createElement('div');
+            card.className = 'attendance-card';
+            card.innerHTML = `
+                <div class="attendance-main-row">
+                    <div class="player-info-container">
+                        <img src="${avatarSrc}" alt="${fullName}" class="player-avatar" onerror="this.src='logoce.png'">
+                        <div class="player-name">${fullName}</div>
+                    </div>
+                    <div class="attendance-actions">
+                        <button class="status-btn present ${currentStatus === 'present' ? 'active' : ''}" onclick="setAttendance('${jId}', 'present')">Présent</button>
+                        <button class="status-btn absent ${currentStatus === 'absent' ? 'active' : ''}" onclick="setAttendance('${jId}', 'absent')">Absent</button>
+                    </div>
+                </div>
+                <div class="reason-container ${currentStatus === 'absent' ? 'visible' : ''}" id="reason-box-${jId}">
+                    <input type="text" class="reason-input" id="input-reason-${jId}" placeholder="Préciser la raison de l'absence..." value="${currentReason}" oninput="saveReason('${jId}')">
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function setAttendance(playerId, status) {
+        const attendanceStorageKey = `cesta_attendance_${eventId}`;
+        let attendanceData = JSON.parse(localStorage.getItem(attendanceStorageKey)) || {};
+        
+        let currentRecord = attendanceData[playerId];
+        let currentStatus = typeof currentRecord === 'string' ? currentRecord : (currentRecord?.status || '');
+        let currentReason = typeof currentRecord === 'object' ? (currentRecord?.reason || '') : '';
+
+        if (currentStatus === status) {
+            // Désélection si on clique sur le même bouton
+            delete attendanceData[playerId];
+        } else {
+            attendanceData[playerId] = {
+                status: status,
+                reason: status === 'absent' ? currentReason : ''
+            };
+        }
+
+        localStorage.setItem(attendanceStorageKey, JSON.stringify(attendanceData));
+        renderAttendanceList();
+    }
+
+    function saveReason(playerId) {
+        const attendanceStorageKey = `cesta_attendance_${eventId}`;
+        let attendanceData = JSON.parse(localStorage.getItem(attendanceStorageKey)) || {};
+        const inputVal = document.getElementById(`input-reason-${playerId}`).value;
+
+        if (!attendanceData[playerId]) {
+            attendanceData[playerId] = { status: 'absent', reason: inputVal };
+        } else if (typeof attendanceData[playerId] === 'object') {
+            attendanceData[playerId].reason = inputVal;
+        } else {
+            attendanceData[playerId] = { status: attendanceData[playerId], reason: inputVal };
+        }
+
+        localStorage.setItem(attendanceStorageKey, JSON.stringify(attendanceData));
+    }
+
+    loadEventDetails();
+    renderAttendanceList();
+</script>
+
+</body>
+</html>

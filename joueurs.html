@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Pôle Performance</title>
+    
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Styles spécifiques à la page Liste des Joueurs */
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        .tabs-nav { display: flex; gap: 8px; margin-bottom: 12px; }
+        .tab-btn { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px 12px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; flex: 1; text-align: center; transition: all 0.2s; text-decoration: none; display: block; }
+        .tab-btn.active { background: var(--card-hover-bg); border-color: var(--accent-color); color: var(--accent-color); box-shadow: 0 2px 8px rgba(23, 184, 144, 0.2); }
+
+        .search-bar { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: var(--accent-color); font-size: 0.85rem; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
+        .search-bar input { background: transparent; border: none; color: var(--container-text); outline: none; width: 100%; font-size: 0.85rem; }
+        .search-bar input::placeholder { color: var(--text-muted); }
+
+        .players-list { display: flex; flex-direction: column; gap: 10px; }
+        .player-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: var(--container-text); box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.25s ease; cursor: pointer; }
+        .player-card:hover { border-color: var(--accent-color); background: var(--card-hover-bg); transform: translateY(-2px); }
+        
+        .player-info-left { display: flex; align-items: center; gap: 12px; }
+        .player-photo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); background: rgba(0,0,0,0.2); }
+
+        .player-name { font-weight: bold; font-size: 0.9rem; margin-bottom: 2px; color: var(--container-text); }
+        .player-club { font-size: 0.75rem; color: var(--text-muted); }
+        
+        .player-stats-right { text-align: right; font-size: 0.75rem; color: #34d399; font-weight: 600; }
+
+        /* Masqué par défaut, affiché via JS si admin/entraîneur */
+        .add-player-btn { display: none; background: var(--accent-color); color: #000; font-weight: bold; text-align: center; padding: 8px 12px; border-radius: 10px; text-decoration: none; font-size: 0.8rem; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
+        .add-player-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <div class="section-title">Répertoire des Joueurs</div>
+
+    <!-- Bouton d'ajout visible uniquement pour admin/entraîneur -->
+    <a href="ajouter_joueur.html" id="addPlayerBtn" class="add-player-btn">➕ Ajouter un nouveau joueur</a>
+
+    <!-- Onglets de sélection (Redirection par liens) -->
+    <div class="tabs-nav">
+        <a href="joueurs.html" class="tab-btn active" id="btnTabPole">Pôle Performance</a>
+        <a href="autres.html" class="tab-btn" id="btnTabAutres">Autres joueurs</a>
+    </div>
+
+    <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Rechercher un joueur ou un club..." onkeyup="filterPlayers()">
+    </div>
+
+    <!-- Conteneur généré dynamiquement -->
+    <div class="players-list" id="playersContainer">
+        <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">Chargement des joueurs et des statistiques...</div>
+    </div>
+</div>
+
+<!-- Fichier local de secours -->
+<script src="joueurs-data.js?v=7"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let matchsCloud = [];
+    let joueursCloud = [];
+
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateButtonIcon(savedTheme);
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        updateButtonIcon(newTheme);
+    }
+
+    function updateButtonIcon(theme) {
+        if (theme === 'light') {
+            themeToggleBtn.innerHTML = '☀️';
+        } else {
+            themeToggleBtn.innerHTML = '🌙';
+        }
+    }
+
+    // Vérification des droits pour afficher le bouton d'ajout
+    function verifierRoleInterface() {
+        const roleActuel = localStorage.getItem('user_role') || 'joueur';
+        const addBtn = document.getElementById('addPlayerBtn');
+        if (roleActuel === 'admin' || roleActuel === 'entraineur') {
+            addBtn.style.display = 'block';
+        } else {
+            addBtn.style.display = 'none';
+        }
+    }
+
+    function parseScoreValue(val) {
+        if (typeof val === 'number') return val;
+        if (!val) return 0;
+        const str = String(val).trim();
+        if (str.includes('/')) {
+            const parts = str.split('/').map(n => Number(n.trim()) || 0);
+            return parts[parts.length - 1];
+        }
+        return Number(str) || 0;
+    }
+
+    function getPlayerStats(joueurObj) {
+        let victoires = 0;
+        let defaites = 0;
+
+        if (Array.isArray(matchsCloud) && matchsCloud.length > 0) {
+            matchsCloud.forEach(match => {
+                const nomCherche = (joueurObj.nom || "").toLowerCase().trim();
+                const prenomCherche = (joueurObj.prenom || "").toLowerCase().trim();
+                const idCherche = String(joueurObj.id || "").toLowerCase().trim();
+
+                const equipe1Texte = JSON.stringify(match.equipe1 || "").toLowerCase();
+                const equipe2Texte = JSON.stringify(match.equipe2 || "").toLowerCase();
+
+                const isInTeam1 = (nomCherche && equipe1Texte.includes(nomCherche)) || 
+                                  (prenomCherche && equipe1Texte.includes(prenomCherche)) ||
+                                  (idCherche && equipe1Texte.includes(idCherche));
+
+                const isInTeam2 = (nomCherche && equipe2Texte.includes(nomCherche)) || 
+                                  (prenomCherche && equipe2Texte.includes(prenomCherche)) ||
+                                  (idCherche && equipe2Texte.includes(idCherche));
+
+                if (isInTeam1 || isInTeam2) {
+                    const raw1 = match.equipe1Score ?? match.score1 ?? match.scoreEquipe1 ?? 0;
+                    const raw2 = match.equipe2Score ?? match.score2 ?? match.scoreEquipe2 ?? 0;
+
+                    const score1 = parseScoreValue(raw1);
+                    const score2 = parseScoreValue(raw2);
+
+                    let team1Won = score1 > score2;
+                    let playerWon = (isInTeam1 && team1Won) || (isInTeam2 && !team1Won);
+
+                    if (playerWon) {
+                        victoires++;
+                    } else {
+                        defaites++;
+                    }
+                }
+            });
+        }
+        return { victoires, defaites };
+    }
+
+    function renderPlayers(list) {
+        const container = document.getElementById('playersContainer');
+        container.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">Aucun joueur trouvé dans cette catégorie</div>';
+            return;
+        }
+
+        list.forEach(joueur => {
+            const stats = getPlayerStats(joueur);
+            
+            const card = document.createElement('a');
+            // Étant sur joueurs.html (Pôle Performance), les cartes mènent vers joueur.html
+            card.href = `joueur.html?id=${joueur.id}`;
+            card.className = 'player-card';
+            
+            card.innerHTML = `
+                <div class="player-info-left">
+                    <img src="${joueur.photo || 'logoce.png'}" alt="${joueur.nom}" class="player-photo" onerror="this.src='logoce.png'">
+                    <div>
+                        <div class="player-name">${joueur.nom || ''} ${joueur.prenom || ''}</div>
+                        <div class="player-club">${joueur.club || ''} • ${joueur.specialite || ''}</div>
+                    </div>
+                </div>
+                <div class="player-stats-right">
+                    <div>${stats.victoires} Victoires</div>
+                    <div style="color: var(--text-muted); font-weight: normal;">${stats.defaites} défaites</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    window.filterPlayers = function() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        
+        let tousLesJoueurs = [];
+        if (typeof joueursData !== 'undefined') {
+            const locauxAvecCategorie = joueursData.map((j, index) => ({
+                ...j,
+                categorie: j.categorie || (index < 8 ? 'pole' : 'autres')
+            }));
+            tousLesJoueurs = [...locauxAvecCategorie, ...joueursCloud];
+        } else {
+            tousLesJoueurs = [...joueursCloud];
+        }
+
+        // Suppression des doublons
+        tousLesJoueurs = tousLesJoueurs.filter((joueur, index, self) => 
+            index === self.findIndex(j => (j.id && j.id === joueur.id) || (j.nom === joueur.nom && j.prenom === joueur.prenom))
+        );
+
+        // Filtrage strict pour ne garder que la catégorie "pole" sur cette page
+        const listeActive = tousLesJoueurs.filter(j => {
+            const cat = j.categorie || 'pole';
+            return cat === 'pole';
+        });
+
+        const filtered = listeActive.filter(j => 
+            (j.nom && j.nom.toLowerCase().includes(query)) || 
+            (j.prenom && j.prenom.toLowerCase().includes(query)) || 
+            (j.club && j.club.toLowerCase().includes(query))
+        );
+        
+        // Tri alphabétique
+        filtered.sort((a, b) => {
+            const nomA = (a.nom || "").toLowerCase();
+            const nomB = (b.nom || "").toLowerCase();
+            if (nomA < nomB) return -1;
+            if (nomA > nomB) return 1;
+            
+            const prenomA = (a.prenom || "").toLowerCase();
+            const prenomB = (b.prenom || "").toLowerCase();
+            return prenomA.localeCompare(prenomB);
+        });
+
+        renderPlayers(filtered);
+    }
+
+    async function initPage() {
+        verifierRoleInterface();
+        try {
+            const matchsSnap = await getDocs(collection(db, "matchs"));
+            matchsSnap.forEach((docSnap) => {
+                matchsCloud.push({ id: docSnap.id, ...docSnap.data() });
+            });
+
+            const joueursSnap = await getDocs(collection(db, "joueurs"));
+            joueursSnap.forEach((docSnap) => {
+                joueursCloud.push({ id: docSnap.id, ...docSnap.data() });
+            });
+
+            filterPlayers();
+        } catch (error) {
+            console.error("Erreur lors de la récupération des données Firebase :", error);
+            if (typeof joueursData !== 'undefined') {
+                filterPlayers();
+            }
+        }
+    }
+
+    initPage();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cesta Punta - Ajouter un Joueur</title>
+    
+    <!-- Polices et styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .form-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--accent-color); font-weight: 600; margin-bottom: 4px; }
+        .form-control { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--container-text); font-size: 0.85rem; box-sizing: border-box; }
+        select.form-control { cursor: pointer; }
+        .btn-submit { background: var(--accent-color); color: #000; font-weight: bold; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 0.85rem; margin-top: 15px; transition: opacity 0.2s; }
+        .btn-submit:hover { opacity: 0.9; }
+        .back-link { display: inline-block; margin-bottom: 15px; font-size: 0.8rem; color: var(--accent-color); text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        .admin-restricted { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator">
+
+    <a href="joueurs.html" class="back-link">◀ Retour au répertoire des joueurs</a>
+
+    <div class="section-title">➕ Enregistrer un Nouveau Joueur</div>
+
+    <!-- Message d'accès restreint si non admin -->
+    <div id="accessDenied" style="display: none; text-align: center; color: #ef4444; padding: 30px; font-size: 0.85rem;">
+        ⛔ Accès réservé aux administrateurs et entraîneurs.
+    </div>
+
+    <!-- Formulaire d'ajout -->
+    <div id="adminFormContainer" class="form-card admin-restricted">
+        <form id="addPlayerForm">
+            <div class="form-group">
+                <label>Nom</label>
+                <input type="text" id="playerNom" class="form-control" placeholder="Ex: Erdozain" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Prénom</label>
+                <input type="text" id="playerPrenom" class="form-control" placeholder="Ex: Jon" required>
+            </div>
+
+            <div class="form-group">
+                <label>Club</label>
+                <input type="text" id="playerClub" class="form-control" placeholder="Ex: Biarritz Athletic Club" required>
+            </div>
+
+            <div class="form-group">
+                <label>Spécialité</label>
+                <input type="text" id="playerSpecialite" class="form-control" placeholder="Ex: Avant / Arrière" required>
+            </div>
+
+            <div class="form-group">
+                <label>Lien de la photo (URL)</label>
+                <input type="text" id="playerPhoto" class="form-control" placeholder="Ex: https://example.com/photo.jpg">
+            </div>
+
+            <div class="form-group">
+                <label>Catégorie de classement</label>
+                <select id="playerCategorie" class="form-control" required>
+                    <option value="pole">Pôle Performance</option>
+                    <option value="autres">Autres joueurs / Remplaçants</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">💾 Enregistrer le joueur</button>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Gestion du thème sombre/clair
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    htmlElement.setAttribute('data-theme', savedTheme);
+    themeToggleBtn.innerHTML = (savedTheme === 'light') ? '☀️' : '🌙';
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
+    }
+
+    // Vérification des droits d'accès
+    function verifierAcces() {
+        const roleActuel = localStorage.getItem('user_role') || 'joueur';
+        if (roleActuel === 'admin' || roleActuel === 'entraineur') {
+            document.getElementById('adminFormContainer').style.display = 'block';
+            document.getElementById('accessDenied').style.display = 'none';
+        } else {
+            document.getElementById('adminFormContainer').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'block';
+        }
+    }
+
+    // Soumission du formulaire d'ajout
+    document.getElementById('addPlayerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nom = document.getElementById('playerNom').value.trim();
+        const prenom = document.getElementById('playerPrenom').value.trim();
+        const club = document.getElementById('playerClub').value.trim();
+        const specialite = document.getElementById('playerSpecialite').value.trim();
+        const photo = document.getElementById('playerPhoto').value.trim() || 'logoce.png';
+        const categorie = document.getElementById('playerCategorie').value; // 'pole' ou 'autres'
+
+        try {
+            await addDoc(collection(db, "joueurs"), {
+                nom,
+                prenom,
+                club,
+                specialite,
+                photo,
+                categorie,
+                createdAt: new Date().toISOString()
+            });
+
+            alert("Joueur ajouté avec succès !");
+            window.location.href = "joueurs.html";
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du joueur :", error);
+            alert("Erreur lors de l'enregistrement dans la base de données.");
+        }
+    });
+
+    verifierAcces();
+</script>
+
+</body>
+</html>
