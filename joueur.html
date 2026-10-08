@@ -69,9 +69,22 @@
         .calendar-day { background: rgba(15, 76, 92, 0.1); border: 1px solid var(--card-border); border-radius: 6px; padding: 6px 2px; font-size: 0.75rem; color: var(--container-text); cursor: pointer; min-height: 32px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; transition: all 0.2s; }
         .calendar-day:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
         .calendar-day.empty { background: transparent; border: none; cursor: default; }
+        
+        /* Styles personnalisés par type d'entraînement */
+        .calendar-day.has-technique { border-color: #10b981; background: rgba(16, 185, 129, 0.2); font-weight: bold; color: #6ee7b7; }
+        .calendar-day.has-physique-co { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); font-weight: bold; color: #93c5fd; }
+        .calendar-day.has-physique { border-color: #facc15; background: rgba(250, 204, 21, 0.2); font-weight: bold; color: #fde047; }
+        .calendar-day.has-perso { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); font-weight: bold; color: #fca5a5; }
         .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.15); font-weight: bold; color: var(--accent-color); }
-        .calendar-day.selected { border: 2px solid #ffffff; }
-        .match-dot { width: 4px; height: 4px; background-color: var(--accent-color); border-radius: 50%; margin-top: 2px; }
+        
+        .calendar-day.selected { border: 2px solid #ffffff !important; }
+        
+        .match-dot { width: 4px; height: 4px; border-radius: 50%; margin-top: 2px; }
+        .dot-technique { background-color: #10b981; }
+        .dot-physique-co { background-color: #3b82f6; }
+        .dot-physique { background-color: #facc15; }
+        .dot-perso { background-color: #ef4444; }
+        .dot-default { background-color: var(--accent-color); }
 
         .match-preview-box { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--accent-color); border-radius: 12px; padding: 10px; margin-bottom: 10px; font-size: 0.78rem; display: none; }
         .match-preview-box.active { display: block; }
@@ -397,11 +410,11 @@
                 endDate: endDate,
                 heureDebut: heureDebut || "",
                 heureFin: heureFin || "",
-                type: "info", 
+                type: "perso", 
                 createur: joueur ? `${joueur.prenom} ${joueur.nom}` : playerId
             });
 
-            alert("Événement ajouté avec succès comme information !");
+            alert("Événement personnel ajouté avec succès !");
             document.getElementById('formAjoutEvenement').reset();
             await chargerCalendrierFirebase();
         } catch (e) {
@@ -415,6 +428,26 @@
         const end = event.endDate || start;
         if (!start) return false;
         return dateStr >= start && dateStr <= end;
+    }
+
+    // Fonction pour identifier le type d'événement (perso = rouge, physique co = bleu, physique = jaune, technique = vert)
+    function getTypeOfEvent(event) {
+        const typeStr = (event.type || "").toLowerCase();
+        const titleStr = (event.titre || event.title || "").toLowerCase();
+
+        if (typeStr === 'perso' || typeStr === 'info' || titleStr.includes('perso') || titleStr.includes('kiné') || titleStr.includes('personnel')) {
+            return 'perso';
+        }
+        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif')) || titleStr.includes('physique collectif') || titleStr.includes('physique co')) {
+            return 'physique-co';
+        }
+        if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu') || titleStr.includes('prepa')) {
+            return 'physique';
+        }
+        if (typeStr.includes('technique') || titleStr.includes('technique') || titleStr.includes('cesta') || titleStr.includes('fronton') || titleStr.includes('paleta')) {
+            return 'technique';
+        }
+        return 'technique'; // Par défaut technique (vert) si non spécifié
     }
 
     function renderCalendar() {
@@ -436,13 +469,42 @@
 
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const hasMatch = calendrierCloudEvents.some(e => estDansLaPlage(dateStr, e));
-            let matchClass = hasMatch ? 'has-match' : '';
-            if (dateStr === selectedDateStr) matchClass += ' selected';
+            const eventsDuJour = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
+            
+            let matchClass = '';
+            let dotHtml = '';
+
+            if (eventsDuJour.length > 0) {
+                const hasPerso = eventsDuJour.some(e => getTypeOfEvent(e) === 'perso');
+                const hasPhysiqueCo = eventsDuJour.some(e => getTypeOfEvent(e) === 'physique-co');
+                const hasPhysique = eventsDuJour.some(e => getTypeOfEvent(e) === 'physique');
+                const hasTechnique = eventsDuJour.some(e => getTypeOfEvent(e) === 'technique');
+
+                if (hasPerso) {
+                    matchClass = 'has-perso'; // Rouge (ajout perso)
+                    dotHtml = '<div class="match-dot dot-perso"></div>';
+                } else if (hasPhysiqueCo) {
+                    matchClass = 'has-physique-co'; // Bleu (physique collectif)
+                    dotHtml = '<div class="match-dot dot-physique-co"></div>';
+                } else if (hasPhysique && !hasTechnique) {
+                    matchClass = 'has-physique'; // Jaune
+                    dotHtml = '<div class="match-dot dot-physique"></div>';
+                } else if (hasTechnique) {
+                    matchClass = 'has-technique'; // Vert
+                    dotHtml = '<div class="match-dot dot-technique"></div>';
+                } else {
+                    matchClass = 'has-match';
+                    dotHtml = '<div class="match-dot dot-default"></div>';
+                }
+            }
+
+            if (dateStr === selectedDateStr) {
+                matchClass += ' selected';
+            }
 
             grid.innerHTML += `
                 <div class="calendar-day ${matchClass}" onclick="selectCalendarDate('${dateStr}')">
-                    ${day} ${hasMatch ? '<div class="match-dot"></div>' : ''}
+                    ${day} ${dotHtml}
                 </div>
             `;
         }
@@ -471,12 +533,12 @@
                 const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut}${ev.heureFin ? ' - ' + ev.heureFin : ''}` : '';
                 const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
                 
-                if (ev.type === "info") {
+                if (ev.type === "info" || ev.type === "perso") {
                     htmlText += `
                         <div class="convocation-card">
                             <div style="font-weight:bold; font-size:0.82rem; color:var(--container-text);">${ev.titre || ev.title}</div>
                             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${heureDebut} ${lieu ? '| ' + lieu : ''}</div>
-                            <div style="font-size: 0.7rem; color: var(--accent-color); margin-top: 6px;">ℹ️ Information ${ev.createur ? '(Ajouté par ' + ev.createur + ')' : ''}</div>
+                            <div style="font-size: 0.7rem; color: #fca5a5; margin-top: 6px;">📌 Événement personnel ${ev.createur ? '(Ajouté par ' + ev.createur + ')' : ''}</div>
                         </div>
                     `;
                 } else {
@@ -748,26 +810,18 @@
 
             document.getElementById('statLink').href = `statjoueur.html?id=${joueur.id}`;
 
-            // =========================================================================
-            // MODIFICATION APPORTÉE ICI :
-            // On supprime la restriction qui masquait les onglets pour les joueurs.
-            // Désormais, quel que soit le rôle connecté, les onglets complets s'affichent.
-            // =========================================================================
             const btnGeneral = document.getElementById('tabGeneralBtn');
             const btnCalendrier = document.getElementById('tabCalendrierBtn');
             const btnEntrainement = document.getElementById('tabEntrainementBtn');
             const btnPlaylist = document.getElementById('playlistLink');
-            const subNav = document.getElementById('subTabsEntrainement');
 
             if (btnGeneral) btnGeneral.style.display = 'flex';
             if (btnCalendrier) btnCalendrier.style.display = 'flex';
             if (btnEntrainement) btnEntrainement.style.display = 'flex';
             if (btnPlaylist) btnPlaylist.style.display = 'flex';
-            if (subNav) subNav.style.display = 'grid';
             
             const statLink = document.getElementById('statLink');
             if (statLink) statLink.classList.remove('full-width');
-            // =========================================================================
 
             let matchsCloud = [];
             const matchsSnap = await getDocs(collection(db, "matchs"));
