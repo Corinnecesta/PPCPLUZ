@@ -52,6 +52,11 @@
     <div id="adminFormContainer" class="form-card admin-restricted">
         <form id="addPlayerForm">
             <div class="form-group">
+                <label>ID du Joueur</label>
+                <input type="text" id="playerId" class="form-control" placeholder="Ex: jon-erdozain" required>
+            </div>
+
+            <div class="form-group">
                 <label>Nom</label>
                 <input type="text" id="playerNom" class="form-control" placeholder="Ex: Erdozain" required>
             </div>
@@ -62,6 +67,21 @@
             </div>
 
             <div class="form-group">
+                <label>Date de naissance (JJ/MM/AAAA)</label>
+                <input type="text" id="playerDateNaissance" class="form-control" placeholder="Ex: 15/06/2002">
+            </div>
+
+            <div class="form-group">
+                <label>Taille</label>
+                <input type="text" id="playerTaille" class="form-control" placeholder="Ex: 1m80">
+            </div>
+
+            <div class="form-group">
+                <label>Poids (en kg)</label>
+                <input type="number" id="playerPoids" class="form-control" placeholder="Ex: 75">
+            </div>
+
+            <div class="form-group">
                 <label>Club</label>
                 <input type="text" id="playerClub" class="form-control" placeholder="Ex: Biarritz Athletic Club" required>
             </div>
@@ -69,6 +89,16 @@
             <div class="form-group">
                 <label>Spécialité</label>
                 <input type="text" id="playerSpecialite" class="form-control" placeholder="Ex: Avant / Arrière" required>
+            </div>
+
+            <div class="form-group">
+                <label>Victoires</label>
+                <input type="number" id="playerVictoires" class="form-control" value="0" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>Défaites</label>
+                <input type="number" id="playerDefaites" class="form-control" value="0" min="0">
             </div>
 
             <div class="form-group">
@@ -91,7 +121,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -133,29 +163,41 @@
         }
     }
 
-    // Soumission du formulaire d'ajout
+    // Soumission du formulaire d'ajout avec ID personnalisé sur Firebase
     document.getElementById('addPlayerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const customId = document.getElementById('playerId').value.trim();
         const nom = document.getElementById('playerNom').value.trim();
         const prenom = document.getElementById('playerPrenom').value.trim();
+        const dateNaissance = document.getElementById('playerDateNaissance').value.trim();
+        const taille = document.getElementById('playerTaille').value.trim(); // Format "1m80"
+        const poids = document.getElementById('playerPoids').value.trim();
         const club = document.getElementById('playerClub').value.trim();
         const specialite = document.getElementById('playerSpecialite').value.trim();
+        const victoires = parseInt(document.getElementById('playerVictoires').value) || 0;
+        const defaites = parseInt(document.getElementById('playerDefaites').value) || 0;
         const photo = document.getElementById('playerPhoto').value.trim() || 'logoce.png';
-        const categorie = document.getElementById('playerCategorie').value; // 'pole' ou 'autres'
+        const categorie = document.getElementById('playerCategorie').value;
 
         try {
-            await addDoc(collection(db, "joueurs"), {
+            await setDoc(doc(db, "joueurs", customId), {
+                id: customId,
                 nom,
                 prenom,
+                dateNaissance,
+                taille,
+                poids,
                 club,
                 specialite,
+                victoires,
+                defaites,
                 photo,
                 categorie,
                 createdAt: new Date().toISOString()
             });
 
-            alert("Joueur ajouté avec succès !");
+            alert("Joueur ajouté avec succès sur Firebase !");
             window.location.href = "joueurs.html";
         } catch (error) {
             console.error("Erreur lors de l'ajout du joueur :", error);

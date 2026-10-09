@@ -207,21 +207,64 @@
             margin-left: 8px;
         }
 
-        /* --- CARTE ACTION RAPIDE : NOUVELLE PARTIE & MODIFIER PARTIE --- */
-        .action-add-card {
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* --- GRILLE DES ACTIONS ADMIN CÔTE À CÔTE --- */
+        .admin-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .admin-action-card {
+            background: var(--card-bg);
+            border: 2px solid #17b890;
+            border-radius: 16px;
+            padding: 12px 10px;
             text-decoration: none;
             color: var(--container-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 6px;
             transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+            box-sizing: border-box;
         }
-        .action-add-card:hover {
+
+        .admin-action-card:hover {
             background: var(--card-hover-bg);
             border-color: var(--accent-color);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
+        }
+
+        .admin-action-icon {
+            background: rgba(0, 242, 254, 0.2);
+            border: 1px solid var(--accent-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .admin-action-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .admin-action-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--container-text);
+            line-height: 1.2;
         }
 
         /* --- GRILLE DES ONGLETS --- */
@@ -335,29 +378,22 @@
         <div class="event-arrow">➔</div>
     </a>
 
-    <!-- BOUTON D'ACCÈS RAPIDE : NOUVELLE PARTIE (Réservé exclusivement à l'Admin) -->
-    <a href="ajouter_partie.html" class="action-add-card full-width-block admin-only" style="display: none;">
-        <div class="full-width-event-left">
-            <div class="event-icon-box" style="background: rgba(0, 242, 254, 0.2); border-color: var(--accent-color);">➕</div>
-            <div class="event-info">
-                <div class="event-label">Saisie rapide</div>
-                <div class="event-details" style="font-size: 0.82rem;">Ajouter une nouvelle partie</div>
-            </div>
-        </div>
-        <div class="event-arrow">➔</div>
-    </a>
+    <!-- BLOCS ACTIONS RAPIDES ADMIN CÔTE À CÔTE (Réservé exclusivement à l'Admin) -->
+    <div class="admin-actions-grid admin-only" style="display: none;">
+        <!-- Ajouter une nouvelle partie -->
+        <a href="ajouter_partie.html" class="admin-action-card">
+            <div class="admin-action-icon">➕</div>
+            <div class="admin-action-label">Partie</div>
+            <div class="admin-action-title">Ajouter une partie</div>
+        </a>
 
-    <!-- BOUTON D'ACCÈS RAPIDE : MODIFIER UNE PARTIE (Réservé exclusivement à l'Admin) -->
-    <a href="modifier_partie.html" class="action-add-card full-width-block admin-only" style="display: none;">
-        <div class="full-width-event-left">
-            <div class="event-icon-box" style="background: rgba(0, 242, 254, 0.2); border-color: var(--accent-color);">✏️</div>
-            <div class="event-info">
-                <div class="event-label">Gestion des scores</div>
-                <div class="event-details" style="font-size: 0.82rem;">Modifier une partie</div>
-            </div>
-        </div>
-        <div class="event-arrow">➔</div>
-    </a>
+        <!-- Ajouter un nouveau joueur -->
+        <a href="ajouter_joueur.html" class="admin-action-card">
+            <div class="admin-action-icon">👤</div>
+            <div class="admin-action-label">Joueur</div>
+            <div class="admin-action-title">Ajouter un joueur</div>
+        </a>
+    </div>
 
     <!-- Grille des onglets -->
     <div class="menu-grid">
@@ -455,7 +491,10 @@
 
         if (userRole === 'admin') {
             adminElements.forEach(el => {
-                el.style.display = 'flex';
+                el.style.display = 'grid'; // ou flex selon le conteneur
+                if(el.classList.contains('admin-actions-grid')) {
+                    el.style.display = 'grid';
+                }
             });
         } else {
             adminElements.forEach(el => {
