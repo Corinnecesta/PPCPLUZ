@@ -82,7 +82,7 @@ const joueursData = [
         id: "garcia",
         prenom: "Clément",
         nom: "GARCIA",
-        club: "Biarritz",
+        club: "Bidart",
         specialite: "Avant",
         victoires: 22,
         defaites: 18,
@@ -103,5 +103,58 @@ const joueursData = [
         taille: "1m77",
         poids: "70 kg",
         photo: "bonnin.png"
+    },
+    {
+        id: "barandika",
+        prenom: "Xavier",
+        nom: "BARANDIKA",
+        club: "Espagne",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "23/03/1990",
+        taille: "1m80",
+        poids: "80 kg",
+        photo: "barandika.png"
+    },
+    {
+        id: "lekerika",
+        prenom: "Unaï",
+        nom: "LEKERIKA",
+        club: "Espagne",
+        specialite: "Arrière",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "13/12/1994",
+        taille: "1m78",
+        poids: "90 kg",
+        photo: "lekerika.png"
+    },
+    {
+        id: "sorozabal",
+        prenom: "Johan",
+        nom: "SOROZABAL",
+        club: "USA",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "23/04/2002",
+        taille: "1m85",
+        poids: "77 kg",
+        photo: "soroj.png"
+    },
+    {
+        id: "sorozabal",
+        prenom: "Gorka",
+        nom: "SOROZABAL",
+        club: "USA",
+        specialite: "Arrière",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "04/03/2001",
+        taille: "1m80",
+        poids: "76 kg",
+        photo: "sorog.png"
     }
+
 ];
