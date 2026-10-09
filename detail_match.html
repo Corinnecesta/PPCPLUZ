@@ -8,6 +8,14 @@
     <style>
         .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
         
+        .mobile-container {
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-sizing: border-box;
+        }
+
         .match-details-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .match-header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .match-title { font-weight: bold; font-size: 1rem; color: var(--accent-color); }
@@ -65,7 +73,7 @@
     <div class="top-header">
         <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
         <div class="header-actions">
-            <a href="winter-series.html" class="home-btn" title="Retour">🏠</a>
+            <a href="match.html" class="home-btn" title="Retour aux parties">🏠</a>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
             <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
         </div>
@@ -73,7 +81,7 @@
 
     <hr class="separator">
 
-    <a href="winter-series.html" class="back-link">◀ Retour aux Winter Series</a>
+    <a href="match.html" class="back-link">◀ Retour aux parties</a>
 
     <div class="section-title">📊 Statistiques Détaillées</div>
 
@@ -82,7 +90,7 @@
     </div>
 </div>
 
-<!-- Inclusion des données de joueurs si disponibles -->
+<!-- Inclusion des données de joueurs locales -->
 <script src="joueurs-data.js"></script>
 
 <script type="module">
@@ -177,7 +185,6 @@
                 videoBtnHTML = `<a href="${link}" target="_blank" class="btn-action">📺 Voir la vidéo de la partie</a>`;
             }
 
-            // Redirection vers la page "statistiques-partie.html" avec l'ID du match
             let statsPartieBtnHTML = `<a href="statistiques-partie.html?id=${matchId}" class="btn-action">📈 Statistique de la partie</a>`;
 
             if (videoBtnHTML || statsPartieBtnHTML) {
@@ -187,19 +194,19 @@
             let statsJoueursHTML = "";
             
             if (match.joueursStats && Array.isArray(match.joueursStats) && match.joueursStats.length > 0) {
-                match.joueursStats.forEach(js => {
-                    const joueurId = js.id || js.joueurId || "";
+                for (let js of match.joueursStats) {
+                    const nomJ = js.nom || 'Joueur';
                     statsJoueursHTML += `
                         <div class="stat-item">
                             <span>
-                                👤 <a href="statistiques-joueur.html?idJoueur=${joueurId}&idMatch=${matchId}&nom=${encodeURIComponent(js.nom)}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
-                                    ${js.nom || 'Joueur'}
+                                👤 <a href="statistiques-joueur.html?idMatch=${matchId}&nom=${encodeURIComponent(nomJ)}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
+                                    ${nomJ}
                                 </a>
                             </span>
                             <span>Points : <strong>${js.points || 0}</strong> | Fautes : <strong>${js.fautes || 0}</strong></span>
                         </div>
                     `;
-                });
+                }
             } else {
                 let listeNomsJoueurs = [];
                 if (match.equipe1) {
@@ -216,24 +223,18 @@
                 }
 
                 if (listeNomsJoueurs.length > 0) {
-                    listeNomsJoueurs.forEach(j => {
-                        let jId = "";
-                        if (typeof joueursData !== 'undefined') {
-                            const trouve = joueursData.find(jd => jd.nom && jd.nom.toLowerCase() === j.nom.toLowerCase());
-                            if (trouve) jId = trouve.id;
-                        }
-
+                    for (let j of listeNomsJoueurs) {
                         statsJoueursHTML += `
                             <div class="stat-item">
                                 <span>
-                                    👤 <a href="statistiques-joueur.html?idJoueur=${jId}&idMatch=${matchId}&nom=${encodeURIComponent(j.nom)}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
+                                    👤 <a href="statistiques-joueur.html?idMatch=${matchId}&nom=${encodeURIComponent(j.nom)}" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
                                         ${j.nom}
                                     </a>
                                 </span>
                                 <span style="font-size: 0.75rem; color: var(--text-muted);">(${j.equipe})</span>
                             </div>
                         `;
-                    });
+                    }
                 } else {
                     statsJoueursHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">Aucun joueur associé à cette partie.</div>`;
                 }
@@ -252,13 +253,13 @@
             const vainqueur = determinerVainqueur(score1, score2);
 
             if (vainqueur === 1) {
-                color1 = '#10B981'; // Vert
-                color2 = '#EF4444'; // Rouge
+                color1 = '#10B981';
+                color2 = '#EF4444';
                 equipe1Nom = `🏆<br>${equipe1Nom}`;
                 badgeTexte = 'Victoire';
             } else if (vainqueur === 2) {
-                color1 = '#EF4444'; // Rouge
-                color2 = '#10B981'; // Vert
+                color1 = '#EF4444';
+                color2 = '#10B981';
                 equipe2Nom = `🏆<br>${equipe2Nom}`;
                 badgeTexte = 'Victoire';
             }
@@ -308,4 +309,3 @@
 </script>
 </body>
 </html>
-```[cite: 12]
