@@ -131,7 +131,7 @@ const joueursData = [
         photo: "lekerika.png"
     },
     {
-        id: "sorozabal",
+        id: "sorozabalj",
         prenom: "Johan",
         nom: "SOROZABAL",
         club: "USA",
@@ -144,7 +144,7 @@ const joueursData = [
         photo: "soroj.png"
     },
     {
-        id: "sorozabal",
+        id: "sorozabalg",
         prenom: "Gorka",
         nom: "SOROZABAL",
         club: "USA",
@@ -155,6 +155,19 @@ const joueursData = [
         taille: "1m80",
         poids: "76 kg",
         photo: "sorog.png"
+    },
+    {
+        id: "etcheto",
+        prenom: "Nicolas",
+        nom: "ETCHETO",
+        club: "Guethary",
+        specialite: "Arrière",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "03/05/1989",
+        taille: "1m80",
+        poids: "80 kg",
+        photo: "etcheto.png"
     }
 
 ];
