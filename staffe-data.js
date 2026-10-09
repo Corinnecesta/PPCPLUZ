@@ -74,10 +74,21 @@ const staffData = [
         id: "staff-8",
         prenom: "Corinne",
         nom: "ELISSALDE",
-        role: "Analyste Vidéo & Data",
+        role: "Analyste Analyste Vidéo & Data",
         dateNaissance: "23/09/1983", // Par exemple, mettez la date du jour si vous voulez tester l'anniversaire !
         telephone: "06 58 24 20 59",
         email: "koko.elissalde@gmail.com",
         photo: "corinne.png"
+    },
+    {
+        id: "staff-9",
+        prenom: "Jon",
+        nom: "TAMBOURINDEGUY",
+        role: "Analyste Vidéo",
+        dateNaissance: "23/09/1983", // Par exemple, mettez la date du jour si vous voulez tester l'anniversaire !
+        telephone: "06 74 80 11 17",
+        email: "Tambour5759@gmail.com",
+        photo: "jon.png"
     }
+
 ];
