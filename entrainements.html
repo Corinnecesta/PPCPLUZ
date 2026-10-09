@@ -42,19 +42,28 @@
         .calendar-day:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
         .calendar-day.empty { background: transparent; border: none; cursor: default; }
         
-        /* Styles de base pour les jours avec entraînements standards */
+        /* Styles personnalisés par type d'événement (vert plus prononcé) */
+        .calendar-day.has-technique { border-color: #059669; background: rgba(5, 150, 105, 0.35); font-weight: bold; color: #a7f3d0; }
+        .calendar-day.has-physique-co { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); font-weight: bold; color: #93c5fd; }
+        .calendar-day.has-physique { border-color: #facc15; background: rgba(250, 204, 21, 0.2); font-weight: bold; color: #fde047; }
+        .calendar-day.has-perso { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); font-weight: bold; color: #fca5a5; }
         .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.15); font-weight: bold; color: var(--accent-color); }
         
         /* Styles spécifiques pour les jours avec des infos / notes joueurs (en ROUGE) */
         .calendar-day.has-info { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); font-weight: bold; color: #ef4444; }
 
-        .calendar-day.selected { border: 2px solid #ffffff; }
+        .calendar-day.selected { border: 2px solid #ffffff !important; }
 
         /* Gestion des points multiples par jour */
         .event-dots-container { display: flex; gap: 3px; justify-content: center; align-items: center; margin-top: 3px; flex-wrap: wrap; max-width: 28px; }
-        .multi-dot { width: 4px; height: 4px; border-radius: 50%; }
+        .multi-dot { width: 5px; height: 5px; border-radius: 50%; }
         .multi-dot.match { background-color: var(--accent-color); }
         .multi-dot.info { background-color: #ef4444; }
+        .multi-dot.technique { background-color: #059669; }
+        .multi-dot.physique-co { background-color: #3b82f6; }
+        .multi-dot.physique { background-color: #facc15; }
+        .multi-dot.perso { background-color: #ef4444; }
+        
         .event-count-badge { font-size: 0.55rem; background: rgba(255, 255, 255, 0.2); padding: 1px 3px; border-radius: 4px; margin-top: 2px; font-weight: bold; }
 
         .match-preview-box { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--accent-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.78rem; display: none; }
@@ -218,6 +227,25 @@
         return dateStr;
     }
 
+    function getTypeOfEvent(event) {
+        const typeStr = (event.type || "").toLowerCase();
+        const titleStr = (event.titre || event.title || "").toLowerCase();
+
+        if (typeStr === 'perso' || typeStr === 'info' || titleStr.includes('perso') || titleStr.includes('kiné') || titleStr.includes('personnel')) {
+            return 'perso';
+        }
+        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif')) || titleStr.includes('physique collectif') || titleStr.includes('physique co')) {
+            return 'physique-co';
+        }
+        if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu') || titleStr.includes('prepa')) {
+            return 'physique';
+        }
+        if (typeStr.includes('technique') || titleStr.includes('technique') || titleStr.includes('cesta') || titleStr.includes('fronton') || titleStr.includes('paleta')) {
+            return 'technique';
+        }
+        return 'technique';
+    }
+
     function renderCalendar() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
@@ -237,28 +265,38 @@
 
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            
             const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
-            const hasInfo = matchingEvents.some(e => e.type === 'info');
-            const hasMatch = matchingEvents.some(e => e.type !== 'info');
-
+            
             let matchClass = '';
-            if (hasInfo && hasMatch) {
-                matchClass = 'has-match';
-            } else if (hasInfo) {
-                matchClass = 'has-info'; 
-            } else if (hasMatch) {
-                matchClass = 'has-match'; 
-            }
-
-            if (dateStr === selectedDateStr) matchClass += ' selected';
-
             let dotsHtml = '';
+
             if (matchingEvents.length > 0) {
+                const hasPerso = matchingEvents.some(e => getTypeOfEvent(e) === 'perso' || e.type === 'info');
+                const hasPhysiqueCo = matchingEvents.some(e => getTypeOfEvent(e) === 'physique-co');
+                const hasPhysique = matchingEvents.some(e => getTypeOfEvent(e) === 'physique');
+                const hasTechnique = matchingEvents.some(e => getTypeOfEvent(e) === 'technique');
+
+                if (hasPerso) {
+                    matchClass = 'has-perso';
+                } else if (hasPhysiqueCo) {
+                    matchClass = 'has-physique-co';
+                } else if (hasPhysique && !hasTechnique) {
+                    matchClass = 'has-physique';
+                } else if (hasTechnique) {
+                    matchClass = 'has-technique';
+                } else {
+                    matchClass = 'has-match';
+                }
+
                 dotsHtml = `<div class="event-dots-container">`;
                 matchingEvents.forEach(ev => {
-                    const isInf = ev.type === 'info';
-                    dotsHtml += `<div class="multi-dot ${isInf ? 'info' : 'match'}"></div>`;
+                    const t = getTypeOfEvent(ev);
+                    let dotClass = 'technique';
+                    if (t === 'perso' || ev.type === 'info') dotClass = 'perso';
+                    else if (t === 'physique-co') dotClass = 'physique-co';
+                    else if (t === 'physique') dotClass = 'physique';
+                    
+                    dotsHtml += `<div class="multi-dot ${dotClass}"></div>`;
                 });
                 dotsHtml += `</div>`;
                 
@@ -266,6 +304,8 @@
                     dotsHtml += `<span class="event-count-badge">${matchingEvents.length}</span>`;
                 }
             }
+
+            if (dateStr === selectedDateStr) matchClass += ' selected';
 
             grid.innerHTML += `
                 <div class="calendar-day ${matchClass}" onclick="selectCalendarDate('${dateStr}')">
@@ -286,7 +326,7 @@
         
         const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
         
-        const allAreInfos = matchingEvents.length > 0 && matchingEvents.every(e => e.type === 'info');
+        const allAreInfos = matchingEvents.length > 0 && matchingEvents.every(e => e.type === 'info' || getTypeOfEvent(e) === 'perso');
         const titreTeteBox = document.getElementById('selectedDateTitle');
         
         if (allAreInfos) {
@@ -300,13 +340,12 @@
         const previewBox = document.getElementById('matchPreviewBox');
         const previewContent = document.getElementById('matchPreviewContent');
 
-        // Récupération du rôle pour adapter l'affichage des convocations
         const userRole = localStorage.getItem('cesta_user_role');
 
         if (matchingEvents.length > 0) {
             let htmlText = "";
             matchingEvents.forEach(ev => {
-                const isInfo = ev.type === 'info';
+                const isInfo = ev.type === 'info' || getTypeOfEvent(ev) === 'perso';
                 const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut} - ${ev.heureFin || ''}` : '';
                 const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
                 
@@ -367,7 +406,6 @@
                             if (conv.statut === 'present') badgeStatut = "✅ Présent";
                             else if (conv.statut === 'absent') badgeStatut = `❌ Absent (${conv.motif || 'Sans motif'})`;
 
-                            // Si c'est un joueur, on affiche les noms et le statut en lecture seule sans possibilité de modifier ou répondre ici
                             detailsHtml += `
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                                     <span>👤 ${conv.nom}</span>
@@ -376,7 +414,6 @@
                             `;
                         });
 
-                        // Petit message informatif pour les joueurs sous la liste des noms
                         if (userRole === 'joueur') {
                             detailsHtml += `
                                 <div style="font-size: 0.7rem; color: var(--accent-color); padding-top: 6px; text-align: center; font-weight: bold; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 4px;">
