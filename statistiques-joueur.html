@@ -14,7 +14,28 @@
     <style>
         .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
         
-        .back-photo-container { display: flex; justify-content: center; margin-bottom: 15px; }
+        .back-link-container {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 4px;
+        }
+
+        .back-link {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .back-photo-container { display: flex; justify-content: center; margin-bottom: 15px; width: 100%; }
         .back-photo { 
             width: 65px; 
             height: 65px; 
@@ -23,13 +44,8 @@
             object-position: center; 
             border: 2px solid var(--accent-color); 
             background: rgba(0,0,0,0.2); 
-            cursor: pointer; 
-            transition: transform 0.2s, box-shadow 0.2s; 
             box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
-        }
-        .back-photo:hover { 
-            transform: scale(1.08); 
-            border-color: var(--container-text); 
+            pointer-events: none;
         }
 
         .subtabs-nav { display: flex; gap: 6px; margin-bottom: 12px; }
@@ -183,11 +199,14 @@
 
     <hr class="separator">
 
+    <!-- Lien Page précédente à gauche, et photo du joueur centrée -->
+    <div class="back-link-container">
+        <a href="javascript:history.back()" class="back-link">← Page précédente</a>
+    </div>
     <div class="back-photo-container" id="backPlayerNav"></div>
 
     <div class="section-title">Analyses & Performances</div>
 
-    <!-- Lien interactif vers les détails du match -->
     <div id="matchLinkContainer"></div>
     
     <div class="subtabs-nav">
@@ -208,7 +227,6 @@
             Sélectionnez une partie
         </div>
 
-        <!-- Boutons Modifier / Supprimer (Visibles uniquement pour les admins) -->
         <div class="match-actions-bar" id="matchActionsBar" style="display: none;">
             <button class="btn-action-edit" onclick="ouvrirFormulaireEdition()">✏ Modifier</button>
             <button class="btn-action-delete" onclick="supprimerPartieActive()">🗑️ Supprimer</button>
@@ -319,7 +337,7 @@
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const currentId = urlParams.get('id') || urlParams.get('idJoueur') || "basque";
+        const currentId = urlParams.get('id') || urlParams.get('idJoueur');
 
         const statsRecup = {
             pelotesJouees: Number(document.getElementById('editPelotesJouees').value || 0),
@@ -457,17 +475,24 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const playerId = urlParams.get('id') || urlParams.get('idJoueur') || "basque";
+    const playerId = urlParams.get('id') || urlParams.get('idJoueur') || "";
+    const nomUrl = urlParams.get('nom') || "";
     const matchIdUrl = urlParams.get('idMatch') || "";
 
-    let joueur = (typeof joueursData !== 'undefined' ? joueursData.find(j => String(j.id) === String(playerId)) : null) || {
-        id: "basque", prenom: "Thibault", nom: "BASQUE", photo: "basque.png"
-    };
+    let joueur = (typeof joueursData !== 'undefined' ? joueursData.find(j => String(j.id) === String(playerId) || (nomUrl && j.nom.toLowerCase() === nomUrl.toLowerCase())) : null);
 
+    if (!joueur) {
+        joueur = {
+            id: playerId || nomUrl,
+            prenom: "",
+            nom: nomUrl ? decodeURIComponent(nomUrl) : (playerId ? decodeURIComponent(playerId) : "Joueur"),
+            photo: "logoce.png"
+        };
+    }
+
+    // Affichage de la photo non cliquable
     document.getElementById('backPlayerNav').innerHTML = `
-        <a href="joueur.html?id=${playerId}" title="Retour au profil">
-            <img src="${joueur.photo}" alt="Profil" class="back-photo" onerror="this.src='logoce.png'">
-        </a>
+        <img src="${joueur.photo}" alt="Profil" class="back-photo" onerror="this.src='logoce.png'">
     `;
 
     function determinerVainqueur(s1, s2) {
@@ -512,12 +537,13 @@
             
             if (match.statsParJoueur) {
                 const currentIdStr = String(playerId).trim().toLowerCase();
+                const currentNomStr = String(nomUrl).trim().toLowerCase();
                 const nomJoueur = (joueur.nom || "").trim().toLowerCase();
                 const prenomJoueur = (joueur.prenom || "").trim().toLowerCase();
 
                 let foundKey = Object.keys(match.statsParJoueur).find(k => {
                     const keyLower = String(k).trim().toLowerCase();
-                    return keyLower === currentIdStr || keyLower === nomJoueur || keyLower === prenomJoueur;
+                    return keyLower === currentIdStr || keyLower === currentNomStr || keyLower === nomJoueur || keyLower === prenomJoueur;
                 });
 
                 if (foundKey) {
@@ -629,22 +655,25 @@
     };
 
     function estMatchDuJoueur(m) {
-        const currentIdStr = String(playerId).trim();
+        const currentIdStr = String(playerId).trim().toLowerCase();
+        const currentNomStr = String(nomUrl).trim().toLowerCase();
         
         if (m.statsParJoueur) {
             for (let key in m.statsParJoueur) {
-                if (String(key).trim() === currentIdStr) {
+                const kLower = String(key).trim().toLowerCase();
+                if (kLower === currentIdStr || kLower === currentNomStr) {
                     return true;
                 }
             }
         }
         
         if (m.joueurId !== undefined && m.joueurId !== null) {
-            if (String(m.joueurId).trim() === currentIdStr) return true;
+            const jIdStr = String(m.joueurId).trim().toLowerCase();
+            if (jIdStr === currentIdStr || jIdStr === currentNomStr) return true;
         }
 
-        const nomRecherche = (joueur.nom || "").toLowerCase(); 
-        const prenomRecherche = (joueur.prenom || "").toLowerCase();
+        const nomRecherche = (joueur.nom || "").toLowerCase().trim(); 
+        const prenomRecherche = (joueur.prenom || "").toLowerCase().trim();
         const e1 = (m.equipe1 || "").toLowerCase();
         const e2 = (m.equipe2 || "").toLowerCase();
         
@@ -653,8 +682,8 @@
     }
 
     function getEquipeJoueur(m) {
-        const nomRecherche = (joueur.nom || "").toLowerCase();
-        const prenomRecherche = (joueur.prenom || "").toLowerCase();
+        const nomRecherche = (joueur.nom || "").toLowerCase().trim();
+        const prenomRecherche = (joueur.prenom || "").toLowerCase().trim();
         const e1 = (m.equipe1 || "").toLowerCase();
         const e2 = (m.equipe2 || "").toLowerCase();
 
@@ -748,7 +777,7 @@
     };
 
     function updateButtonIcon(theme) {
-        themeToggleBtn.innerHTML = (theme === 'light') ? '☀' : '🌙';
+        themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
     }
 
     window.switchSubTab = function(subTabName, element) {
@@ -858,7 +887,7 @@
                 <label>Lieu :</label>
                 <input type="text" id="editLieu" value="${match.lieu || ''}">
 
-                <h5>Pelotes & Points (${joueur.prenom} ${joueur.nom})</h5>
+                <h5>Pelotes & Points (${joueur.prenom || ''} ${joueur.nom})</h5>
                 <div class="edit-grid-2">
                     <div><label>Pelotes jouées :</label><input type="number" id="editPelotesJouees" value="${s.pelotesJouees || 0}"></div>
                     <div><label>Pelotes totales :</label><input type="number" id="editPelotesTotales" value="${s.pelotesTotales || 100}"></div>
@@ -1027,7 +1056,6 @@
             return;
         }
 
-        // Masquer/Afficher les boutons Modifier/Supprimer selon le rôle 'admin'
         const role = localStorage.getItem('cesta_user_role');
         if (actionsBar) {
             actionsBar.style.display = (match.isCloud && role === 'admin') ? 'flex' : 'none';
@@ -1067,7 +1095,6 @@
             </div>
         `;
 
-        // Remplir le bloc cliquable vers le détail du match
         const linkContainer = document.getElementById('matchLinkContainer');
         if (linkContainer) {
             const nomCompetition = match.competition || match.titre || 'Partie de poule';
@@ -1103,7 +1130,7 @@
 
         conteneur.innerHTML = `
             <div class="card-item">
-                <div class="item-title">🥎 Pelotes & Points (${joueur.prenom} ${joueur.nom})</div>
+                <div class="item-title">🥎 Pelotes & Points (${joueur.prenom || ''} ${joueur.nom})</div>
                 <table class="stat-table">
                     <thead>
                         <tr>
@@ -1331,7 +1358,7 @@
 
         conteneurTotaux.innerHTML = `
             <div class="full-match-title-box">
-                Cumul global pour ${joueur.prenom} ${joueur.nom} sur ${nbMatchs} partie${nbMatchs > 1 ? 's' : ''}
+                Cumul global pour ${joueur.prenom || ''} ${joueur.nom} sur ${nbMatchs} partie${nbMatchs > 1 ? 's' : ''}
             </div>
 
             <div class="card-item">
@@ -1480,6 +1507,9 @@
                 window.initialiserPageStats();
             }
         }, 800);
+
+
+
     });
 </script>
 
