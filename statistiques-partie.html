@@ -224,14 +224,12 @@
         document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
     }
 
-    // VÉRIFICATION DU RÔLE (Affichage uniquement pour admin ou entraineur)
+    // VÉRIFICATION DU RÔLE IDENTIQUE À STATJOUEUR.HTML
     function verifierRoleInterface() {
-        const roleActuel = localStorage.getItem('user_role') || 'joueur';
+        const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
         const toggleEditBtn = document.getElementById('toggleEditBtn');
-        if (roleActuel === 'admin' || roleActuel === 'entraineur') {
-            toggleEditBtn.style.display = 'block';
-        } else {
-            toggleEditBtn.style.display = 'none';
+        if (toggleEditBtn) {
+            toggleEditBtn.style.display = (roleActuel === 'admin') ? 'block' : 'none';
         }
     }
 
@@ -239,6 +237,9 @@
     const adminFormSection = document.getElementById('adminFormSection');
 
     toggleEditBtn.addEventListener('click', () => {
+        const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
+        if (roleActuel !== 'admin') return;
+
         if (adminFormSection.style.display === 'block') {
             adminFormSection.style.display = 'none';
             toggleEditBtn.innerText = '✏️ Modifier les données de la partie';
@@ -312,8 +313,8 @@
             });
 
             const titre = match.competition || match.titre || 'Partie';
-            const s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
-            const s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
+            const s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.scoreEquipe1Score || match.equipe1Score || '-');
+            const s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.scoreEquipe2Score || match.equipe2Score || '-');
             const eq1Nom = match.equipe1 || 'Équipe 1';
             const eq2Nom = match.equipe2 || 'Équipe 2';
 
@@ -434,6 +435,14 @@
 
     document.getElementById('generalStatsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Double sécurité : vérification du rôle admin au moment de soumettre
+        const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
+        if (roleActuel !== 'admin') {
+            alert("Accès refusé.");
+            return;
+        }
+
         if (!matchId) return;
 
         try {

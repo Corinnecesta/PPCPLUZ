@@ -45,7 +45,7 @@
 
     <!-- Message d'accès restreint si non admin -->
     <div id="accessDenied" style="display: none; text-align: center; color: #ef4444; padding: 30px; font-size: 0.85rem;">
-        ⛔ Accès réservé aux administrateurs et entraîneurs.
+        ⛔ Accès réservé aux administrateurs.
     </div>
 
     <!-- Formulaire d'ajout -->
@@ -151,10 +151,10 @@
         themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
     }
 
-    // Vérification des droits d'accès
+    // Vérification des droits d'accès restreinte uniquement à l'admin
     function verifierAcces() {
-        const roleActuel = localStorage.getItem('user_role') || 'joueur';
-        if (roleActuel === 'admin' || roleActuel === 'entraineur') {
+        const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
+        if (roleActuel === 'admin') {
             document.getElementById('adminFormContainer').style.display = 'block';
             document.getElementById('accessDenied').style.display = 'none';
         } else {
@@ -167,11 +167,18 @@
     document.getElementById('addPlayerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Double sécurité au moment de soumettre
+        const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
+        if (roleActuel !== 'admin') {
+            alert("Accès refusé.");
+            return;
+        }
+
         const customId = document.getElementById('playerId').value.trim();
         const nom = document.getElementById('playerNom').value.trim();
         const prenom = document.getElementById('playerPrenom').value.trim();
         const dateNaissance = document.getElementById('playerDateNaissance').value.trim();
-        const taille = document.getElementById('playerTaille').value.trim(); // Format "1m80"
+        const taille = document.getElementById('playerTaille').value.trim();
         const poids = document.getElementById('playerPoids').value.trim();
         const club = document.getElementById('playerClub').value.trim();
         const specialite = document.getElementById('playerSpecialite').value.trim();
