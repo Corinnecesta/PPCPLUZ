@@ -224,7 +224,6 @@
         document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
     }
 
-    // VÉRIFICATION DU RÔLE IDENTIQUE À STATJOUEUR.HTML
     function verifierRoleInterface() {
         const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
         const toggleEditBtn = document.getElementById('toggleEditBtn');
@@ -328,8 +327,6 @@
                         </div>
                     `;
                 });
-            } else {
-                statsHtml = `<div class="no-result" style="padding:10px;">Aucune statistique détaillée enregistrée pour les joueurs.</div>`;
             }
 
             let recTableRows = "";
@@ -375,10 +372,12 @@
                         ${match.tempsTotal ? `<br>⏱️ Temps de jeu : ${match.tempsTotal} (Effectif :${match.tempsEffectif || 'N/C'})` : ''}
                     </div>
 
-                    <div class="section-title">Récapitulatif des joueurs</div>
-                    <div class="stats-section" style="margin-bottom: 15px;">
-                        ${statsHtml}
-                    </div>
+                    ${statsHtml ? `
+                        <div class="section-title">Récapitulatif des joueurs</div>
+                        <div class="stats-section" style="margin-bottom: 15px;">
+                            ${statsHtml}
+                        </div>
+                    ` : ''}
 
                     <div class="section-title">🎯 Buts</div>
                     <table class="stat-table">
@@ -436,7 +435,6 @@
     document.getElementById('generalStatsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Double sécurité : vérification du rôle admin au moment de soumettre
         const roleActuel = localStorage.getItem('user_role') || localStorage.getItem('cesta_user_role');
         if (roleActuel !== 'admin') {
             alert("Accès refusé.");
