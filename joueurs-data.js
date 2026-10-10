@@ -131,9 +131,9 @@ const joueursData = [
         photo: "lekerika.png"
     },
     {
-        id: "sorozabalj",
+        id: "johan",
         prenom: "Johan",
-        nom: "SOROZABAL",
+        nom: "SOROZABAL.J",
         club: "USA",
         specialite: "Avant",
         victoires: 22,
@@ -144,9 +144,9 @@ const joueursData = [
         photo: "soroj.png"
     },
     {
-        id: "sorozabalg",
+        id: "gorka",
         prenom: "Gorka",
-        nom: "SOROZABAL",
+        nom: "SOROZABAL.G",
         club: "USA",
         specialite: "Arrière",
         victoires: 22,
@@ -168,6 +168,20 @@ const joueursData = [
         taille: "1m80",
         poids: "80 kg",
         photo: "etcheto.png"
+    },
+    {
+        id: "erkiaga",
+        prenom: "Aritz",
+        nom: "ERKIAGA",
+        club: "Espagne",
+        specialite: "Avant",
+        victoires: 22,
+        defaites: 18,
+        dateNaissance: "09/06/1987",
+        taille: "1m80",
+        poids: "85 kg",
+        photo: "erkiaga.png"
     }
+
 
 ];
