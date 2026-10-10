@@ -74,7 +74,7 @@ const staffData = [
         id: "staff-8",
         prenom: "Corinne",
         nom: "ELISSALDE",
-        role: "Analyste Analyste Vidéo & Data",
+        role: "Analyste Analyste data, Vidéos",
         dateNaissance: "23/09/1983", // Par exemple, mettez la date du jour si vous voulez tester l'anniversaire !
         telephone: "06 58 24 20 59",
         email: "koko.elissalde@gmail.com",
