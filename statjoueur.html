@@ -53,16 +53,57 @@
         .sub-tab-btn { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 10px; padding: 10px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.25s; }
         .sub-tab-btn.active { background: var(--btn-gradient); border-color: var(--accent-color); color: var(--container-text); }
 
-        .filter-select, .search-input { width: 100%; background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 12px; padding: 10px 14px; color: var(--container-text); font-size: 0.85rem; margin-bottom: 12px; outline: none; box-sizing: border-box; }
-        .filter-select:focus, .search-input:focus { border-color: var(--accent-color); }
-
-        .filter-select option {
-            color: #000 !important;
-            background-color: #fff;
+        /* Grille pour afficher les compétitions 2 par 2 côte à côte */
+        .competitions-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.25s ease; }
+        /* Style pour chaque bloc de compétition */
+        .competition-accordion-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .competition-accordion-header {
+            padding: 8px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            background: rgba(15, 76, 92, 0.15);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            text-align: left;
+        }
+        .competition-accordion-header:hover {
+            background: rgba(15, 76, 92, 0.3);
+        }
+
+        /* Conteneur des matchs qui s'ouvre en pleine largeur en dessous des blocs */
+        .competition-full-content {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+        .competition-full-content.open {
+            display: block;
+        }
+
+        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 12px; padding: 10px 12px; margin-bottom: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.2s ease; }
         .card-item:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
+        .card-item.match-item-btn { border-width: 2px; }
+        .card-item.match-item-btn.active { border-color: var(--accent-color); background: var(--card-hover-bg); }
+
         .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 6px; }
 
         .stat-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.7rem; }
@@ -108,7 +149,6 @@
         .btn-save { background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; flex: 1; }
         .btn-cancel { background: #6b7280; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
 
-        /* Style pour l'icône maison circulaire */
         .home-btn {
             width: 38px;
             height: 38px;
@@ -179,21 +219,19 @@
         <div class="sub-tab-btn" id="subTabTotales" onclick="switchSubTab('totales')">Totales</div>
     </div>
 
-    <!-- Vue Par Partie -->
+    <!-- Vue Par Partie : Compétitions côte à côte (2 par ligne) -->
     <div id="viewPartie">
-        <input type="text" id="searchPartie" class="search-input" placeholder="🔍 Rechercher une partie..." oninput="filtrerParties()">
-        <select id="selectPartie" class="filter-select" onchange="changerPartieSelectionnee()">
-            <option value="">-- Sélectionnez une partie --</option>
-        </select>
+        <div class="competitions-grid-container" id="competitionsGridContainer"></div>
+        <div id="competitionDetailsArea"></div>
 
-        <div class="match-actions-bar" id="matchActionsBar" style="display: none;">
+        <div class="match-actions-bar" id="matchActionsBar" style="display: none; margin-top: 15px;">
             <button class="btn-action-edit" onclick="ouvrirFormulaireEdition()">✏ Modifier</button>
             <button class="btn-action-delete" onclick="supprimerPartieActive()">🗑️ Supprimer</button>
         </div>
 
         <div id="editFormContainer" style="display: none;"></div>
 
-        <div id="detailsPartieContainer">
+        <div id="detailsPartieContainer" style="margin-top: 15px;">
             <div style="text-align: center; color: var(--text-muted); padding: 20px;">Sélectionnez une partie pour voir le détail.</div>
         </div>
     </div>
@@ -293,6 +331,16 @@
         return dateStr;
     }
 
+    function parseDateMatch(dateStr) {
+        if (!dateStr) return new Date(0);
+        const cleanStr = dateStr.replace(/-/g, '/');
+        const parts = cleanStr.split('/');
+        if (parts.length === 3) {
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+        return new Date(0);
+    }
+
     function determinerVainqueur(s1, s2) {
         if (s1 === undefined || s2 === undefined) return 0;
         let str1 = String(s1).trim();
@@ -356,6 +404,7 @@
     let joueur = null;
     let listeMatchsJoueur = [];
     let statsParMatchGlobal = {};
+    let matchActifId = null;
 
     async function initialiserPageJoueur() {
         try {
@@ -450,82 +499,165 @@
                 }
             });
 
+            listeMatchsJoueur.sort((a, b) => parseDateMatch(b.date) - parseDateMatch(a.date));
+
             const pctReussite = totalMatchs > 0 ? Math.round((totalVictoires / totalMatchs) * 100) : 0;
             document.getElementById('valTotalMatchs').textContent = totalMatchs;
             document.getElementById('valTotalVictoires').textContent = totalVictoires;
             document.getElementById('valTotalDefaites').textContent = totalDefaites;
             document.getElementById('valPctReussite').textContent = pctReussite + "%";
 
-            filtrerParties();
-
-            if (matchIdParam) {
-                const selectPartie = document.getElementById('selectPartie');
-                selectPartie.value = matchIdParam;
-                if (selectPartie.value === matchIdParam) {
-                    afficherStatsMatch(matchIdParam);
-                }
-            }
+            construireGrilleCompetitions();
 
         } catch (error) {
             console.error("Erreur lors de l'initialisation :", error);
         }
     }
 
-    window.changerPartieSelectionnee = function() {
-        const matchId = document.getElementById('selectPartie').value;
-        if (matchId) afficherStatsMatch(matchId);
+    window.changerPartieSelectionnee = function(matchId) {
+        matchActifId = matchId;
+        document.querySelectorAll('.match-item-btn').forEach(b => b.classList.remove('active'));
+        const btnCible = document.getElementById(`match_btn_${matchId}`);
+        if (btnCible) btnCible.classList.add('active');
+        
+        afficherStatsMatch(matchId);
     }
 
-    window.filtrerParties = function() {
-        const query = document.getElementById('searchPartie').value.toLowerCase().trim();
-        const selectPartie = document.getElementById('selectPartie');
-        selectPartie.innerHTML = '';
-
-        const matchsFiltres = listeMatchsJoueur.filter(match => {
-            if (!query) return true;
-            const titre = (match.titre || match.nom || match.competition || "").toLowerCase();
-            const equipe1 = (match.equipe1 || "").toLowerCase();
-            const equipe2 = (match.equipe2 || "").toLowerCase();
-            const lieu = (match.lieu || "").toLowerCase();
-            return titre.includes(query) || equipe1.includes(query) || equipe2.includes(query) || lieu.includes(query);
+    window.toggleCompetitionBox = function(compKey) {
+        document.querySelectorAll('.competition-full-content').forEach(el => {
+            if (el.id !== `comp_full_content_${compKey}`) el.classList.remove('open');
         });
 
-        const actionsBar = document.getElementById('matchActionsBar');
-
-        if (matchsFiltres.length === 0) {
-            selectPartie.innerHTML = '<option value="">Aucune partie trouvée</option>';
-            if (actionsBar) actionsBar.style.display = 'none';
-            document.getElementById('detailsPartieContainer').innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">Aucune partie ne correspond.</div>`;
-            return;
+        const cible = document.getElementById(`comp_full_content_${compKey}`);
+        if (cible) {
+            cible.classList.toggle('open');
+            if (cible.classList.contains('open')) {
+                cible.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
+    };
 
-        matchsFiltres.forEach(match => {
-            const option = document.createElement('option');
-            option.value = match.id;
+    function construireGrilleCompetitions() {
+        const gridContainer = document.getElementById('competitionsGridContainer');
+        const detailsArea = document.getElementById('competitionDetailsArea');
+        gridContainer.innerHTML = '';
+        detailsArea.innerHTML = '';
 
-            const dateFormatted = formaterDateFR(match.date);
-            const libelleEquipes = (match.equipe1 && match.equipe2) ? `${match.equipe1} vs ${match.equipe2}` : 'Partie';
-            const e1Score = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score ?? match.score1 ?? 0);
-            const e2Score = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score ?? match.score2 ?? 0);
+        const ordreCompetitions = [
+            "Winter Series",
+            "Gant d'Or de Biarritz",
+            "Cesta Pau Cup",
+            "Internationnaux de St Jean de Luz",
+            "Internationaux de St Jean de Luz",
+            "Jaï Alaï League",
+            "Jai Alai League",
+            "Championnat de France",
+            "Championnat du Pays Basque",
+            "All Star",
+            "All Stars",
+            "Summer League",
+            "Pôle",
+            "Championnat du Monde"
+        ];
 
-            let indicateur = '';
-            const vainqueur = determinerVainqueur(e1Score, e2Score);
-            const equipeJoueur = getEquipeJoueur(match);
+        const groupCompetitions = {};
+        ordreCompetitions.forEach(comp => {
+            groupCompetitions[comp] = [];
+        });
 
-            if (vainqueur !== 0) {
-                indicateur = (vainqueur === equipeJoueur) ? ' 🟢 (Victoire)' : ' 🔴 (Défaite)';
+        listeMatchsJoueur.forEach(match => {
+            const comp = match.competition || match.titre || "Autres compétitions";
+            if (!groupCompetitions[comp]) {
+                groupCompetitions[comp] = [];
+            }
+            groupCompetitions[comp].push(match);
+        });
+
+        Object.keys(groupCompetitions).forEach(comp => {
+            groupCompetitions[comp].sort((a, b) => parseDateMatch(b.date) - parseDateMatch(a.date));
+        });
+
+        let competitionsTriees = [...ordreCompetitions];
+        Object.keys(groupCompetitions).forEach(comp => {
+            if (!competitionsTriees.includes(comp)) {
+                competitionsTriees.push(comp);
+            }
+        });
+
+        competitionsTriees.forEach((comp) => {
+            const matchesComp = groupCompetitions[comp] || [];
+            const safeKey = comp.replace(/[^a-zA-Z0-9]/g, '_');
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'competition-accordion-item';
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'competition-accordion-header';
+            headerDiv.innerHTML = `<span>🏆 ${comp}</span><span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 6px; font-size: 0.65rem;">${matchesComp.length}</span>`;
+            headerDiv.onclick = () => toggleCompetitionBox(safeKey);
+
+            itemDiv.appendChild(headerDiv);
+            gridContainer.appendChild(itemDiv);
+
+            // Tous les blocs restent fermés par défaut
+            const fullContentDiv = document.createElement('div');
+            fullContentDiv.id = `comp_full_content_${safeKey}`;
+            fullContentDiv.className = `competition-full-content`;
+
+            if (matchesComp.length === 0) {
+                fullContentDiv.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px; font-size: 0.75rem;">Aucun match dans cette compétition.</div>`;
+            } else {
+                matchesComp.forEach((match) => {
+                    const dateFormatted = formaterDateFR(match.date);
+                    const libelleEquipes = (match.equipe1 && match.equipe2) ? `${match.equipe1} vs ${match.equipe2}` : 'Partie';
+                    const e1Score = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score ?? match.score1 ?? 0);
+                    const e2Score = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score ?? match.score2 ?? 0);
+
+                    let indicateur = '';
+                    const vainqueur = determinerVainqueur(e1Score, e2Score);
+                    const equipeJoueur = getEquipeJoueur(match);
+
+                    if (vainqueur !== 0) {
+                        indicateur = (vainqueur === equipeJoueur) ? ' 🟢' : ' 🔴';
+                    }
+
+                    const scoreStr = (e1Score !== '' && e2Score !== '') ? ` [${e1Score} - ${e2Score}]${indicateur}` : '';
+
+                    const matchCardBtn = document.createElement('div');
+                    matchCardBtn.id = `match_btn_${match.id}`;
+                    matchCardBtn.className = 'card-item match-item-btn';
+                    matchCardBtn.style.cursor = 'pointer';
+                    matchCardBtn.innerHTML = `
+                        <div style="font-size: 0.8rem; font-weight: bold; color: var(--container-text);">
+                            ${libelleEquipes} ${scoreStr}
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                            📅 ${dateFormatted} ${match.lieu ? '• 📍 ' + match.lieu : ''}
+                        </div>
+                    `;
+                    matchCardBtn.onclick = () => changerPartieSelectionnee(match.id);
+                    fullContentDiv.appendChild(matchCardBtn);
+                });
             }
 
-            const scoreStr = (e1Score !== '' && e2Score !== '') ? ` [${e1Score} - ${e2Score}]${indicateur}` : '';
-            option.textContent = `${match.competition || match.titre || 'Match'} : ${libelleEquipes} (${dateFormatted})${scoreStr}`;
-            selectPartie.appendChild(option);
+            detailsArea.appendChild(fullContentDiv);
         });
 
-        if (!matchIdParam) {
-            selectPartie.value = matchsFiltres[0].id;
-            afficherStatsMatch(matchsFiltres[0].id);
+        // Ouverture uniquement si un paramètre d'URL spécifique est présent (ex: lien direct vers un match)
+        if (matchIdParam) {
+            matchActifId = matchIdParam;
+            const matchCibleObj = listeMatchsJoueur.find(m => m.id === matchIdParam);
+            if (matchCibleObj) {
+                const compCible = matchCibleObj.competition || matchCibleObj.titre || "Autres compétitions";
+                const safeKey = compCible.replace(/[^a-zA-Z0-9]/g, '_');
+                const contentEl = document.getElementById(`comp_full_content_${safeKey}`);
+                if (contentEl) {
+                    contentEl.classList.add('open');
+                }
+            }
+            changerPartieSelectionnee(matchIdParam);
         }
-    }
+    };
 
     function calcPct(valeur, total) {
         if (!total || total === 0) return '0%';
@@ -678,7 +810,7 @@
 
     window.ouvrirFormulaireEdition = function() {
         if (localStorage.getItem('cesta_user_role') !== 'admin') return;
-        const matchId = document.getElementById('selectPartie').value;
+        const matchId = matchActifId;
         const match = listeMatchsJoueur.find(m => m.id === matchId);
         if (!match) return;
 
@@ -934,7 +1066,7 @@
 
     window.supprimerPartieActive = async function() {
         if (localStorage.getItem('cesta_user_role') !== 'admin') return;
-        const matchId = document.getElementById('selectPartie').value;
+        const matchId = matchActifId;
         if (confirm("Voulez-vous supprimer cette partie ?")) {
             await deleteDoc(doc(db, "matchs", matchId));
             initialiserPageJoueur();
@@ -1045,7 +1177,7 @@
 
             <div class="card-item">
                 <div class="item-title">📊 Répartition moyenne</div>
-                <div class="side-labels"><span style="color:var(--accent-color);">🟢 Coup Droit : ${avgCd}%</span><span style="color:#3b82f6;">🔵 Revers : ${100 - avgCd}%</span></div>
+                <div class="side-labels"><span style="color: var(--accent-color);">🟢 Coup Droit : ${avgCd}%</span><span style="color: #3b82f6;">🔵 Revers : ${100 - avgCd}%</span></div>
                 <div class="side-bar-container" style="margin-top:6px;">
                     <div class="side-bar-track">
                         <div class="side-bar-forehand" style="width: ${avgCd}%;"></div>
