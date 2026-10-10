@@ -102,15 +102,15 @@
                 </div>
             </div>
 
-            <!-- RÉCEPTIONS -->
-            <div class="team-section-title">🛡️ Réceptions (Total / Positif / Négatif / Neutre)</div>
+            <!-- RÉCEPTIONS (Sans neutre : T | + | -) -->
+            <div class="team-section-title">🛡️ Réceptions (Total / Positif / Négatif)</div>
             <div class="form-row" style="margin-bottom: 10px;">
                 <div class="form-group" style="flex:1;"><label>Éq1 Résultat (%)</label><input type="text" id="rec_res1" class="form-control" placeholder="ex: 96%"></div>
                 <div class="form-group" style="flex:1;"><label>Éq2 Résultat (%)</label><input type="text" id="rec_res2" class="form-control" placeholder="ex: 94%"></div>
             </div>
             <div class="grid-2col">
                 <div style="width: 100%;">
-                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block; text-align:center;">Équipe 1 (T | + | - | N)</label>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block; text-align:center;">Équipe 1 (T | + | -)</label>
                     <script>
                         const recKeys = ['aire', 'bote', 'bcorr', 'bpro', 'ere', 'pumpa'];
                         recKeys.forEach(k => {
@@ -120,14 +120,13 @@
                                     <input type="text" id="r1_${k}_t" class="form-control" placeholder="T">
                                     <input type="text" id="r1_${k}_p" class="form-control" placeholder="+">
                                     <input type="text" id="r1_${k}_m" class="form-control" placeholder="-">
-                                    <input type="text" id="r1_${k}_n" class="form-control" placeholder="N">
                                 </div>
                             `);
                         });
                     </script>
                 </div>
                 <div style="width: 100%;">
-                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block; text-align:center;">Équipe 2 (T | + | - | N)</label>
+                    <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block; text-align:center;">Équipe 2 (T | + | -)</label>
                     <script>
                         recKeys.forEach(k => {
                             document.write(`
@@ -136,7 +135,6 @@
                                     <input type="text" id="r2_${k}_t" class="form-control" placeholder="T">
                                     <input type="text" id="r2_${k}_p" class="form-control" placeholder="+">
                                     <input type="text" id="r2_${k}_m" class="form-control" placeholder="-">
-                                    <input type="text" id="r2_${k}_n" class="form-control" placeholder="N">
                                 </div>
                             `);
                         });
@@ -295,7 +293,7 @@
             document.getElementById('rec_res2').value = match.rec_res2 || '';
             
             recKeysList.forEach(k => {
-                ['t', 'p', 'm', 'n'].forEach(sub => {
+                ['t', 'p', 'm'].forEach(sub => {
                     document.getElementById(`r1_${k}_${sub}`).value = match[`r1_${k}_${sub}`] || '';
                     document.getElementById(`r2_${k}_${sub}`).value = match[`r2_${k}_${sub}`] || '';
                 });
@@ -336,12 +334,10 @@
                     <td>${match[`r1_${k}_t`] || 0}</td>
                     <td>${match[`r1_${k}_p`] || 0}</td>
                     <td>${match[`r1_${k}_m`] || 0}</td>
-                    <td>${match[`r1_${k}_n`] || 0}</td>
                     <td><strong>${recLabels[k]}</strong></td>
                     <td>${match[`r2_${k}_t`] || 0}</td>
                     <td>${match[`r2_${k}_p`] || 0}</td>
                     <td>${match[`r2_${k}_m`] || 0}</td>
-                    <td>${match[`r2_${k}_n`] || 0}</td>
                 </tr>`;
             });
 
@@ -396,13 +392,13 @@
                     </div>
                     <table class="stat-table">
                         <tr>
-                            <th colspan="4">${eq1Nom}</th>
+                            <th colspan="3">${eq1Nom}</th>
                             <th rowspan="2">Type Réception</th>
-                            <th colspan="4">${eq2Nom}</th>
+                            <th colspan="3">${eq2Nom}</th>
                         </tr>
                         <tr>
-                            <th>T</th><th>+</th><th>-</th><th>N</th>
-                            <th>T</th><th>+</th><th>-</th><th>N</th>
+                            <th>T</th><th>+</th><th>-</th>
+                            <th>T</th><th>+</th><th>-</th>
                         </tr>
                         ${recTableRows}
                     </table>
@@ -466,7 +462,7 @@
             });
 
             recKeysList.forEach(k => {
-                ['t', 'p', 'm', 'n'].forEach(sub => {
+                ['t', 'p', 'm'].forEach(sub => {
                     dataToUpdate[`r1_${k}_${sub}`] = document.getElementById(`r1_${k}_${sub}`).value;
                     dataToUpdate[`r2_${k}_${sub}`] = document.getElementById(`r2_${k}_${sub}`).value;
                 });
