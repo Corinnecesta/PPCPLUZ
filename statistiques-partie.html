@@ -81,22 +81,22 @@
                 <div class="form-group" style="flex:1;"><label>Temps effectif</label><input type="text" id="adminTempsEffectif" class="form-control" placeholder="45m"></div>
             </div>
 
-            <!-- BUTS -->
+            <!-- BUTS (Inversion Avant / Arrière) -->
             <div class="team-section-title">🎯 Buts</div>
             <div class="grid-2col">
                 <div style="width: 100%;">
                     <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block; text-align:center;">Équipe 1</label>
                     <div class="form-row"><label>Ace</label><input type="number" id="b1_ace" class="form-control" placeholder="0"></div>
-                    <div class="form-row"><label>Arrière</label><input type="number" id="b1_ar" class="form-control" placeholder="0"></div>
-                    <div class="form-row"><label>Avant</label><input type="number" id="b1_av" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Avant</label><input type="number" id="b1_ar" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Arrière</label><input type="number" id="b1_av" class="form-control" placeholder="0"></div>
                     <div class="form-row"><label>Pasa</label><input type="number" id="b1_pasa" class="form-control" placeholder="0"></div>
                     <div class="form-row"><label>Falta</label><input type="number" id="b1_falta" class="form-control" placeholder="0"></div>
                 </div>
                 <div style="width: 100%;">
                     <label style="color:var(--accent-color); font-size:0.75rem; margin-bottom:4px; display:block; text-align:center;">Équipe 2</label>
                     <div class="form-row"><label>Ace</label><input type="number" id="b2_ace" class="form-control" placeholder="0"></div>
-                    <div class="form-row"><label>Arrière</label><input type="number" id="b2_ar" class="form-control" placeholder="0"></div>
-                    <div class="form-row"><label>Avant</label><input type="number" id="b2_av" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Avant</label><input type="number" id="b2_ar" class="form-control" placeholder="0"></div>
+                    <div class="form-row"><label>Arrière</label><input type="number" id="b2_av" class="form-control" placeholder="0"></div>
                     <div class="form-row"><label>Pasa</label><input type="number" id="b2_pasa" class="form-control" placeholder="0"></div>
                     <div class="form-row"><label>Falta</label><input type="number" id="b2_falta" class="form-control" placeholder="0"></div>
                 </div>
@@ -379,8 +379,8 @@
                     <table class="stat-table">
                         <tr><th>Type de But</th><th>${eq1Nom}</th><th>${eq2Nom}</th></tr>
                         <tr><td>Ace</td><td>${match.b1_ace || 0}</td><td>${match.b2_ace || 0}</td></tr>
-                        <tr><td>Avant</td><td>${match.b1_av || 0}</td><td>${match.b2_av || 0}</td></tr>
-                        <tr><td>Arrière</td><td>${match.b1_ar || 0}</td><td>${match.b2_ar || 0}</td></tr>
+                        <tr><td>Avant</td><td>${match.b1_ar || 0}</td><td>${match.b2_ar || 0}</td></tr>
+                        <tr><td>Arrière</td><td>${match.b1_av || 0}</td><td>${match.b2_av || 0}</td></tr>
                         <tr><td>Pasa</td><td>${match.b1_pasa || 0}</td><td>${match.b2_pasa || 0}</td></tr>
                         <tr><td>Falta</td><td>${match.b1_falta || 0}</td><td>${match.b2_falta || 0}</td></tr>
                     </table>
