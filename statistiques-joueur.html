@@ -531,19 +531,26 @@
 
     window.obtenirMatchsEnrichis = function() {
         const listeMatchs = window.matchsCloudCharges || [];
+        const currentIdStr = String(playerId).trim().toLowerCase();
+        const currentNomUrl = String(nomUrl).trim().toLowerCase();
+        const nomJoueur = (joueur.nom || "").trim().toLowerCase();
+        const prenomJoueur = (joueur.prenom || "").trim().toLowerCase();
+        const nomComplet1 = `${prenomJoueur} ${nomJoueur}`.trim();
+        const nomComplet2 = `${nomJoueur} ${prenomJoueur}`.trim();
 
         return listeMatchs.map((match, index) => {
             let sourceBrute = {};
             
             if (match.statsParJoueur) {
-                const currentIdStr = String(playerId).trim().toLowerCase();
-                const currentNomStr = String(nomUrl).trim().toLowerCase();
-                const nomJoueur = (joueur.nom || "").trim().toLowerCase();
-                const prenomJoueur = (joueur.prenom || "").trim().toLowerCase();
-
                 let foundKey = Object.keys(match.statsParJoueur).find(k => {
                     const keyLower = String(k).trim().toLowerCase();
-                    return keyLower === currentIdStr || keyLower === currentNomStr || keyLower === nomJoueur || keyLower === prenomJoueur;
+                    return keyLower === currentIdStr || 
+                           keyLower === currentNomUrl || 
+                           keyLower === nomJoueur || 
+                           keyLower === prenomJoueur ||
+                           keyLower === nomComplet1 ||
+                           keyLower === nomComplet2 ||
+                           (nomJoueur && keyLower.includes(nomJoueur));
                 });
 
                 if (foundKey) {
@@ -657,11 +664,15 @@
     function estMatchDuJoueur(m) {
         const currentIdStr = String(playerId).trim().toLowerCase();
         const currentNomStr = String(nomUrl).trim().toLowerCase();
+        const nomRecherche = (joueur.nom || "").toLowerCase().trim(); 
+        const prenomRecherche = (joueur.prenom || "").toLowerCase().trim();
+        const nc1 = `${prenomRecherche} ${nomRecherche}`.trim();
+        const nc2 = `${nomRecherche} ${prenomRecherche}`.trim();
         
         if (m.statsParJoueur) {
             for (let key in m.statsParJoueur) {
                 const kLower = String(key).trim().toLowerCase();
-                if (kLower === currentIdStr || kLower === currentNomStr) {
+                if (kLower === currentIdStr || kLower === currentNomStr || kLower === nomRecherche || kLower === prenomRecherche || kLower === nc1 || kLower === nc2 || (nomRecherche && kLower.includes(nomRecherche))) {
                     return true;
                 }
             }
@@ -672,8 +683,6 @@
             if (jIdStr === currentIdStr || jIdStr === currentNomStr) return true;
         }
 
-        const nomRecherche = (joueur.nom || "").toLowerCase().trim(); 
-        const prenomRecherche = (joueur.prenom || "").toLowerCase().trim();
         const e1 = (m.equipe1 || "").toLowerCase();
         const e2 = (m.equipe2 || "").toLowerCase();
         
@@ -1507,9 +1516,6 @@
                 window.initialiserPageStats();
             }
         }, 800);
-
-
-
     });
 </script>
 
