@@ -265,8 +265,30 @@
 
     window.db = db;
     window.matchsCloudCharges = [];
+    window.tousLesJoueurs = [];
 
-    async function chargerMatchsCloudEtLancer() {
+    async function chargerDonneesFirebase() {
+        // 1. Charger les joueurs depuis Firebase
+        try {
+            const joueursSnap = await getDocs(collection(db, "joueurs"));
+            joueursSnap.forEach((docSnap) => {
+                window.tousLesJoueurs.push({ id: docSnap.id, ...docSnap.data() });
+            });
+        } catch (error) {
+            console.error("Erreur lors de la récupération des joueurs sur Firebase :", error);
+        }
+
+        // Si aucun joueur trouvé sur Firebase, on utilise le fichier local (joueurs-data.js)
+        if (window.tousLesJoueurs.length === 0 && typeof joueursData !== 'undefined') {
+            window.tousLesJoueurs = joueursData;
+        }
+
+        // Mettre à jour le joueur courant avec les données fraîchement chargées
+        if (typeof window.mettreAJourJoueurActif === 'function') {
+            window.mettreAJourJoueurActif();
+        }
+
+        // 2. Charger les matchs depuis Firebase
         try {
             const querySnapshot = await getDocs(collection(db, "matchs"));
             querySnapshot.forEach((docSnap) => {
@@ -295,7 +317,7 @@
         }
     }
 
-    chargerMatchsCloudEtLancer();
+    chargerDonneesFirebase();
 
     window.supprimerPartieActive = async function() {
         const role = localStorage.getItem('cesta_user_role');
@@ -479,21 +501,42 @@
     const nomUrl = urlParams.get('nom') || "";
     const matchIdUrl = urlParams.get('idMatch') || "";
 
-    let joueur = (typeof joueursData !== 'undefined' ? joueursData.find(j => String(j.id) === String(playerId) || (nomUrl && j.nom.toLowerCase() === nomUrl.toLowerCase())) : null);
+    let joueur = {
+        id: playerId || nomUrl,
+        prenom: "",
+        nom: nomUrl ? decodeURIComponent(nomUrl) : (playerId ? decodeURIComponent(playerId) : "Joueur"),
+        photo: "logoce.png"
+    };
 
-    if (!joueur) {
-        joueur = {
-            id: playerId || nomUrl,
-            prenom: "",
-            nom: nomUrl ? decodeURIComponent(nomUrl) : (playerId ? decodeURIComponent(playerId) : "Joueur"),
-            photo: "logoce.png"
-        };
-    }
+    window.mettreAJourJoueurActif = function() {
+        let trouve = null;
+        if (window.tousLesJoueurs && window.tousLesJoueurs.length > 0) {
+            trouve = window.tousLesJoueurs.find(j => 
+                (playerId && String(j.id).toLowerCase() === String(playerId).toLowerCase()) || 
+                (nomUrl && j.nom && j.nom.toLowerCase() === nomUrl.toLowerCase())
+            );
+        }
 
-    // Affichage de la photo non cliquable
-    document.getElementById('backPlayerNav').innerHTML = `
-        <img src="${joueur.photo}" alt="Profil" class="back-photo" onerror="this.src='logoce.png'">
-    `;
+        if (!trouve && typeof joueursData !== 'undefined') {
+            trouve = joueursData.find(j => 
+                (playerId && String(j.id).toLowerCase() === String(playerId).toLowerCase()) || 
+                (nomUrl && j.nom && j.nom.toLowerCase() === nomUrl.toLowerCase())
+            );
+        }
+
+        if (trouve) {
+            joueur = trouve;
+        }
+
+        const urlPhoto = joueur.photo || joueur.urlPhoto || joueur.photoUrl || joueur.image || 'logoce.png';
+
+        document.getElementById('backPlayerNav').innerHTML = `
+            <img src="${urlPhoto}" alt="Profil" class="back-photo" onerror="this.src='logoce.png'">
+        `;
+    };
+
+    // Premier affichage immédiat
+    window.mettreAJourJoueurActif();
 
     function determinerVainqueur(s1, s2) {
         if (s1 === undefined || s2 === undefined) return 0;
