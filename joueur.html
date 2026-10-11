@@ -70,13 +70,11 @@
         .calendar-day:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
         .calendar-day.empty { background: transparent; border: none; cursor: default; }
         
-        /* Styles personnalisés par type d'entraînement (vert plus prononcé) */
         .calendar-day.has-technique { border-color: #059669; background: rgba(5, 150, 105, 0.35); font-weight: bold; color: #a7f3d0; }
         .calendar-day.has-physique-co { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); font-weight: bold; color: #93c5fd; }
         .calendar-day.has-physique { border-color: #facc15; background: rgba(250, 204, 21, 0.2); font-weight: bold; color: #fde047; }
         .calendar-day.has-perso { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); font-weight: bold; color: #fca5a5; }
         .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.15); font-weight: bold; color: var(--accent-color); }
-        
         .calendar-day.selected { border: 2px solid #ffffff !important; }
         
         .match-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 2px; }
@@ -106,6 +104,32 @@
         .prep-app-logo { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; border: 1px solid var(--accent-color); }
         .prep-app-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: bold; text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
         .prep-app-btn:hover { opacity: 0.9; }
+
+        /* Bouton Page précédente aligné en haut à gauche */
+        .top-nav-bar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 12px;
+        }
+        .btn-back-prev {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--accent-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn-back-prev:hover {
+            background: var(--card-hover-bg);
+            border-color: var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -121,6 +145,11 @@
     </div>
 
     <hr class="separator">
+
+    <!-- Bouton Page précédente aligné en haut à gauche -->
+    <div class="top-nav-bar">
+        <button class="btn-back-prev" onclick="window.history.back()">⬅ Page précédente</button>
+    </div>
 
     <div id="playerProfileContainer">
         <div style="text-align: center; color: var(--text-muted); padding: 20px;">Chargement du profil...</div>
