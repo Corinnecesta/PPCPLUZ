@@ -78,6 +78,11 @@
 
     <hr class="separator">
 
+    <!-- Bouton Page précédente avec texte -->
+    <div style="margin-bottom: 10px;">
+        <a href="javascript:history.back()" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-color); text-decoration: none; font-size: 0.9rem; font-weight: 600;" title="Page précédente">⬅ Page précédente</a>
+    </div>
+
     <div class="section-title" id="pageTitle">🏆 Summer League</div>
 
     <div class="search-container">
@@ -104,8 +109,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Modifier ici selon la page (ex: "Summer League", "Pôle", etc.)
-    const COMPETITION_CIBLE = "Winter Series";
+    const COMPETITION_CIBLE = "Summer League";
 
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
