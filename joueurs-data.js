@@ -103,85 +103,8 @@ const joueursData = [
         taille: "1m77",
         poids: "70 kg",
         photo: "bonnin.png"
-    },
-    {
-        id: "barandika",
-        prenom: "Xavier",
-        nom: "BARANDIKA",
-        club: "Espagne",
-        specialite: "Avant",
-        victoires: 22,
-        defaites: 18,
-        dateNaissance: "23/03/1990",
-        taille: "1m80",
-        poids: "80 kg",
-        photo: "barandika.png"
-    },
-    {
-        id: "lekerika",
-        prenom: "Unaï",
-        nom: "LEKERIKA",
-        club: "Espagne",
-        specialite: "Arrière",
-        victoires: 22,
-        defaites: 18,
-        dateNaissance: "13/12/1994",
-        taille: "1m78",
-        poids: "90 kg",
-        photo: "lekerika.png"
-    },
-    {
-        id: "johan",
-        prenom: "Johan",
-        nom: "SOROZABAL.J",
-        club: "USA",
-        specialite: "Avant",
-        victoires: 22,
-        defaites: 18,
-        dateNaissance: "23/04/2002",
-        taille: "1m85",
-        poids: "77 kg",
-        photo: "soroj.png"
-    },
-    {
-        id: "gorka",
-        prenom: "Gorka",
-        nom: "SOROZABAL.G",
-        club: "USA",
-        specialite: "Arrière",
-        victoires: 22,
-        defaites: 18,
-        dateNaissance: "04/03/2001",
-        taille: "1m80",
-        poids: "76 kg",
-        photo: "sorog.png"
-    },
-    {
-        id: "etcheto",
-        prenom: "Nicolas",
-        nom: "ETCHETO",
-        club: "Guethary",
-        specialite: "Arrière",
-        victoires: 22,
-        defaites: 18,
-        dateNaissance: "03/05/1989",
-        taille: "1m80",
-        poids: "80 kg",
-        photo: "etcheto.png"
-    },
-    {
-        id: "erkiaga",
-        prenom: "Aritz",
-        nom: "ERKIAGA",
-        club: "Espagne",
-        specialite: "Avant",
-        victoires: 22,
-        defaites: 18,
-        dateNaissance: "09/06/1987",
-        taille: "1m80",
-        poids: "85 kg",
-        photo: "erkiaga.png"
     }
+  
 
 
 ];
