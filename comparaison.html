@@ -228,6 +228,27 @@
             // Récupère l'ID (gère les différentes dénominations possibles : id, firebaseId, docId)
             const joueurId = joueur.id || joueur.firebaseId || joueur.docId;
 
+            // === FILTRE LOCAL STORAGE ===
+            // Vérifie si le joueur est présent dans le localStorage (ajustez la clé 'joueurs_locaux' ou la logique si besoin selon votre application)
+            const joueursLocauxRaw = localStorage.getItem('joueurs_locaux') || localStorage.getItem('joueurs') || '[]';
+            let idsLocaux = [];
+            try {
+                const parsed = JSON.parse(joueursLocauxRaw);
+                // Si le localStorage contient une liste d'objets ou une liste d'IDs
+                idsLocaux = Array.isArray(parsed) ? parsed.map(item => String(typeof item === 'object' ? (item.id || item.firebaseId || item.docId) : item)) : [];
+            } catch(e) {
+                idsLocaux = [];
+            }
+
+            // Si vous stockez une liste globale ou si vous vérifiez simplement si la clé du joueur existe individuellement :
+            const estEnLocal = idsLocaux.includes(String(joueurId)) || localStorage.getItem(`joueur_${joueurId}`) !== null;
+            
+            // Si le joueur n'est pas trouvé en local, on l'ignore
+            if (!estEnLocal && idsLocaux.length > 0) {
+                return;
+            }
+            // =============================
+
             const posteLower = (joueur.poste || joueur.specialite || "").toLowerCase();
             const estAvant = posteLower.includes('avant');
             const initiales = `${joueur.prenom ? joueur.prenom.charAt(0) : ''}${joueur.nom ? joueur.nom.charAt(0) : ''}`;
