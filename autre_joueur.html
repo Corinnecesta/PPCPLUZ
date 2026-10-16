@@ -492,7 +492,7 @@
                 statsParMatchGlobal[matchId] = statsTrouvees || matchData.stats || {};
 
                 const score1 = matchData.scoreEquipe1 !== undefined ? matchData.scoreEquipe1 : (matchData.equipe1Score ?? matchData.score1 ?? 0);
-                const score2 = matchData.scoreEquipe2 !== undefined ? matchData.scoreEquipe2 : (matchData.equipe2Score ?? matchData.score2 ?? 0);
+                const score2 = matchData.scoreEquipe2 !== undefined ? matchData.scoreEquipe2 : (matchData.equipe2Score ?? match.score2 ?? 0);
                 
                 const vainqueur = determinerVainqueur(score1, score2);
                 const equipeJoueur = getEquipeJoueur(matchData);
@@ -555,7 +555,6 @@
             "Jaï Alaï League",
             "Championnat de France",
             "Championnat du Pays Basque",
-            "All Star",
             "Summer League",
             "Pôle",
             "Championnat du Monde"
