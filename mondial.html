@@ -29,8 +29,8 @@
         .match-title { font-weight: bold; font-size: 0.9rem; color: var(--accent-color); }
         .match-sets-badge { font-size: 0.72rem; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600; }
         
-        .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; margin-bottom: 10px; }
-        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+        .match-teams { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; margin-bottom: 10px; }
+        .team-row { display: flex; flex-direction: column; gap: 4px; font-weight: 500; }
         .team-score { font-weight: 800; font-size: 0.95rem; }
         .score-win { color: #34d399; }   
         .score-loss { color: #f87171; }  
@@ -221,15 +221,15 @@
             }
 
             let teamsHTML = `
-                <div class="team-row"><span><strong>${match.equipe1 || 'Équipe 1'}</strong></span><span class="team-score ${c1}">${s1}</span></div>
-                <div class="team-row"><span><strong>${match.equipe2 || 'Équipe 2'}</strong></span><span class="team-score ${c2}">${s2}</span></div>
+                <div class="team-row">
+                    <span><strong>${match.equipe1 || 'Équipe 1'}</strong></span>
+                    ${s1 ? `<span class="team-score ${c1}">Score : ${s1}</span>` : ''}
+                </div>
+                ${match.equipe2 ? `
+                <div class="team-row" style="margin-top: 4px;">
+                    <span><strong>${match.equipe2}</strong></span>${s2 ? `<span class="team-score ${c2}">Score : ${s2}</span>` : ''}
+                </div>` : ''}
             `;
-            if (s1 === "" && s2 === "" || s1 === "-" && s2 === "-") {
-                teamsHTML = `
-                    <div class="team-row"><span><strong>${match.equipe1 || ''}</strong></span></div>
-                    <div class="team-row" style="font-size: 0.8rem; color: var(--text-muted);"><span>${match.equipe2 || ''}</span></div>
-                `;
-            }
 
             card.innerHTML = `
                 <div class="match-header">
