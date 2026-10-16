@@ -113,10 +113,23 @@
         .stats-label { color: var(--text-muted); font-size: 0.58rem; margin-bottom: 3px; text-transform: uppercase; }
 
         /* Détails métriques aérés avec police légèrement plus grande */
-        .metrics-details { font-size: 0.68rem; color: var(--container-text); display: flex; flex-direction: column; gap: 3px; }
-        .metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+        .metrics-details { font-size: 0.68rem; color: var(--container-text); display: flex; flex-direction: column; gap: 4px; }
+        .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
         .metric-row:last-child { border-bottom: none; }
-        .metric-label { color: var(--text-muted); }
+        .metric-label { color: var(--text-muted); flex-shrink: 0; }
+        .metric-values { text-align: right; }
+
+        /* Style spécifique pour les lignes sur deux lignes (Frappes et Réceptions) */
+        .metric-row-stacked {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 8px 0;
+        }
+        .metric-row-stacked .metric-values {
+            width: 100%;
+            text-align: right;
+            margin-top: 3px;
+        }
     </style>
 </head>
 <body>
@@ -225,29 +238,22 @@
         gridArrieres.innerHTML = '';
 
         joueursData.forEach(joueur => {
-            // Récupère l'ID (gère les différentes dénominations possibles : id, firebaseId, docId)
             const joueurId = joueur.id || joueur.firebaseId || joueur.docId;
 
-            // === FILTRE LOCAL STORAGE ===
-            // Vérifie si le joueur est présent dans le localStorage (ajustez la clé 'joueurs_locaux' ou la logique si besoin selon votre application)
             const joueursLocauxRaw = localStorage.getItem('joueurs_locaux') || localStorage.getItem('joueurs') || '[]';
             let idsLocaux = [];
             try {
                 const parsed = JSON.parse(joueursLocauxRaw);
-                // Si le localStorage contient une liste d'objets ou une liste d'IDs
                 idsLocaux = Array.isArray(parsed) ? parsed.map(item => String(typeof item === 'object' ? (item.id || item.firebaseId || item.docId) : item)) : [];
             } catch(e) {
                 idsLocaux = [];
             }
 
-            // Si vous stockez une liste globale ou si vous vérifiez simplement si la clé du joueur existe individuellement :
             const estEnLocal = idsLocaux.includes(String(joueurId)) || localStorage.getItem(`joueur_${joueurId}`) !== null;
             
-            // Si le joueur n'est pas trouvé en local, on l'ignore
             if (!estEnLocal && idsLocaux.length > 0) {
                 return;
             }
-            // =============================
 
             const posteLower = (joueur.poste || joueur.specialite || "").toLowerCase();
             const estAvant = posteLower.includes('avant');
@@ -255,7 +261,6 @@
             const posteTexte = joueur.poste || joueur.specialite || 'Joueur';
             const clubTexte = joueur.club || 'Indépendant';
 
-            // Utilisation d'une balise <a> pour un lien sémantique et propre
             const carteHTML = `
             <a href="detail-joueur.html?id=${joueurId}" class="player-card" data-id="${joueurId}">
                 <div class="player-card-header">
@@ -288,29 +293,33 @@
                     </div>
                 </div>
 
-                <!-- Détails métriques -->
+                <!-- Détails métriques avec alignement à droite et textes sur deux lignes pour Frappes / Réceptions -->
                 <div class="metrics-details">
                     <div class="metric-row">
                         <span class="metric-label">Pelotes (Moy/Tot/%):</span>
-                        <span><strong class="pelotes-moy">0.0</strong> (<strong class="pelotes-tot">0.0</strong>) <span class="pelotes-pct" style="color: #34d399; font-weight: 600;">0%</span></span>
+                        <span class="metric-values"><strong class="pelotes-moy">0.0</strong> (<strong class="pelotes-tot">0</strong>) <span class="pelotes-pct" style="color: #34d399; font-weight: 600;">0%</span></span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">Pts gagnés (Moy/Tot/%):</span>
-                        <span><strong class="gagnes-moy">0.0</strong> (<strong class="gagnes-tot">0.0</strong>) <span class="gagnes-pct" style="color: #34d399; font-weight: 600;">0%</span></span>
+                        <span class="metric-values"><strong class="gagnes-moy">0.0</strong> (<strong class="gagnes-tot">0</strong>) <span class="gagnes-pct" style="color: #34d399; font-weight: 600;">0%</span></span>
                     </div>
                     <div class="metric-row">
                         <span class="metric-label">Pts perdus (Moy/Tot/%):</span>
-                        <span><strong class="perdus-moy">0.0</strong> (<strong class="perdus-tot">0.0</strong>) <span class="perdus-pct" style="color: #f87171; font-weight: 600;">0%</span></span>
+                        <span class="metric-values"><strong class="perdus-moy">0.0</strong> (<strong class="perdus-tot">0</strong>) <span class="perdus-pct" style="color: #f87171; font-weight: 600;">0%</span></span>
                     </div>
                     ${estAvant ? `
                     <div class="metric-row">
                         <span class="metric-label">Buts (Moy / Arr / Av):</span>
-                        <span><strong class="buts-moy">0.0</strong> (<span class="buts-arr-pct">0%</span> / <span class="buts-av-pct">0%</span>)</span>
+                        <span class="metric-values"><strong class="buts-moy">0.0</strong> (<span class="buts-arr-pct">0%</span> / <span class="buts-av-pct">0%</span>)</span>
                     </div>
                     ` : ''}
-                    <div class="metric-row">
-                        <span class="metric-label">Frappes / Rec (Pos/Nég):</span>
-                        <span><strong class="rec-pos" style="color: #34d399;">0%</strong> / <strong class="rec-neg" style="color: #f87171;">0%</strong></span>
+                    <div class="metric-row metric-row-stacked">
+                        <span class="metric-label">Frappes (Moy/Pos/Nég/%):</span>
+                        <span class="metric-values"><strong class="frappes-moy">0.0</strong> (<strong class="frappes-pos" style="color: #34d399;">0</strong>/<strong class="frappes-neg" style="color: #f87171;">0</strong>) <strong class="frappes-pct" style="color: #34d399; font-weight: 600;">0%</strong></span>
+                    </div>
+                    <div class="metric-row metric-row-stacked">
+                        <span class="metric-label">Réceptions (Moy/Pos/Nég/%):</span>
+                        <span class="metric-values"><strong class="rec-moy">0.0</strong> (<strong class="rec-pos" style="color: #34d399;">0</strong>/<strong class="rec-neg" style="color: #f87171;">0</strong>) <strong class="rec-pct" style="color: #34d399; font-weight: 600;">0%</strong></span>
                     </div>
                 </div>
             </a>
@@ -426,6 +435,49 @@
                 resultat = (vainqueur === eqJoueur) ? 'V' : 'D';
             }
 
+            const aireTot = Number(sourceBrute.aireTotal || 0);
+            const airePos = Number(sourceBrute.airePositif || 0);
+            const aireNeg = Number(sourceBrute.aireNegatif || 0);
+            const boteTot = Number(sourceBrute.boteTotal || 0);
+            const botePos = Number(sourceBrute.botePositif || 0);
+            const boteNeg = Number(sourceBrute.boteNegatif || 0);
+            const boteCorridoTot = Number(sourceBrute.boteCorridoTotal || 0);
+            const boteCorridoPos = Number(sourceBrute.boteCorridoPositif || 0);
+            const boteCorridoNeg = Number(sourceBrute.boteCorridoNegatif || 0);
+            const boteProntoTot = Number(sourceBrute.boteProntoTotal || 0);
+            const boteProntoPos = Number(sourceBrute.boteProntoPositif || 0);
+            const boteProntoNeg = Number(sourceBrute.boteProntoNegatif || 0);
+            const ereboteTot = Number(sourceBrute.ereboteTotal || 0);
+            const erebotePos = Number(sourceBrute.erebotePositif || 0);
+            const ereboteNeg = Number(sourceBrute.ereboteNegatif || 0);
+            const pumpaTot = Number(sourceBrute.pumpa || sourceBrute.pumpaTotal || 0);
+            const pumpaPos = Number(sourceBrute.pumpaPositif || 0);
+            const pumpaNeg = Number(sourceBrute.pumpaNegatif || 0);
+
+            const recTot = aireTot + boteTot + boteCorridoTot + boteProntoTot + ereboteTot + pumpaTot;
+            const recPos = airePos + botePos + boteCorridoPos + boteProntoPos + erebotePos + pumpaPos;
+            const recNeg = aireNeg + boteNeg + boteCorridoNeg + boteProntoNeg + ereboteNeg + pumpaNeg;
+
+            const typesFrappesKeys = [
+                ['frappesClassiquesTotal', 'frappesClassiquesPos', 'frappesClassiquesNeg'],
+                ['frappesAttaqueTotal', 'frappesAttaquePos', 'frappesAttaqueNeg'],
+                ['picadaTotal', 'picadaPos', 'picadaNeg'],
+                ['dejadaTotal', 'dejadaPos', 'dejadaNeg'],
+                ['txikTxakTotal', 'txikTxakPos', 'txikTxakNeg'],
+                ['txulaTotal', 'txulaPos', 'txulaNeg'],
+                ['cortadaTotal', 'cortadaPos', 'cortadaNeg'],
+                ['gaucheGaucheTotal', 'gaucheGauchePos', 'gaucheGaucheNeg'],
+                ['gaucheDroiteTotal', 'gaucheDroitePos', 'gaucheDroiteNeg'],
+                ['deuxMursTotal', 'deuxMursPos', 'deuxMursNeg']
+            ];
+
+            let fTot = 0, fPos = 0, fNeg = 0;
+            typesFrappesKeys.forEach(([tKey, pKey, nKey]) => {
+                fTot += Number(sourceBrute[tKey] || 0);
+                fPos += Number(sourceBrute[pKey] || 0);
+                fNeg += Number(sourceBrute[nKey] || 0);
+            });
+
             return {
                 resultat,
                 stats: {
@@ -438,10 +490,12 @@
                     butsTotal: Number(sourceBrute.butsTotal || sourceBrute.buts || 0),
                     butsSurArriere: Number(sourceBrute.butsSurArriere || 0),
                     butsSurAvant: Number(sourceBrute.butsSurAvant || 0),
-                    airePositif: Number(sourceBrute.airePositif || 0),
-                    aireNegatif: Number(sourceBrute.aireNegatif || 0),
-                    botePositif: Number(sourceBrute.botePositif || 0),
-                    boteNegatif: Number(sourceBrute.boteNegatif || 0)
+                    recTotal: recTot,
+                    recPositif: recPos,
+                    recNegatif: recNeg,
+                    frappesTotal: fTot,
+                    frappesPositif: fPos,
+                    frappesNegatif: fNeg
                 }
             };
         }).filter(Boolean);
@@ -468,8 +522,8 @@
             let totalPtsGagnes = 0, totalPtsGagnesMax = 0;
             let totalPtsPerdus = 0, totalPtsPerdusMax = 0;
             let totalButs = 0, butsArriere = 0, butsAvant = 0;
-            let totalAirePos = 0, totalAireNeg = 0;
-            let totalBotePos = 0, totalBoteNeg = 0;
+            let sumRecTot = 0, sumRecPos = 0, sumRecNeg = 0;
+            let sumFrappesTot = 0, sumFrappesPos = 0, sumFrappesNeg = 0;
 
             matchsJoueur.forEach(m => {
                 const s = m.stats;
@@ -484,31 +538,33 @@
                 butsArriere += s.butsSurArriere;
                 butsAvant += s.butsSurAvant;
 
-                totalAirePos += s.airePositif;
-                totalAireNeg += s.aireNegatif;
-                totalBotePos += s.botePositif;
-                totalBoteNeg += s.boteNegatif;
+                sumRecTot += s.recTotal;
+                sumRecPos += s.recPositif;
+                sumRecNeg += s.recNegatif;
+
+                sumFrappesTot += s.frappesTotal;
+                sumFrappesPos += s.frappesPositif;
+                sumFrappesNeg += s.frappesNegatif;
             });
 
-            const moyPelotesGen = nbMatchs > 0 ? (totalPelotesJouees / nbMatchs).toFixed(1) : "0.0";
-            const moyPelotesJoueur = nbMatchs > 0 ? (totalPelotesJouees / nbMatchs).toFixed(1) : "0.0";
+            const moyPelotes = nbMatchs > 0 ? (totalPelotesJouees / nbMatchs).toFixed(1) : "0.0";
             const pctPelotes = totalPelotesMax > 0 ? Math.round((totalPelotesJouees / totalPelotesMax) * 100) : 0;
 
-            const moyGagnesTot = nbMatchs > 0 ? (totalPtsGagnes / nbMatchs).toFixed(1) : "0.0";
-            const moyGagnesJoueur = nbMatchs > 0 ? (totalPtsGagnes / nbMatchs).toFixed(1) : "0.0";
+            const moyGagnes = nbMatchs > 0 ? (totalPtsGagnes / nbMatchs).toFixed(1) : "0.0";
             const pctGagnes = totalPtsGagnesMax > 0 ? Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100) : 0;
 
-            const moyPerdusTot = nbMatchs > 0 ? (totalPtsPerdus / nbMatchs).toFixed(1) : "0.0";
-            const moyPerdusJoueur = nbMatchs > 0 ? (totalPtsPerdus / nbMatchs).toFixed(1) : "0.0";
+            const moyPerdus = nbMatchs > 0 ? (totalPtsPerdus / nbMatchs).toFixed(1) : "0.0";
             const pctPerdus = totalPtsPerdusMax > 0 ? Math.round((totalPtsPerdus / totalPtsPerdusMax) * 100) : 0;
 
             const moyButs = nbMatchs > 0 ? (totalButs / nbMatchs).toFixed(1) : "0.0";
             const pctArriere = totalButs > 0 ? Math.round((butsArriere / totalButs) * 100) : 0;
             const pctAvant = totalButs > 0 ? Math.round((butsAvant / totalButs) * 100) : 0;
             
-            const totalRec = (totalAirePos + totalBotePos) + (totalAireNeg + totalBoteNeg);
-            const pctRecPos = totalRec > 0 ? Math.round(((totalAirePos + totalBotePos) / totalRec) * 100) : 0;
-            const pctRecNeg = totalRec > 0 ? Math.round(((totalAireNeg + totalBoteNeg) / totalRec) * 100) : 0;
+            const moyFrappes = nbMatchs > 0 ? (sumFrappesTot / nbMatchs).toFixed(1) : "0.0";
+            const pctFrappesPos = sumFrappesTot > 0 ? Math.round((sumFrappesPos / sumFrappesTot) * 100) : 0;
+
+            const moyRec = nbMatchs > 0 ? (sumRecTot / nbMatchs).toFixed(1) : "0.0";
+            const pctRecPos = sumRecTot > 0 ? Math.round((sumRecPos / sumRecTot) * 100) : 0;
 
             let note100 = nbMatchs > 0 ? Math.min(100, Math.max(40, Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15))) : 0;
 
@@ -517,16 +573,16 @@
             card.querySelector('.nb-victoires').textContent = nbVictoires;
             card.querySelector('.nb-defaites').textContent = nbDefaites;
 
-            card.querySelector('.pelotes-moy').textContent = moyPelotesGen;
-            card.querySelector('.pelotes-tot').textContent = moyPelotesJoueur;
+            card.querySelector('.pelotes-moy').textContent = moyPelotes;
+            card.querySelector('.pelotes-tot').textContent = totalPelotesJouees;
             card.querySelector('.pelotes-pct').textContent = `${pctPelotes}%`;
 
-            card.querySelector('.gagnes-moy').textContent = moyGagnesTot;
-            card.querySelector('.gagnes-tot').textContent = moyGagnesJoueur;
+            card.querySelector('.gagnes-moy').textContent = moyGagnes;
+            card.querySelector('.gagnes-tot').textContent = totalPtsGagnes;
             card.querySelector('.gagnes-pct').textContent = `${pctGagnes}%`;
 
-            card.querySelector('.perdus-moy').textContent = moyPerdusTot;
-            card.querySelector('.perdus-tot').textContent = moyPerdusJoueur;
+            card.querySelector('.perdus-moy').textContent = moyPerdus;
+            card.querySelector('.perdus-tot').textContent = totalPtsPerdus;
             card.querySelector('.perdus-pct').textContent = `${pctPerdus}%`;
 
             if (estAvant) {
@@ -535,8 +591,15 @@
                 card.querySelector('.buts-av-pct').textContent = `${pctAvant}%`;
             }
 
-            card.querySelector('.rec-pos').textContent = `${pctRecPos}%`;
-            card.querySelector('.rec-neg').textContent = `${pctRecNeg}%`;
+            card.querySelector('.frappes-moy').textContent = moyFrappes;
+            card.querySelector('.frappes-pos').textContent = sumFrappesPos;
+            card.querySelector('.frappes-neg').textContent = sumFrappesNeg;
+            card.querySelector('.frappes-pct').textContent = `${pctFrappesPos}%`;
+
+            card.querySelector('.rec-moy').textContent = moyRec;
+            card.querySelector('.rec-pos').textContent = sumRecPos;
+            card.querySelector('.rec-neg').textContent = sumRecNeg;
+            card.querySelector('.rec-pct').textContent = `${pctRecPos}%`;
         });
     }
 
