@@ -491,7 +491,7 @@
                 listeMatchsJoueur.push(matchData);
                 statsParMatchGlobal[matchId] = statsTrouvees || matchData.stats || {};
 
-                const score1 = matchData.scoreEquipe1 !== undefined ? matchData.scoreEquipe1 : (matchData.equipe1Score ?? matchData.score1 ?? 0);
+                const score1 = matchData.scoreEquipe1 !== undefined ? matchData.scoreEquipe1 : (matchData.equipe1Score ?? match.score1 ?? 0);
                 const score2 = matchData.scoreEquipe2 !== undefined ? matchData.scoreEquipe2 : (matchData.equipe2Score ?? match.score2 ?? 0);
                 
                 const vainqueur = determinerVainqueur(score1, score2);
@@ -552,12 +552,12 @@
             "Gant d'Or de Biarritz",
             "Cesta Pau Cup",
             "Internationaux de St Jean de Luz",
-            "Jaï Alaï League",
+            "Jai Alai League",
             "Championnat de France",
             "Championnat du Pays Basque",
             "Summer League",
             "Pôle",
-            "Championnat du Monde"
+            "Mondial"
         ];
 
         const groupCompetitions = {};
