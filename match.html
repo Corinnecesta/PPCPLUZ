@@ -121,11 +121,11 @@
                 <option value="Internationaux de St Jean de Luz">Internationaux de St Jean de Luz</option>
                 <option value="Jai Alai League">Jai Alai League</option>
                 <option value="Championnat de France">Championnat de France</option>
-<option value="Championnat du Pays Basque">Championnat du Pays Basque</option>
+                <option value="Championnat du Pays Basque">Championnat du Pays Basque</option>
                 <option value="All Stars">All Stars</option>
                 <option value="Summer League">Summer League</option>
                 <option value="Pôle">Pôle</option>
-                <option value="Championnat du Monde">Championnat du Monde</option>
+                <option value="Mondial">Mondial</option>
             </select>
         </div>
         <div class="form-group">
@@ -139,6 +139,14 @@
         <div class="form-group">
             <label>Lieu</label>
             <input type="text" id="qLieu" placeholder="Ex: Fronton Jai Alai">
+        </div>
+        <div class="form-group">
+            <label>Joueurs / Équipes (Optionnel)</label>
+            <input type="text" id="qJoueurs" placeholder="Ex: Erkiaga - Lopez vs Olharan - Basque">
+        </div>
+        <div class="form-group">
+            <label>Score (Optionnel)</label>
+            <input type="text" id="qScore" placeholder="Ex: 15-12 / 10-08">
         </div>
         <div class="form-group">
             <label>Lien Vidéo (URL)</label>
@@ -160,7 +168,7 @@
         <a href="all-star.html" class="comp-card"><span>🏆 All Stars</span><span class="comp-arrow">➔</span></a>
         <a href="summer-league.html" class="comp-card"><span>🏆 Summer League</span><span class="comp-arrow">➔</span></a>
         <a href="pole.html" class="comp-card"><span>🏆 Pôle</span><span class="comp-arrow">➔</span></a>
-        <a href="mondial.html" class="comp-card"><span>🏆 Championnat du Monde</span><span class="comp-arrow">➔</span></a>
+        <a href="mondial.html" class="comp-card"><span>🏆 Mondial</span><span class="comp-arrow">➔</span></a>
     </div>
 </div>
 
@@ -218,9 +226,10 @@
         const dateInput = document.getElementById('qDate').value.trim();
         const heure = document.getElementById('qHeure').value;
         const lieu = document.getElementById('qLieu').value.trim();
+        const joueurs = document.getElementById('qJoueurs').value.trim();
+        const score = document.getElementById('qScore').value.trim();
         const videoUrl = document.getElementById('qVideo').value.trim();
 
-        // Si l'utilisateur saisit au format JJ-MM-AAAA, on normalise en JJ/MM/AAAA pour garder l'harmonie avec le reste du site si besoin
         let dateFormatee = dateInput.replace(/-/g, '/');
 
         db.collection("parties_rapides").add({
@@ -228,6 +237,8 @@
             date: dateFormatee || "",
             heure: heure || "",
             lieu: lieu || "Fronton",
+            joueurs: joueurs || "",
+            score: score || "",
             videoUrl: videoUrl || "",
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         })
@@ -236,6 +247,8 @@
             document.getElementById('qDate').value = '';
             document.getElementById('qHeure').value = '';
             document.getElementById('qLieu').value = '';
+            document.getElementById('qJoueurs').value = '';
+            document.getElementById('qScore').value = '';
             document.getElementById('qVideo').value = '';
             toggleQuickForm();
         })
