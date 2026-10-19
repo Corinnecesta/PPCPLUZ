@@ -150,24 +150,42 @@
                     scoreEquipe1: data.score || "",
                     scoreEquipe2: "",
                     date: data.date || "",
+                    heure: data.heure || "", 
                     lieu: data.lieu || "",
                     lienVideo: data.videoUrl || ""
                 });
             });
 
+            // Tri de la plus récente à la plus ancienne (avec double sécurité date + heure)
             tousLesMatchsFiltres.sort((a, b) => {
-                let parseDate = (val) => {
+                let parseDateOnly = (val) => {
                     if (!val) return 0;
-                    if (val.toDate) return val.toDate();
+                    if (val.toDate) {
+                        let d = val.toDate();
+                        d.setHours(0, 0, 0, 0);
+                        return d.getTime();
+                    }
                     let str = String(val).trim();
                     if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
                         let parts = str.split('/');
                         str = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     }
                     let parsed = new Date(str);
-                    return isNaN(parsed) ? 0 : parsed;
+                    parsed.setHours(0, 0, 0, 0);
+                    return isNaN(parsed) ? 0 : parsed.getTime();
                 };
-                return parseDate(b.date) - parseDate(a.date);
+
+                let timeA = (a.heure || "").trim();
+                let timeB = (b.heure || "").trim();
+
+                let dateTimestampA = parseDateOnly(a.date);
+                let dateTimestampB = parseDateOnly(b.date);
+
+                if (dateTimestampA !== dateTimestampB) {
+                    return dateTimestampB - dateTimestampA;
+                }
+
+                return timeB.localeCompare(timeA);
             });
 
             afficherMatchs(tousLesMatchsFiltres);
@@ -205,7 +223,7 @@
                 } else if (t2 > t1) { 
                     c1 = "score-loss"; 
                     c2 = "score-win"; 
-                    badgeTexte = "Victoire";
+                    badgeTexte = "Défaite"; // Corrigé ici
                 }
             }
 
