@@ -29,8 +29,13 @@
         .match-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; text-decoration: none; color: var(--container-text); display: block; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .match-title { font-weight: bold; font-size: 0.9rem; color: var(--accent-color); }
+        
+        .badges-group { display: flex; gap: 6px; align-items: center; }
         .match-sets-badge { font-size: 0.72rem; color: var(--accent-color); background: rgba(0, 242, 254, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.2); font-weight: 600; }
         
+        /* Style simple pour le texte du genre */
+        .gender-text { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+
         .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; }
         .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
         .team-score { font-weight: 800; font-size: 0.95rem; }
@@ -126,6 +131,14 @@
 
     let tousLesMatchsFiltres = [];
 
+    function formaterScore(scoreStr) {
+        if (!scoreStr) return "-";
+        return String(scoreStr)
+            .replace(/\s*-\s*/g, '/')
+            .replace(/\s*\/\s*/g, '/')
+            .trim();
+    }
+
     async function chargerMatchs() {
         const container = document.getElementById('matchesContainer');
         container.innerHTML = `<div class="no-result">Chargement des matchs...</div>`;
@@ -146,7 +159,6 @@
             snapshotRapides.forEach((docSnap) => {
                 const data = docSnap.data();
 
-                // Extraction/Découpage des équipes et des scores si stockés sous forme brut (ex: "Eq1 / Eq2" et "15-15 / 10-12")
                 let rawJoueurs = data.joueurs || data.equipe1 || "";
                 let rawScore = data.score || data.scoreEquipe1 || "";
 
@@ -175,10 +187,11 @@
                     id: docSnap.id,
                     type: "rapide",
                     titre: data.competition,
+                    genre: data.genre || data.categorie || "",
                     equipe1: eq1,
                     equipe2: eq2,
-                    scoreEquipe1: sc1,
-                    scoreEquipe2: sc2,
+                    scoreEquipe1: formaterScore(sc1),
+                    scoreEquipe2: formaterScore(sc2),
                     date: data.date || "",
                     heure: data.heure || "",
                     lieu: data.lieu || "",
@@ -222,15 +235,13 @@
             const card = document.createElement('div');
             card.className = 'match-card';
 
-            let s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
-            let s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
+            let s1 = formaterScore(match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : match.equipe1Score);
+            let s2 = formaterScore(match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : match.equipe2Score);
             let c1 = "score-neutral", c2 = "score-neutral";
 
-            // Calcul et comparaison des scores pour l'attribution vert (win) / rouge (loss)
             if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
                 let calcTotal = (str) => {
-                    // Additionne les points si plusieurs manches séparées par un tiret (ex: "15-10" -> 15+10 = 25)
-                    return String(str).split(/[-–]/).reduce((acc, val) => acc + (parseInt(val.trim()) || 0), 0);
+                    return String(str).split(/[-–/]/).reduce((acc, val) => acc + (parseInt(val.trim()) || 0), 0);
                 };
 
                 let t1 = calcTotal(s1);
@@ -252,6 +263,12 @@
                 </div>` : ''}
             `;
 
+            // Affichage du texte du genre brut (ex: "Féminin" ou "Masculin") s'il est renseigné
+            let genderTextHTML = "";
+            if (match.genre && match.genre.trim() !== "") {
+                genderTextHTML = `<span class="gender-text">${match.genre}</span>`;
+            }
+
             let videoLink = match.lienVideo || match.videoUrl || "";
             let videoBtnHTML = videoLink.trim() !== "" ? `<a href="${videoLink}" target="_blank" class="btn-action">📺 Voir la vidéo</a>` : "";
             let statsBtnHTML = match.type === "detaille" ? `<a href="detail_match.html?id=${match.id}" class="btn-action">📊 Statistiques détaillées</a>` : "";
@@ -259,7 +276,10 @@
             card.innerHTML = `
                 <div class="match-header">
                     <span class="match-title">${match.titre || ''}</span>
-                    <span class="match-sets-badge">${match.resultat || match.nombreManches || 'Partie'}</span>
+                    <div class="badges-group">
+                        ${genderTextHTML}
+                        <span class="match-sets-badge">${match.resultat || match.nombreManches || 'Partie'}</span>
+                    </div>
                 </div>
                 <div class="match-teams">
                     ${teamsHTML}
@@ -282,7 +302,8 @@
                    (match.equipe2 && match.equipe2.toLowerCase().includes(queryVal)) ||
                    (match.lieu && match.lieu.toLowerCase().includes(queryVal)) ||
                    (match.titre && match.titre.toLowerCase().includes(queryVal)) ||
-                   (match.date && match.date.toLowerCase().includes(queryVal));
+                   (match.date && match.date.toLowerCase().includes(queryVal)) ||
+                   (match.genre && match.genre.toLowerCase().includes(queryVal));
         });
 
         afficherMatchs(resultats);
