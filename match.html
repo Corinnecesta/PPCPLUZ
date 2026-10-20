@@ -188,8 +188,9 @@
             <div class="comp-left"><span class="comp-count-badge" id="count-championnatpb">-</span><span>🏆 Championnat du Pays Basque</span></div>
             <span class="comp-arrow">➔</span>
         </a>
+        <!-- Intitulé mis à jour : All Stars Quinielas -->
         <a href="all-star.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-all-star">-</span><span>🏆 All Stars</span></div>
+            <div class="comp-left"><span class="comp-count-badge" id="count-all-star">-</span><span>🏆 All Stars Quinielas</span></div>
             <span class="comp-arrow">➔</span>
         </a>
         <a href="summer-league.html" class="comp-card">
@@ -260,7 +261,6 @@
 
     // Fonction pour compter les parties par compétition (dans "matchs" et "parties_rapides")
     async function chargerCompteursMatchs() {
-        // Table de correspondance entre le nom exact stocké dans Firebase et l'ID du badge HTML
         const competitionsMap = {
             "Winter Series": "count-winter-series",
             "Gant d'Or de Biarritz": "count-gant-dor",
@@ -275,12 +275,10 @@
             "Mondial": "count-mondial"
         };
 
-        // Initialiser les compteurs à 0
         let compteurs = {};
         Object.keys(competitionsMap).forEach(comp => { compteurs[comp] = 0; });
 
         try {
-            // 1. Récupérer depuis la collection "matchs"
             const snapshotMatchs = await db.collection("matchs").get();
             snapshotMatchs.forEach(doc => {
                 const data = doc.data();
@@ -289,7 +287,6 @@
                 }
             });
 
-            // 2. Récupérer depuis la collection "parties_rapides"
             const snapshotRapides = await db.collection("parties_rapides").get();
             snapshotRapides.forEach(doc => {
                 const data = doc.data();
@@ -298,7 +295,6 @@
                 }
             });
 
-            // 3. Mettre à jour l'affichage des badges HTML
             for (let [comp, badgeId] of Object.entries(competitionsMap)) {
                 const badgeEl = document.getElementById(badgeId);
                 if (badgeEl) {
@@ -341,7 +337,7 @@
             document.getElementById('qScore').value = '';
             document.getElementById('qVideo').value = '';
             toggleQuickForm();
-            chargerCompteursMatchs(); // Rafraîchir les compteurs après l'ajout
+            chargerCompteursMatchs();
         })
         .catch((error) => {
             console.error("Erreur lors de l'ajout : ", error);
