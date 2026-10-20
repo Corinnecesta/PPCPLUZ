@@ -23,6 +23,114 @@
         }
         .search-input:focus { border-color: var(--accent-color); }
 
+        .action-add-btn {
+            background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%);
+            border: 2px solid var(--accent-color);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.3);
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .action-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 242, 254, 0.4); }
+
+        .quick-form-card {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .quick-form-card.active { display: flex; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
+        .form-group label { font-size: 0.75rem; color: var(--accent-color); font-weight: 700; text-transform: uppercase; }
+        .form-group input, .form-group select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: var(--container-text);
+            font-family: inherit;
+            font-size: 0.82rem;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent-color); outline: none; }
+        .form-group select option { background: #0d1b2a; color: #fff; }
+
+        .equipe-row-input { 
+            display: flex; 
+            gap: 6px; 
+            align-items: center; 
+            margin-bottom: 6px; 
+            width: 100%; 
+            box-sizing: border-box; 
+        }
+        
+        .select-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 0 0 110px;
+        }
+        .select-wrapper .color-dot-preview {
+            position: absolute;
+            left: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .equipe-row-input select.eq-couleur { 
+            width: 100%; 
+            padding: 6px 6px 6px 24px; 
+            font-size: 0.78rem; 
+        }
+
+        .equipe-row-input input.eq-nom { flex: 1 1 auto; min-width: 0; padding: 6px 8px; }
+        .equipe-row-input input.eq-score { flex: 0 0 60px; width: 60px; text-align: center; padding: 6px 4px; }
+        
+        .btn-remove-team { 
+            background: rgba(248, 113, 113, 0.2); 
+            color: #f87171; 
+            border: 1px solid #f87171; 
+            border-radius: 8px; 
+            padding: 6px 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+        .btn-add-team { background: rgba(0, 242, 254, 0.1); color: var(--accent-color); border: 1px dashed var(--accent-color); border-radius: 8px; padding: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem; text-align: center; margin-top: 4px; }
+
+        .submit-btn {
+            background: var(--accent-color);
+            color: #0a192f;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 4px;
+        }
+        .submit-btn:hover { opacity: 0.9; }
+
         .match-list { display: flex; flex-direction: column; gap: 12px; }
         .match-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; text-decoration: none; color: var(--container-text); display: block; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -30,23 +138,19 @@
         .match-sets-badge { font-size: 0.72rem; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600; }
         
         .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; margin-bottom: 10px; }
-        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-        .team-score { font-weight: 800; font-size: 0.95rem; }
-        .score-win { color: #34d399; }   
-        .score-loss { color: #f87171; }  
-        .score-neutral { color: var(--text-muted); } 
+        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 4px; }
+        .team-row:last-child { border-bottom: none; }
+        
+        .team-info-left { display: flex; align-items: center; gap: 8px; }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        
+        .team-score { font-weight: 800; font-size: 0.95rem; color: var(--container-text); } 
+        .score-win { color: #34d399 !important; }
 
         .match-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-top: 2px solid var(--card-border); padding-top: 8px; margin-top: 8px; }
         .no-result { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; }
         
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
+        .action-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; }
         .btn-action {
             display: inline-block;
             font-size: 0.75rem;
@@ -59,9 +163,7 @@
             text-decoration: none;
             transition: background 0.2s;
         }
-        .btn-action:hover {
-            background: rgba(0, 242, 254, 0.2);
-        }
+        .btn-action:hover { background: rgba(0, 242, 254, 0.2); }
     </style>
 </head>
 <body>
@@ -78,16 +180,47 @@
 
     <hr class="separator">
 
-    <!-- Bouton Page précédente avec texte -->
     <div style="margin-bottom: 10px;">
         <a href="javascript:history.back()" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-color); text-decoration: none; font-size: 0.9rem; font-weight: 600;" title="Page précédente">⬅ Page précédente</a>
     </div>
 
-    <!-- Titre mis à jour pour inclure Quinielas visuellement -->
     <div class="section-title" id="pageTitle">🏆 All Stars Quinielas</div>
 
+    <button class="action-add-btn admin-entraineur-only" id="toggleFormBtn" onclick="toggleQuickForm()">
+        ➕ Ajouter une Quiniela All Stars
+    </button>
+
+    <div class="quick-form-card" id="quickFormCard">
+        <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-color);">Nouvelle Quiniela (Couleurs & Scores)</div>
+        
+        <div class="form-group">
+            <label>Date (Format JJ-MM-AAAA)</label>
+            <input type="text" id="qDate" placeholder="Ex: 15-06-2026">
+        </div>
+        <div class="form-group">
+            <label>Heure</label>
+            <input type="time" id="qHeure">
+        </div>
+        <div class="form-group">
+            <label>Lieu</label>
+            <input type="text" id="qLieu" placeholder="Ex: Fronton Jai Alai">
+        </div>
+
+        <div class="form-group">
+            <label>Équipes, Couleurs & Scores</label>
+            <div id="equipesContainer"></div>
+            <button type="button" class="btn-add-team" onclick="ajouterLigneEquipe()">➕ Ajouter une équipe</button>
+        </div>
+
+        <div class="form-group">
+            <label>Lien Vidéo (URL)</label>
+            <input type="url" id="qVideo" placeholder="https://youtube.com/...">
+        </div>
+        <button class="submit-btn" onclick="saveQuiniela()">Enregistrer la Quiniela</button>
+    </div>
+
     <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher une équipe, un lieu, un titre..." onkeyup="filtrerMatchs()">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher une équipe, un lieu..." onkeyup="filtrerMatchs()">
     </div>
 
     <div class="match-list" id="matchesContainer"></div>
@@ -95,7 +228,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -123,6 +256,136 @@
         document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const userRole = localStorage.getItem('cesta_user_role');
+        const restrictedElements = document.querySelectorAll('.admin-entraineur-only');
+        if (userRole === 'joueur' || !userRole) {
+            restrictedElements.forEach(el => el.style.display = 'none');
+        } else {
+            restrictedElements.forEach(el => el.style.display = 'flex');
+        }
+
+        ajouterLigneEquipe('Rouge');
+        ajouterLigneEquipe('Bleu');
+        ajouterLigneEquipe('Blanc');
+        ajouterLigneEquipe('Vert');
+
+        chargerMatchs();
+    });
+
+    window.toggleQuickForm = function() {
+        const formCard = document.getElementById('quickFormCard');
+        formCard.classList.toggle('active');
+    }
+
+    window.mettreAJourCouleurSelect = function(selectEl) {
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        const hex = selectedOption.getAttribute('data-hex');
+        const dot = selectEl.parentElement.querySelector('.color-dot-preview');
+        if (dot) {
+            dot.style.backgroundColor = hex;
+            dot.style.border = (selectedOption.value === 'Noir') ? '1px solid #64748b' : 'none';
+        }
+    }
+
+    window.ajouterLigneEquipe = function(couleurDefaut = 'Rouge', nom = '', score = '') {
+        const container = document.getElementById('equipesContainer');
+        const div = document.createElement('div');
+        div.className = 'equipe-row-input';
+        
+        const couleursMap = {
+            'Rouge': '#f87171', 'Bleu': '#60a5fa', 'Blanc': '#e2e8f0', 
+            'Vert': '#34d399', 'Jaune': '#facc15', 'Rose': '#f472b6', 
+            'Marron': '#a16207', 'Noir': '#1e293b', 'Gris': '#9ca3af'
+        };
+        let hexDefaut = couleursMap[couleurDefaut] || '#f87171';
+        let borderStyle = couleurDefaut === 'Noir' ? 'border:1px solid #64748b;' : '';
+
+        div.innerHTML = `
+            <div class="select-wrapper">
+                <span class="color-dot-preview" style="background-color: ${hexDefaut}; ${borderStyle}"></span>
+                <select class="eq-couleur" onchange="mettreAJourCouleurSelect(this)">
+                    <option value="Rouge" data-hex="#f87171" ${couleurDefaut==='Rouge'?'selected':''}>Rouge</option>
+                    <option value="Bleu" data-hex="#60a5fa" ${couleurDefaut==='Bleu'?'selected':''}>Bleu</option>
+                    <option value="Blanc" data-hex="#e2e8f0" ${couleurDefaut==='Blanc'?'selected':''}>Blanc</option>
+                    <option value="Vert" data-hex="#34d399" ${couleurDefaut==='Vert'?'selected':''}>Vert</option>
+                    <option value="Jaune" data-hex="#facc15" ${couleurDefaut==='Jaune'?'selected':''}>Jaune</option>
+                    <option value="Rose" data-hex="#f472b6" ${couleurDefaut==='Rose'?'selected':''}>Rose</option>
+                    <option value="Marron" data-hex="#a16207" ${couleurDefaut==='Marron'?'selected':''}>Marron</option>
+                    <option value="Gris" data-hex="#9ca3af" ${couleurDefaut==='Gris'?'selected':''}>Gris</option>
+                    <option value="Noir" data-hex="#1e293b" ${couleurDefaut==='Noir'?'selected':''}>Noir</option>
+                </select>
+            </div>
+            <input type="text" class="eq-nom" placeholder="Joueurs" value="${nom}">
+            <input type="text" class="eq-score" placeholder="Score" value="${score}">
+            <button type="button" class="btn-remove-team" onclick="this.parentElement.remove()">✕</button>
+        `;
+        container.appendChild(div);
+    }
+
+    window.saveQuiniela = async function() {
+        const dateInput = document.getElementById('qDate').value.trim();
+        const heure = document.getElementById('qHeure').value;
+        const lieu = document.getElementById('qLieu').value.trim();
+        const videoUrl = document.getElementById('qVideo').value.trim();
+
+        const couleurSelects = document.querySelectorAll('.eq-couleur');
+        const nomInputs = document.querySelectorAll('.eq-nom');
+        const scoreInputs = document.querySelectorAll('.eq-score');
+        
+        let equipesArray = [];
+        for (let i = 0; i < nomInputs.length; i++) {
+            let nom = nomInputs[i].value.trim();
+            let score = scoreInputs[i].value.trim();
+            let selectOpt = couleurSelects[i].options[couleurSelects[i].selectedIndex];
+            let couleurNom = selectOpt.value;
+            let couleurHex = selectOpt.getAttribute('data-hex');
+
+            if (nom !== "") {
+                equipesArray.push({
+                    couleurNom: couleurNom,
+                    couleurHex: couleurHex,
+                    nom: nom,
+                    score: score || "0"
+                });
+            }
+        }
+
+        if (equipesArray.length < 2) {
+            alert("Veuillez renseigner au moins 2 équipes pour la Quiniela.");
+            return;
+        }
+
+        let dateFormatee = dateInput.replace(/-/g, '/');
+
+        try {
+            await addDoc(collection(db, "parties_rapides"), {
+                competition: COMPETITION_CIBLE,
+                date: dateFormatee || "",
+                heure: heure || "",
+                lieu: lieu || "Fronton",
+                equipes: equipesArray,
+                videoUrl: videoUrl || "",
+                timestamp: serverTimestamp()
+            });
+
+            alert("Quiniela enregistrée avec succès !");
+            document.getElementById('qDate').value = '';
+            document.getElementById('qHeure').value = '';
+            document.getElementById('qLieu').value = '';
+            document.getElementById('qVideo').value = '';
+            document.getElementById('equipesContainer').innerHTML = '';
+            ajouterLigneEquipe('Rouge');
+            ajouterLigneEquipe('Bleu');
+            ajouterLigneEquipe('Blanc');
+            toggleQuickForm();
+            chargerMatchs();
+        } catch (error) {
+            console.error("Erreur lors de l'enregistrement :", error);
+            alert("Erreur lors de l'enregistrement dans Firebase.");
+        }
+    }
+
     let tousLesMatchsFiltres = [];
 
     async function chargerMatchs() {
@@ -146,10 +409,11 @@
                     id: docSnap.id,
                     type: "rapide",
                     titre: data.competition,
-                    equipe1: data.lieu ? `Lieu : ${data.lieu}` : "Partie Rapide",
-                    equipe2: data.heure ? `Heure : ${data.heure}` : "",
-                    scoreEquipe1: "",
-                    scoreEquipe2: "",
+                    equipes: data.equipes || [],
+                    equipe1: data.equipe1 || "",
+                    equipe2: data.equipe2 || "",
+                    scoreEquipe1: data.scoreEquipe1 || "",
+                    scoreEquipe2: data.scoreEquipe2 || "",
                     date: data.date || "",
                     heure: data.heure || "",
                     lieu: data.lieu || "",
@@ -157,7 +421,6 @@
                 });
             });
 
-            // Tri de la plus récente à la plus ancienne (avec prise en compte de la date et de l'heure)
             tousLesMatchsFiltres.sort((a, b) => {
                 let parseDateOnly = (val) => {
                     if (!val) return 0;
@@ -190,7 +453,7 @@
 
             afficherMatchs(tousLesMatchsFiltres);
         } catch (error) {
-            console.error("Erreur lors de la récupération des matchs :", error);
+            console.error("Erreur lors de la récupération :", error);
             container.innerHTML = `<div class="no-result">Erreur lors du chargement des données.</div>`;
         }
     }
@@ -200,7 +463,7 @@
         container.innerHTML = '';
 
         if (matchs.length === 0) {
-            container.innerHTML = `<div class="no-result">Aucun match trouvé pour cette compétition.</div>`;
+            container.innerHTML = `<div class="no-result">Aucune Quiniela trouvée.</div>`;
             return;
         }
 
@@ -208,50 +471,46 @@
             const card = document.createElement('div');
             card.className = 'match-card';
 
-            let s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
-            let s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
-            let c1 = "score-neutral", c2 = "score-neutral";
-            let badgeTexte = match.resultat || match.nombreManches || "Partie";
+            let badgeTexte = "Quiniela";
+            let teamsHTML = "";
 
-            if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
-                let t1 = String(s1).split('/').reduce((a,b)=>a+parseInt(b||0),0);
-                let t2 = String(s2).split('/').reduce((a,b)=>a+parseInt(b||0),0);
-                if (t1 > t2) { 
-                    c1 = "score-win"; 
-                    c2 = "score-loss"; 
-                    badgeTexte = "Victoire";
-                } else if (t2 > t1) { 
-                    c1 = "score-loss"; 
-                    c2 = "score-win"; 
-                    badgeTexte = "Victoire";
-                }
-            }
+            if (match.equipes && Array.isArray(match.equipes) && match.equipes.length > 0) {
+                // Trouver le score maximum numérique parmi les équipes de la Quiniela pour désigner le gagnant
+                let maxScore = -1;
+                match.equipes.forEach(eq => {
+                    let num = parseInt(eq.score);
+                    if (!isNaN(num) && num > maxScore) {
+                        maxScore = num;
+                    }
+                });
 
-            let videoLink = match.lienVideo || match.videoUrl || "";
-            let videoBtnHTML = "";
-            if (videoLink.trim() !== "") {
-                videoBtnHTML = `<a href="${videoLink}" target="_blank" class="btn-action">📺 Voir la vidéo</a>`;
-            }
+                teamsHTML = match.equipes.map(eq => {
+                    let borderStyle = eq.couleurNom === 'Noir' ? 'border:1px solid #64748b;' : '';
+                    let isWinner = (parseInt(eq.score) === maxScore && maxScore !== -1);
+                    let scoreClass = isWinner ? "team-score score-win" : "team-score";
 
-            let statsBtnHTML = "";
-            if (match.type === "detaille") {
-                statsBtnHTML = `<a href="detail_match.html?id=${match.id}" class="btn-action">📊 Statistiques détaillées</a>`;
-            }
-
-            let teamsHTML = `
-                <div class="team-row"><span><strong>${match.equipe1 || 'Équipe 1'}</strong></span><span class="team-score ${c1}">${s1}</span></div>
-                <div class="team-row"><span><strong>${match.equipe2 || 'Équipe 2'}</strong></span><span class="team-score ${c2}">${s2}</span></div>
-            `;
-            if (s1 === "" && s2 === "" || s1 === "-" && s2 === "-") {
+                    return `
+                    <div class="team-row">
+                        <div class="team-info-left">
+                            <span class="color-dot" style="background-color: ${eq.couleurHex || '#cbd5e1'}; ${borderStyle}"></span>
+                            <span><strong>${eq.nom}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(${eq.couleurNom || ''})</span></span>
+                        </div>
+                        <span class="${scoreClass}">${eq.score || '0'}</span>
+                    </div>
+                `}).join('');
+            } else {
                 teamsHTML = `
-                    <div class="team-row"><span><strong>${match.equipe1 || ''}</strong></span></div>
-                    <div class="team-row" style="font-size: 0.8rem; color: var(--text-muted);"><span>${match.equipe2 || ''}</span></div>
+                    <div class="team-row"><span><strong>${match.equipe1 || 'Équipe 1'}</strong></span><span class="team-score">${match.scoreEquipe1 || '-'}</span></div>
+                    ${match.equipe2 ? `<div class="team-row"><span><strong>${match.equipe2}</strong></span><span class="team-score">${match.scoreEquipe2 || '-'}</span></div>` : ''}
                 `;
             }
 
+            let videoLink = match.lienVideo || match.videoUrl || "";
+            let videoBtnHTML = videoLink.trim() !== "" ? `<a href="${videoLink}" target="_blank" class="btn-action">📺 Voir la vidéo</a>` : "";
+
             card.innerHTML = `
                 <div class="match-header">
-                    <span class="match-title">${match.titre || 'Partie de poule'}</span>
+                    <span class="match-title">All Stars Quinielas</span>
                     <span class="match-sets-badge">${badgeTexte}</span>
                 </div>
                 <div class="match-teams">
@@ -259,9 +518,9 @@
                 </div>
                 <div class="match-footer-info">
                     <span>📍 ${match.lieu || ''}</span>
-                    <span>📅 ${match.date || ''}</span>
+                    <span>📅 ${match.date || ''} ${match.heure ? 'à ' + match.heure : ''}</span>
                 </div>
-                ${(videoBtnHTML || statsBtnHTML) ? `<div class="action-buttons">${statsBtnHTML}${videoBtnHTML}</div>` : ""}
+                ${videoBtnHTML ? `<div class="action-buttons">${videoBtnHTML}</div>` : ""}
             `;
             container.appendChild(card);
         });
@@ -269,19 +528,14 @@
 
     window.filtrerMatchs = function() {
         const queryVal = document.getElementById('searchInput').value.toLowerCase();
-        
         const resultats = tousLesMatchsFiltres.filter(match => {
-            return (match.equipe1 && match.equipe1.toLowerCase().includes(queryVal)) ||
-                   (match.equipe2 && match.equipe2.toLowerCase().includes(queryVal)) ||
+            let matchEquipes = match.equipes && match.equipes.some(eq => eq.nom.toLowerCase().includes(queryVal));
+            return matchEquipes ||
                    (match.lieu && match.lieu.toLowerCase().includes(queryVal)) ||
-                   (match.titre && match.titre.toLowerCase().includes(queryVal)) ||
                    (match.date && match.date.toLowerCase().includes(queryVal));
         });
-
         afficherMatchs(resultats);
     }
-
-    chargerMatchs();
 </script>
 </body>
 </html>
