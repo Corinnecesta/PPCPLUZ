@@ -88,11 +88,19 @@
             transition: all 0.25s ease;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
             position: relative;
+            overflow: hidden;
         }
         .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
             border-color: var(--accent-color); 
             background: var(--btn-hover-gradient);
             transform: translateY(-2px);
+        }
+
+        .profile-img-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         /* Ligne de séparation */
@@ -129,6 +137,7 @@
             color: var(--accent-color);
             font-weight: 700;
             line-height: 1.3;
+            margin: 0;
         }
 
         /* Bannière photo principale */
@@ -147,7 +156,7 @@
 
         /* --- CARTE "PROCHAIN ENTRAÎNEMENT" --- */
         .full-width-event-card {
-            padding: 10px 14px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -165,12 +174,13 @@
             align-items: center;
             gap: 10px;
             min-width: 0;
+            flex: 1;
         }
         .event-icon-box {
             background: linear-gradient(135deg, rgba(15, 76, 92, 0.4) 0%, rgba(23, 184, 144, 0.3) 100%);
             border: 1px solid var(--accent-color);
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -181,8 +191,9 @@
         .event-info {
             display: flex;
             flex-direction: column;
-            gap: 1px;
+            gap: 2px;
             min-width: 0;
+            flex: 1;
         }
         .event-label {
             font-size: 0.75rem;
@@ -192,14 +203,28 @@
             font-weight: 700;
         }
         .event-details {
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 600;
             color: var(--container-text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: none; /* Masqué pour ne garder que le libellé */
         }
+
+        /* Effet Skeleton Loader pour le chargement fluide */
+        .skeleton-loader {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            color: transparent !important;
+            border-radius: 4px;
+            user-select: none;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
         .event-arrow {
             font-size: 1rem;
             color: var(--accent-color);
@@ -338,124 +363,117 @@
 <body>
 
 <div class="mobile-container">
-    <!-- En-tête tout en haut avec logo et actions à droite -->
-    <div class="top-header">
-        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+    <!-- En-tête tout en haut -->
+    <header class="top-header">
+        <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
 
         <div class="header-actions">
-            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
-            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
-            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+            <a href="accueil.html" class="home-btn" aria-label="Retour à l'accueil" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Changer le thème visuel" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" id="profileBtnContainer" aria-label="Accéder au compte" title="Mon Compte">
+                <span id="profileIconDefault">👤</span>
+            </a>
         </div>
-    </div>
+    </header>
 
     <!-- Séparation -->
     <hr class="separator">
 
-    <!-- CONTENEUR D'ALERTE ANNIVERSAIRE (Dynamique) -->
-    <div id="birthdayAlertContainer"></div>
+    <!-- CONTENEUR D'ALERTE ANNIVERSAIRE -->
+    <div id="birthdayAlertContainer" aria-live="polite"></div>
 
     <!-- Bloc titre pleine largeur -->
-    <div class="header-banner-card full-width-block">
+    <section class="header-banner-card full-width-block">
         <div class="header-text-group">
-            <div class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</div>
+            <h1 class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</h1>
         </div>
-    </div>
+    </section>
 
-    <!-- Photo principale du Pôle Performance en entier -->
+    <!-- Photo principale -->
     <div class="hero-banner full-width-block">
-        <img src="titre.png" alt="Pôle Performance Cesta Punta" class="hero-img">
+        <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
-    <!-- Carte "Prochain entraînement" dynamique -->
-    <a href="entrainements.html" class="full-width-event-card full-width-block" id="nextTrainingCard">
+    <!-- Carte "Prochain entraînement" (toujours affichée, mais sans texte par défaut si rien de prévu) -->
+    <a href="entrainements.html" class="full-width-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
         <div class="full-width-event-left">
-            <div class="event-icon-box">⏳</div>
+            <div class="event-icon-box" aria-hidden="true">⏳</div>
             <div class="event-info">
                 <div class="event-label">Prochain entraînement</div>
-                <div class="event-details" id="nextTrainingDetails">Chargement...</div>
+                <div class="event-details skeleton-loader" id="nextTrainingDetails">Chargement des données...</div>
             </div>
         </div>
-        <div class="event-arrow">➔</div>
+        <div class="event-arrow" aria-hidden="true">➔</div>
     </a>
 
-    <!-- BLOCS ACTIONS RAPIDES ADMIN CÔTE À CÔTE (Réservé exclusivement à l'Admin) -->
-    <div class="admin-actions-grid admin-only" style="display: none;">
-        <!-- Ajouter une nouvelle partie -->
+    <!-- BLOCS ACTIONS RAPIDES ADMIN -->
+    <nav class="admin-actions-grid admin-only" aria-label="Actions administrateur" style="display: none;">
         <a href="ajouter_partie.html" class="admin-action-card">
-            <div class="admin-action-icon">➕</div>
+            <div class="admin-action-icon" aria-hidden="true">➕</div>
             <div class="admin-action-label">Partie</div>
             <div class="admin-action-title">Ajouter une partie</div>
         </a>
 
-        <!-- Ajouter un nouveau joueur -->
         <a href="ajouter_joueur.html" class="admin-action-card">
-            <div class="admin-action-icon">👤</div>
+            <div class="admin-action-icon" aria-hidden="true">👤</div>
             <div class="admin-action-label">Joueur</div>
             <div class="admin-action-title">Ajouter un joueur</div>
         </a>
-    </div>
+    </nav>
 
     <!-- Grille des onglets -->
-    <div class="menu-grid">
-        <!-- 1. Entraînements -->
+    <nav class="menu-grid" aria-label="Navigation principale">
         <a href="entrainements.html" class="menu-card active-primary">
-            <div class="menu-icon-wrapper">🏟️</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">🏟️</div>
             <div class="menu-label">Entraînements</div>
         </a>
-        <!-- 2. Joueurs -->
         <a href="joueurs.html" class="menu-card">
-            <div class="menu-icon-wrapper">👥</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">👥</div>
             <div class="menu-label">Joueurs</div>
         </a>
-        <!-- 3. Parties -->
         <a href="match.html" class="menu-card">
-            <div class="menu-icon-wrapper">🎯</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">🎯</div>
             <div class="menu-label">Parties</div>
         </a>
-        <!-- 4. Entraîneurs -->
         <a href="entraineurs.html" class="menu-card">
-            <div class="menu-icon-wrapper">👨‍🏫</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">👨‍🏫</div>
             <div class="menu-label">Entraîneurs</div>
         </a>
-        <!-- 5. Classement -->
         <a href="comparaison.html" class="menu-card">
-            <div class="menu-icon-wrapper">🏆</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">🏆</div>
             <div class="menu-label">Classement</div>
         </a>
-        <!-- 6. Staff -->
         <a href="staff.html" class="menu-card">
-            <div class="menu-icon-wrapper">👔</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">👔</div>
             <div class="menu-label">Staff</div>
         </a>
-        <!-- 7. Analyses (Caché) -->
+        <!-- Onglets cachés -->
         <a href="analyses.html" class="menu-card" style="display: none;">
-            <div class="menu-icon-wrapper">📊</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">📊</div>
             <div class="menu-label">Analyses</div>
         </a>
-        <!-- 8. Vidéos (Caché) -->
         <a href="video.html" class="menu-card" style="display: none;">
-            <div class="menu-icon-wrapper">🎥</div>
+            <div class="menu-icon-wrapper" aria-hidden="true">🎥</div>
             <div class="menu-label">Vidéos</div>
         </a>
-        <!-- 9. Échanges (Caché) -->
         <a href="echanges.html" class="menu-card" style="display: none;">
-            <div class="menu-icon-wrapper">
+            <div class="menu-icon-wrapper" aria-hidden="true">
                 💬
                 <span class="notification-badge active" id="echangesBadge">N</span>
             </div>
             <div class="menu-label">Échanges</div>
         </a>
-    </div>
+    </nav>
 </div>
 
-<!-- Fichiers de données (joueurs et staff) -->
+<!-- Fichiers de données locales (joueurs et staff) -->
 <script src="joueurs-data.js"></script>
 <script src="staff-data.js"></script>
 
-<!-- Firebase SDK Compat pour écouter les messages en temps réel -->
+<!-- Firebase SDK Compat (pour la messagerie) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
     // Gestion de la bascule de thème clair / sombre
@@ -480,22 +498,52 @@
     function updateButtonIcon(theme) {
         if (theme === 'light') {
             themeToggleBtn.innerHTML = '☀️';
+            themeToggleBtn.setAttribute('aria-label', 'Activer le mode sombre');
         } else {
             themeToggleBtn.innerHTML = '🌙';
+            themeToggleBtn.setAttribute('aria-label', 'Activer le mode clair');
         }
     }
 
-    // --- GESTION DES RÔLES (Affichage admin) ---
+    // --- CHARGEMENT DE LA PHOTO DE PROFIL DEPUIS LES FICHIERS LOCAUX (JOUEURS & STAFF) ---
+    function chargerPhotoProfilLocale() {
+        const profileBtnContainer = document.getElementById('profileBtnContainer');
+        const userEmail = localStorage.getItem('cesta_user_email');
+
+        if (!userEmail) return;
+
+        let avatarUrl = null;
+
+        // 1. Recherche dans les joueurs (joueurs-data.js)
+        if (typeof joueursData !== 'undefined') {
+            const joueurTrouve = joueursData.find(j => j.email && j.email.toLowerCase() === userEmail.toLowerCase());
+            if (joueurTrouve && joueurTrouve.photo) {
+                avatarUrl = joueurTrouve.photo;
+            }
+        }
+
+        // 2. Recherche dans le staff (staff-data.js) si non trouvé
+        if (!avatarUrl && typeof staffData !== 'undefined') {
+            const staffTrouve = staffData.find(s => s.email && s.email.toLowerCase() === userEmail.toLowerCase());
+            if (staffTrouve && staffTrouve.photo) {
+                avatarUrl = staffTrouve.photo;
+            }
+        }
+
+        // 3. Application de l'image si trouvée
+        if (avatarUrl) {
+            profileBtnContainer.innerHTML = `<img src="${avatarUrl}" alt="Photo de profil" class="profile-img-avatar">`;
+        }
+    }
+
+    // --- INITIALISATION AU CHARGEMENT DU DOM ---
     document.addEventListener("DOMContentLoaded", () => {
-        const userRole = localStorage.getItem('cesta_user_role'); // 'admin', 'entraineur', 'player' ou 'joueur'
+        const userRole = localStorage.getItem('cesta_user_role');
         const adminElements = document.querySelectorAll('.admin-only');
 
         if (userRole === 'admin') {
             adminElements.forEach(el => {
-                el.style.display = 'grid'; // ou flex selon le conteneur
-                if(el.classList.contains('admin-actions-grid')) {
-                    el.style.display = 'grid';
-                }
+                el.style.display = 'grid';
             });
         } else {
             adminElements.forEach(el => {
@@ -505,6 +553,7 @@
 
         verifierAnniversaires();
         chargerProchainEntrainement();
+        chargerPhotoProfilLocale(); // Chargement de la photo depuis les fichiers locaux
     });
 
     // --- VÉRIFICATION AUTOMATIQUE DES ANNIVERSAIRES ---
@@ -550,9 +599,9 @@
             let htmlContent = '';
             anniversairesDuJour.forEach(personne => {
                 htmlContent += `
-                    <div style="background: linear-gradient(135deg, rgba(23, 184, 144, 0.25), rgba(15, 76, 92, 0.45)); border: 2px solid var(--accent-color); border-radius: 16px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.25);">
+                    <div style="background: linear-gradient(135deg, rgba(23, 184, 144, 0.25), rgba(15, 76, 92, 0.45)); border: 2px solid var(--accent-color); border-radius: 16px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.25); margin-bottom: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.5rem;">🎉</span>
+                            <span style="font-size: 1.5rem;" aria-hidden="true">🎉</span>
                             <div>
                                 <div style="font-weight: 800; font-size: 0.85rem; color: var(--container-text);">Joyeux Anniversaire !</div>
                                 <div style="font-size: 0.75rem; color: var(--text-muted);">C'est l'anniversaire de <strong>${personne.nomComplet}</strong> (${personne.type}) aujourd'hui ! 🎂</div>
@@ -586,13 +635,12 @@
             }
         }
 
+        const detailsContainer = document.getElementById('nextTrainingDetails');
+        detailsContainer.classList.remove('skeleton-loader');
+
         if (!trainingsData || trainingsData.length === 0) {
-            trainingsData = [
-                { id: "def-1", titre: "Atelier Sorties de mur & Rebonds", dateString: "Demain, 18h00", dateIso: "2026-09-24T18:00", lieu: "Fronton Jai Alai", statut: "Confirmé" },
-                { id: "def-2", titre: "Physique & Gammes techniques", dateString: "Jeudi 28, 19h00", dateIso: "2026-09-28T19:00", lieu: "Trinquet Municipal", statut: "Ouvert" },
-                { id: "def-3", titre: "Mise en situation / Matchs amicaux", dateString: "Samedi 30, 10h00", dateIso: "2026-09-30T10:00", lieu: "Fronton Principal", statut: "Complet" }
-            ];
-            localStorage.setItem('cesta_trainings', JSON.stringify(trainingsData));
+            detailsContainer.textContent = ""; // Neaffiche rien si aucun entraînement n'est trouvé
+            return;
         }
 
         const maintenant = new Date();
@@ -605,7 +653,6 @@
         }).filter(item => !isNaN(item.dateObj) && item.dateObj >= maintenant);
 
         evenementsFuturs.sort((a, b) => a.dateObj - b.dateObj);
-        const detailsContainer = document.getElementById('nextTrainingDetails');
 
         if (evenementsFuturs.length > 0) {
             const prochain = evenementsFuturs[0];
@@ -615,19 +662,12 @@
 
             const lieu = prochain.lieu || prochain.emplacement || "Fronton Jai Alai";
             detailsContainer.textContent = `${dateFormatee} • ${lieu}`;
-        } else if (trainingsData.length > 0) {
-            const fallback = trainingsData[0];
-            const texteDate = fallback.dateString || fallback.date || "Date à définir";
-            const lieu = fallback.lieu || "Fronton Jai Alai";
-            detailsContainer.textContent = `${texteDate} • ${lieu}`;
         } else {
-            detailsContainer.textContent = "Aucun entraînement programmé";
+            detailsContainer.textContent = ""; // Neaffiche rien s'il n'y a plus d'événements futurs
         }
     }
 
-    // --- VÉRIFICATION DES NOUVEAUX MESSAGES POUR LE BADGE "ÉCHANGES" ---
-    const echangesBadge = document.getElementById('echangesBadge');
-
+    // --- ÉCOUTE DES NOUVEAUX MESSAGES POUR LE BADGE "ÉCHANGES" ---
     try {
         const firebaseConfig = {
             apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -643,6 +683,7 @@
         }
         const db = firebase.firestore();
         const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
+        const echangesBadge = document.getElementById('echangesBadge');
 
         db.collection("echanges_messages")
           .orderBy("timestamp", "desc")
@@ -656,7 +697,7 @@
               }
           });
     } catch (e) {
-        console.log("Firebase non configuré pour les messages, le badge reste actif par défaut pour test.");
+        console.log("Firebase non configuré pour les messages.");
     }
 </script>
 
