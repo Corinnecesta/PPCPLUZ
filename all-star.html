@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cesta Punta - All Stars</title>
+    <title>Cesta Punta - All Stars Quinielas</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
@@ -83,7 +83,8 @@
         <a href="javascript:history.back()" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-color); text-decoration: none; font-size: 0.9rem; font-weight: 600;" title="Page précédente">⬅ Page précédente</a>
     </div>
 
-    <div class="section-title" id="pageTitle">🏆 All Stars</div>
+    <!-- Titre mis à jour pour inclure Quinielas visuellement -->
+    <div class="section-title" id="pageTitle">🏆 All Stars Quinielas</div>
 
     <div class="search-container">
         <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher une équipe, un lieu, un titre..." onkeyup="filtrerMatchs()">
@@ -150,24 +151,41 @@
                     scoreEquipe1: "",
                     scoreEquipe2: "",
                     date: data.date || "",
+                    heure: data.heure || "",
                     lieu: data.lieu || "",
                     lienVideo: data.videoUrl || ""
                 });
             });
 
+            // Tri de la plus récente à la plus ancienne (avec prise en compte de la date et de l'heure)
             tousLesMatchsFiltres.sort((a, b) => {
-                let parseDate = (val) => {
+                let parseDateOnly = (val) => {
                     if (!val) return 0;
-                    if (val.toDate) return val.toDate();
+                    if (val.toDate) {
+                        let d = val.toDate();
+                        d.setHours(0, 0, 0, 0);
+                        return d.getTime();
+                    }
                     let str = String(val).trim();
                     if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
                         let parts = str.split('/');
                         str = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     }
                     let parsed = new Date(str);
-                    return isNaN(parsed) ? 0 : parsed;
+                    parsed.setHours(0, 0, 0, 0);
+                    return isNaN(parsed) ? 0 : parsed.getTime();
                 };
-                return parseDate(b.date) - parseDate(a.date);
+
+                let dateTimestampA = parseDateOnly(a.date);
+                let dateTimestampB = parseDateOnly(b.date);
+
+                if (dateTimestampA !== dateTimestampB) {
+                    return dateTimestampB - dateTimestampA;
+                }
+
+                let timeA = (a.heure || "").trim();
+                let timeB = (b.heure || "").trim();
+                return timeB.localeCompare(timeA);
             });
 
             afficherMatchs(tousLesMatchsFiltres);
