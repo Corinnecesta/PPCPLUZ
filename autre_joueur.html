@@ -10,6 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
+    <!-- Inclusion de Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
         .profile-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 18px 15px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
@@ -105,6 +108,23 @@
         .card-item.match-item-btn.active { border-color: var(--accent-color); background: var(--card-hover-bg); }
 
         .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 6px; }
+
+        /* Conteneurs pour adapter la taille des graphiques sur mobile */
+        .chart-container-small {
+            position: relative;
+            width: 100%;
+            max-width: 200px;
+            margin: 5px auto;
+            height: 130px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px auto;
+            height: 200px;
+        }
 
         .stat-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.7rem; }
         .stat-table th, .stat-table td { text-align: left; padding: 5px 3px; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -750,6 +770,9 @@
 
             <div class="card-item">
                 <div class="item-title">🥎 Pelotes & Points (${nomJoueurStr})</div>
+                <div class="chart-container-small">
+                    <canvas id="chartPointsPartie"></canvas>
+                </div>
                 <table class="stat-table">
                     <thead><tr><th>Statistique</th><th>Joueur</th><th>Total</th><th>%</th></tr></thead>
                     <tbody>
@@ -783,6 +806,9 @@
 
             <div class="card-item">
                 <div class="item-title">📥 Réceptions</div>
+                <div class="chart-container" style="height: 180px;">
+                    <canvas id="chartReceptionsPartie"></canvas>
+                </div>
                 <table class="stat-table">
                     <thead><tr><th>Type</th><th>Tot</th><th>%</th><th>Pos</th><th>Neg</th></tr></thead>
                     <tbody>
@@ -797,13 +823,101 @@
             </div>
 
             <div class="card-item">
-                <div class="item-title">⚡ Frappes</div>
+                <div class="item-title">⚡ Frappes par type</div>
+                <div class="chart-container" style="height: 220px;">
+                    <canvas id="chartFrappesPartie"></canvas>
+                </div>
                 <table class="stat-table">
                     <thead><tr><th>Type</th><th>Tot</th><th>%</th><th>Pos</th><th>Neutre</th><th>Neg</th></tr></thead>
                     <tbody>${htmlFrappesRows}</tbody>
                 </table>
             </div>
         `;
+
+        // Génération des graphiques pour la partie sélectionnée
+        setTimeout(() => {
+            creerGraphiquePointsPartie(pointsGagnes, pointsPerdus);
+            creerGraphiqueReceptionsPartie([aireTot, boteTot, boteCorridoTot, boteProntoTot, ereboteTot, pumpaTot]);
+            creerGraphiqueFrappesPartie(typesFrappes);
+        }, 50);
+    }
+
+    function creerGraphiquePointsPartie(gagnes, perdus) {
+        const ctx = document.getElementById('chartPointsPartie');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Gagnés', 'Perdus'],
+                datasets: [{
+                    data: [gagnes, perdus],
+                    backgroundColor: ['#10B981', '#EF4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#f8fafc', font: { size: 9 }, boxWidth: 10 } }
+                }
+            }
+        });
+    }
+
+    function creerGraphiqueReceptionsPartie(dataValues) {
+        const ctx = document.getElementById('chartReceptionsPartie');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Aire', 'Bote', 'Corrido', 'Pronto', 'Erebote', 'Pumpa'],
+                datasets: [{
+                    label: 'Volume',
+                    data: dataValues,
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+    }
+
+    function creerGraphiqueFrappesPartie(typesFrappes) {
+        const ctx = document.getElementById('chartFrappesPartie');
+        if (!ctx) return;
+        const labels = typesFrappes.map(f => f.nom);
+        const dataTotaux = typesFrappes.map(f => f.total);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Volume de frappes',
+                    data: dataTotaux,
+                    backgroundColor: '#17b890',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
     }
 
     window.ouvrirFormulaireEdition = function() {
@@ -1165,6 +1279,9 @@
             
             <div class="card-item">
                 <div class="item-title">🥎 Pelotes & Points (Cumul)</div>
+                <div class="chart-container-small">
+                    <canvas id="chartPointsTotales"></canvas>
+                </div>
                 <table class="stat-table">
                     <thead><tr><th>Statistique</th><th>Joueur</th><th>Total</th><th>%</th></tr></thead>
                     <tbody>
@@ -1192,6 +1309,9 @@
 
             <div class="card-item">
                 <div class="item-title">📥 Réceptions (Cumul)</div>
+                <div class="chart-container" style="height: 180px;">
+                    <canvas id="chartReceptionsTotales"></canvas>
+                </div>
                 <table class="stat-table">
                     <thead><tr><th>Type</th><th>Tot</th><th>%</th><th>Pos</th><th>Neg</th></tr></thead>
                     <tbody>
@@ -1207,12 +1327,100 @@
 
             <div class="card-item">
                 <div class="item-title">⚡ Frappes (Cumul)</div>
+                <div class="chart-container" style="height: 220px;">
+                    <canvas id="chartFrappesTotales"></canvas>
+                </div>
                 <table class="stat-table">
                     <thead><tr><th>Type</th><th>Tot</th><th>%</th><th>Pos</th><th>Neutre</th><th>Neg</th></tr></thead>
                     <tbody>${htmlFrappesRows}</tbody>
                 </table>
             </div>
         `;
+
+        // Génération des graphiques pour la vue Totales
+        setTimeout(() => {
+            creerGraphiquePointsTotales(tg, tpv);
+            creerGraphiqueReceptionsTotales([aireTot, boteTot, boteCorridoTot, boteProntoTot, ereboteTot, pumpaTot]);
+            creerGraphiqueFrappesTotales(cumulFrappes);
+        }, 50);
+    }
+
+    function creerGraphiquePointsTotales(gagnes, perdus) {
+        const ctx = document.getElementById('chartPointsTotales');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Total Gagnés', 'Total Perdus'],
+                datasets: [{
+                    data: [gagnes, perdus],
+                    backgroundColor: ['#10B981', '#EF4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#f8fafc', font: { size: 9 }, boxWidth: 10 } }
+                }
+            }
+        });
+    }
+
+    function creerGraphiqueReceptionsTotales(dataValues) {
+        const ctx = document.getElementById('chartReceptionsTotales');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Aire', 'Bote', 'Corrido', 'Pronto', 'Erebote', 'Pumpa'],
+                datasets: [{
+                    label: 'Volume cumulé',
+                    data: dataValues,
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+    }
+
+    function creerGraphiqueFrappesTotales(cumulFrappes) {
+        const ctx = document.getElementById('chartFrappesTotales');
+        if (!ctx) return;
+        const labels = Object.keys(cumulFrappes);
+        const dataTotaux = labels.map(nom => cumulFrappes[nom].total);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Volume cumulé',
+                    data: dataTotaux,
+                    backgroundColor: '#00f2fe',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
     }
 
     initialiserPageJoueur();
