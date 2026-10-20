@@ -21,22 +21,24 @@
             box-sizing: border-box;
             transition: border-color 0.2s;
         }
-        .search-input:focus { border-color: var(--accent-color); }
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
 
         .match-list { display: flex; flex-direction: column; gap: 12px; }
         .match-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; text-decoration: none; color: var(--container-text); display: block; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
-        .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .match-title { font-weight: bold; font-size: 0.9rem; color: var(--accent-color); }
-        .match-sets-badge { font-size: 0.72rem; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600; }
+        .match-sets-badge { font-size: 0.72rem; color: var(--accent-color); background: rgba(0, 242, 254, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.2); font-weight: 600; }
         
-        .match-teams { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; margin-bottom: 10px; }
-        .team-row { display: flex; flex-direction: column; gap: 4px; font-weight: 500; }
+        .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; }
+        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
         .team-score { font-weight: 800; font-size: 0.95rem; }
         .score-win { color: #34d399; }   
         .score-loss { color: #f87171; }  
         .score-neutral { color: var(--text-muted); } 
 
-        .match-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-top: 2px solid var(--card-border); padding-top: 8px; margin-top: 8px; }
+        .match-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); border-top: 2px solid var(--card-border); padding-top: 8px; margin-top: 10px; }
         .no-result { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px; }
         
         .action-buttons {
@@ -131,61 +133,73 @@
         try {
             tousLesMatchsFiltres = [];
 
+            // 1. Matchs détaillés
             const qMatchs = query(collection(db, "matchs"), where("competition", "==", COMPETITION_CIBLE));
             const snapshotMatchs = await getDocs(qMatchs);
             snapshotMatchs.forEach((docSnap) => {
                 tousLesMatchsFiltres.push({ id: docSnap.id, type: "detaille", ...docSnap.data() });
             });
 
+            // 2. Parties rapides
             const qRapides = query(collection(db, "parties_rapides"), where("competition", "==", COMPETITION_CIBLE));
             const snapshotRapides = await getDocs(qRapides);
             snapshotRapides.forEach((docSnap) => {
                 const data = docSnap.data();
+
+                // Extraction/Découpage des équipes et des scores si stockés sous forme brut (ex: "Eq1 / Eq2" et "15-15 / 10-12")
+                let rawJoueurs = data.joueurs || data.equipe1 || "";
+                let rawScore = data.score || data.scoreEquipe1 || "";
+
+                let eq1 = data.equipe1 || "";
+                let eq2 = data.equipe2 || "";
+                let sc1 = data.scoreEquipe1 !== undefined ? data.scoreEquipe1 : "";
+                let sc2 = data.scoreEquipe2 !== undefined ? data.scoreEquipe2 : "";
+
+                if (!eq2 && rawJoueurs.includes('/')) {
+                    let partsJ = rawJoueurs.split('/');
+                    eq1 = partsJ[0].trim();
+                    eq2 = partsJ[1].trim();
+                } else if (!eq1) {
+                    eq1 = rawJoueurs;
+                }
+
+                if (!sc2 && String(rawScore).includes('/')) {
+                    let partsS = String(rawScore).split('/');
+                    sc1 = partsS[0].trim();
+                    sc2 = partsS[1].trim();
+                } else if (!sc1) {
+                    sc1 = rawScore;
+                }
+
                 tousLesMatchsFiltres.push({
                     id: docSnap.id,
                     type: "rapide",
                     titre: data.competition,
-                    equipe1: data.joueurs ? data.joueurs : (data.lieu ? `Lieu : ${data.lieu}` : "Partie Rapide"),
-                    equipe2: data.heure ? `Heure : ${data.heure}` : "",
-                    scoreEquipe1: data.score || "",
-                    scoreEquipe2: "",
+                    equipe1: eq1,
+                    equipe2: eq2,
+                    scoreEquipe1: sc1,
+                    scoreEquipe2: sc2,
                     date: data.date || "",
-                    heure: data.heure || "", 
+                    heure: data.heure || "",
                     lieu: data.lieu || "",
                     lienVideo: data.videoUrl || ""
                 });
             });
 
-            // Tri de la plus récente à la plus ancienne (avec double sécurité date + heure)
+            // Tri du plus récent au plus ancien
             tousLesMatchsFiltres.sort((a, b) => {
-                let parseDateOnly = (val) => {
+                let parseDate = (val) => {
                     if (!val) return 0;
-                    if (val.toDate) {
-                        let d = val.toDate();
-                        d.setHours(0, 0, 0, 0);
-                        return d.getTime();
-                    }
+                    if (val.toDate) return val.toDate();
                     let str = String(val).trim();
                     if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) {
                         let parts = str.split('/');
                         str = `${parts[2]}-${parts[1]}-${parts[0]}`;
                     }
                     let parsed = new Date(str);
-                    parsed.setHours(0, 0, 0, 0);
-                    return isNaN(parsed) ? 0 : parsed.getTime();
+                    return isNaN(parsed) ? 0 : parsed;
                 };
-
-                let timeA = (a.heure || "").trim();
-                let timeB = (b.heure || "").trim();
-
-                let dateTimestampA = parseDateOnly(a.date);
-                let dateTimestampB = parseDateOnly(b.date);
-
-                if (dateTimestampA !== dateTimestampB) {
-                    return dateTimestampB - dateTimestampA;
-                }
-
-                return timeB.localeCompare(timeA);
+                return parseDate(b.date) - parseDate(a.date);
             });
 
             afficherMatchs(tousLesMatchsFiltres);
@@ -211,48 +225,41 @@
             let s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : (match.equipe1Score || '-');
             let s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
             let c1 = "score-neutral", c2 = "score-neutral";
-            let badgeTexte = match.resultat || match.nombreManches || "Partie";
 
+            // Calcul et comparaison des scores pour l'attribution vert (win) / rouge (loss)
             if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
-                let t1 = String(s1).split('/').reduce((a,b)=>a+parseInt(b||0),0);
-                let t2 = String(s2).split('/').reduce((a,b)=>a+parseInt(b||0),0);
-                if (t1 > t2) { 
-                    c1 = "score-win"; 
-                    c2 = "score-loss"; 
-                    badgeTexte = "Victoire";
-                } else if (t2 > t1) { 
-                    c1 = "score-loss"; 
-                    c2 = "score-win"; 
-                    badgeTexte = "Défaite"; // Corrigé ici
-                }
-            }
+                let calcTotal = (str) => {
+                    // Additionne les points si plusieurs manches séparées par un tiret (ex: "15-10" -> 15+10 = 25)
+                    return String(str).split(/[-–]/).reduce((acc, val) => acc + (parseInt(val.trim()) || 0), 0);
+                };
 
-            let videoLink = match.lienVideo || match.videoUrl || "";
-            let videoBtnHTML = "";
-            if (videoLink.trim() !== "") {
-                videoBtnHTML = `<a href="${videoLink}" target="_blank" class="btn-action">📺 Voir la vidéo</a>`;
-            }
+                let t1 = calcTotal(s1);
+                let t2 = calcTotal(s2);
 
-            let statsBtnHTML = "";
-            if (match.type === "detaille") {
-                statsBtnHTML = `<a href="detail_match.html?id=${match.id}" class="btn-action">📊 Statistiques détaillées</a>`;
+                if (t1 > t2) { c1 = "score-win"; c2 = "score-loss"; }
+                else if (t2 > t1) { c1 = "score-loss"; c2 = "score-win"; }
             }
 
             let teamsHTML = `
                 <div class="team-row">
                     <span><strong>${match.equipe1 || 'Équipe 1'}</strong></span>
-                    ${s1 ? `<span class="team-score ${c1}">Score : ${s1}</span>` : ''}
+                    <span class="team-score ${c1}">${s1}</span>
                 </div>
                 ${match.equipe2 ? `
-                <div class="team-row" style="margin-top: 4px;">
-                    <span><strong>${match.equipe2}</strong></span>${s2 ? `<span class="team-score ${c2}">Score : ${s2}</span>` : ''}
+                <div class="team-row">
+                    <span><strong>${match.equipe2}</strong></span>
+                    <span class="team-score ${c2}">${s2}</span>
                 </div>` : ''}
             `;
 
+            let videoLink = match.lienVideo || match.videoUrl || "";
+            let videoBtnHTML = videoLink.trim() !== "" ? `<a href="${videoLink}" target="_blank" class="btn-action">📺 Voir la vidéo</a>` : "";
+            let statsBtnHTML = match.type === "detaille" ? `<a href="detail_match.html?id=${match.id}" class="btn-action">📊 Statistiques détaillées</a>` : "";
+
             card.innerHTML = `
                 <div class="match-header">
-                    <span class="match-title">${match.titre || 'Partie de poule'}</span>
-                    <span class="match-sets-badge">${badgeTexte}</span>
+                    <span class="match-title">${match.titre || ''}</span>
+                    <span class="match-sets-badge">${match.resultat || match.nombreManches || 'Partie'}</span>
                 </div>
                 <div class="match-teams">
                     ${teamsHTML}
