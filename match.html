@@ -111,7 +111,7 @@
         ➕ Ajouter une partie (Sans stats)
     </button>
 
-    <!-- Formulaire d'ajout rapide avec choix de la compétition et date JJ-MM-AAAA -->
+    <!-- Formulaire d'ajout rapide avec choix de la compétition et titre -->
     <div class="quick-form-card" id="quickFormCard">
         <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-color);">Ajouter une partie & Vidéo</div>
         <div class="form-group">
@@ -129,6 +129,10 @@
                 <option value="Pôle">Pôle</option>
                 <option value="Mondial">Mondial</option>
             </select>
+        </div>
+        <div class="form-group">
+            <label>Titre de la partie (Optionnel)</label>
+            <input type="text" id="qTitre" placeholder="Ex: Finale, Demi-finale, Poule A...">
         </div>
         <div class="form-group">
             <label>Date (Format JJ-MM-AAAA)</label>
@@ -188,7 +192,6 @@
             <div class="comp-left"><span class="comp-count-badge" id="count-championnatpb">-</span><span>🏆 Championnat du Pays Basque</span></div>
             <span class="comp-arrow">➔</span>
         </a>
-        <!-- Intitulé mis à jour : All Stars Quinielas -->
         <a href="all-star.html" class="comp-card">
             <div class="comp-left"><span class="comp-count-badge" id="count-all-star">-</span><span>🏆 All Stars Quinielas</span></div>
             <span class="comp-arrow">➔</span>
@@ -306,9 +309,10 @@
         }
     }
 
-    // Enregistrer une partie rapide liée à la compétition sélectionnée dans Firebase
+    // Enregistrer une partie rapide liée à la compétition sélectionnée dans Firebase avec le titre
     function saveQuickMatch() {
         const competition = document.getElementById('qCompetition').value;
+        const titre = document.getElementById('qTitre').value.trim();
         const dateInput = document.getElementById('qDate').value.trim();
         const heure = document.getElementById('qHeure').value;
         const lieu = document.getElementById('qLieu').value.trim();
@@ -320,6 +324,7 @@
 
         db.collection("parties_rapides").add({
             competition: competition,
+            titre: titre || "",
             date: dateFormatee || "",
             heure: heure || "",
             lieu: lieu || "Fronton",
@@ -330,6 +335,7 @@
         })
         .then(() => {
             alert("Partie ajoutée avec succès à la compétition " + competition + " !");
+            document.getElementById('qTitre').value = '';
             document.getElementById('qDate').value = '';
             document.getElementById('qHeure').value = '';
             document.getElementById('qLieu').value = '';

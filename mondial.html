@@ -186,7 +186,7 @@
                 tousLesMatchsFiltres.push({
                     id: docSnap.id,
                     type: "rapide",
-                    titre: data.competition,
+                    titre: data.titre && data.titre.trim() !== "" ? data.titre : COMPETITION_CIBLE,
                     genre: data.genre || data.categorie || "",
                     equipe1: eq1,
                     equipe2: eq2,
@@ -263,7 +263,7 @@
                 </div>` : ''}
             `;
 
-            // Affichage du texte du genre brut (ex: "Féminin" ou "Masculin") s'il est renseigné
+            // Affichage du texte du genre brut s'il est renseigné
             let genderTextHTML = "";
             if (match.genre && match.genre.trim() !== "") {
                 genderTextHTML = `<span class="gender-text">${match.genre}</span>`;
@@ -275,10 +275,10 @@
 
             card.innerHTML = `
                 <div class="match-header">
-                    <span class="match-title">${match.titre || ''}</span>
+                    <span class="match-title">${match.titre || COMPETITION_CIBLE}</span>
                     <div class="badges-group">
                         ${genderTextHTML}
-                        <span class="match-sets-badge">${match.resultat || match.nombreManches || 'Partie'}</span>
+                        <span class="match-sets-badge">${match.resultat || match.nombreManches || 'Partie rapide'}</span>
                     </div>
                 </div>
                 <div class="match-teams">
