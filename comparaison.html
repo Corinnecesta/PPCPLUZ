@@ -289,6 +289,11 @@
         joueursData.forEach(joueur => {
             const joueurId = joueur.id || joueur.firebaseId || joueur.docId;
 
+            // Ignorer l'affichage si le joueur est à la retraite (statut == "retraite" ou retraite == true)
+            if (joueur.statut === "retraite" || joueur.retraite === true) {
+                return;
+            }
+
             const joueursLocauxRaw = localStorage.getItem('joueurs_locaux') || localStorage.getItem('joueurs') || '[]';
             let idsLocaux = [];
             try {
@@ -776,6 +781,9 @@
         });
 
         (window.joueursFirebaseCharges || []).forEach(jFb => {
+            // Ignorer aussi les joueurs retraités de Firebase si besoin
+            if (jFb.statut === "retraite" || jFb.retraite === true) return;
+
             const nomComplet = `${jFb.prenom || ''} ${jFb.nom || ''}`.trim();
             if (!nomComplet) return;
 

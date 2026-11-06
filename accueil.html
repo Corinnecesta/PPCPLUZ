@@ -43,6 +43,7 @@
             box-sizing: border-box;
         }
 
+
         body { 
             font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
             background: var(--bg-gradient); 
@@ -65,32 +66,16 @@
             gap: 10px; 
         } 
         
-        /* En-tête tout en haut configuré en grille 3 colonnes pour un centrage parfait */
+        /* En-tête tout en haut configuré en grille 2 colonnes (Logo à gauche, Actions à droite) */
         .top-header { 
             display: grid; 
-            grid-template-columns: 1fr auto 1fr; 
+            grid-template-columns: 1fr auto; 
             align-items: center; 
             margin-bottom: 0; 
         }
         .logo-img { height: 50px; object-fit: contain; justify-self: start; }
         
         .header-actions { display: flex; gap: 8px; align-items: center; justify-self: end; }
-
-        /* Style pour la médaille de bronze agrandie */
-        .bronze-medal {
-            font-size: 2rem; /* Taille agrandie */
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: default;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-            transition: transform 0.2s ease;
-            justify-self: center;
-        }
-        .bronze-medal:hover {
-            transform: scale(1.15);
-        }
 
         /* Boutons du haut en dégradé lagon */
         .home-btn, .theme-toggle-btn, .profile-btn { 
@@ -387,7 +372,6 @@
     <!-- En-tête tout en haut -->
     <header class="top-header">
         <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
-        <span class="bronze-medal" title="Troisième au championnat du monde" aria-label="Troisième au championnat du monde">🥉</span>
         <div class="header-actions">
             <a href="accueil.html" class="home-btn" aria-label="Retour à l'accueil" title="Retour Accueil">🏠</a>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Changer le thème visuel" title="Changer de thème">🌙</button>
