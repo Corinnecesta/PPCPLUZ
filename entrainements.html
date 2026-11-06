@@ -402,7 +402,7 @@
         if (typeStr === 'info' || typeStr === 'perso' || titleStr.includes('partie') || titleStr.includes('championnat')) {
             return 'info';
         }
-        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif'))) {
+        if (typeStr.includes('physique') && (typeStr.includes('co' ) || typeStr.includes('collectif'))) {
             return 'physique-co';
         }
         if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu')) {
@@ -495,14 +495,24 @@
                 if (isInfo) {
                     const titreTexte = ev.titre || "";
                     const lieuTxt = ev.lieu ? ` • 📍 ${ev.lieu}` : '';
-                    const heureTxt = ev.heureDebut ? ` • 🕒 ${ev.heureDebut}` : '';
-                    const descTxt = ev.description ? `<div style="font-size: 0.75rem; color: var(--container-text); margin-top: 4px;">${ev.description}</div>` : '';
+                    const heureTxt = ev.heureDebut ? `🕒 ${ev.heureDebut}` : '';
+                    
+                    // Assemblage de l'heure et du lieu sur la même ligne du bas
+                    let infoBasTxt = "";
+                    if (heureTxt && lieuTxt) {
+                        infoBasTxt = `${heureTxt} ${lieuTxt}`;
+                    } else {
+                        infoBasTxt = `${heureTxt}${ev.lieu ? '📍 ' + ev.lieu : ''}`;
+                    }
+
+                    // Description (les équipes) placée juste sous le titre
+                    const descTxt = ev.description ? `<div style="font-size: 0.8rem; font-weight: bold; color: var(--container-text); margin-top: 4px; margin-bottom: 4px;">${ev.description}</div>` : '';
 
                     htmlText += `
                         <div class="card-item card-info">
                             <div class="item-title">📌 ${titreTexte}</div>
-                            <div class="item-sub">${heureTxt}${lieuTxt}</div>
                             ${descTxt}
+                            <div class="item-sub">${infoBasTxt}</div>
                         </div>
                     `;
                 } else {
