@@ -16,7 +16,6 @@
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .header-actions { display: flex; gap: 8px; align-items: center; }
         
-        /* Boutons d'en-tête ronds */
         .home-btn, .theme-toggle-btn, .profile-btn { 
             text-decoration: none; 
             font-size: 1.1rem; 
@@ -32,6 +31,86 @@
             justify-content: center; 
         }
 
+        /* BOUTON DÉCLENCHEUR DU FORMULAIRE (Même style que Programmer un entraînement) */
+        .btn-toggle-form {
+            background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%);
+            border: 2px solid #06b6d4;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-toggle-form:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45);
+        }
+
+        /* BLOC FORMULAIRE ÉVÉNEMENT ADMIN (Masqué par défaut) */
+        .add-event-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+            display: none; /* Masqué par défaut */
+        }
+
+        .add-event-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--container-text);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group { margin-bottom: 10px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .form-label { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 3px; display: block; }
+        
+        .form-input {
+            width: 100%;
+            background: rgba(15, 76, 92, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: var(--container-text);
+            font-size: 0.8rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .form-input:focus { border-color: var(--accent-color); }
+
+        .btn-save-event {
+            width: 100%;
+            background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%);
+            border: 1px solid var(--accent-color);
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-save-event:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* CALENDRIER */
         .calendar-container { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; color: var(--container-text); font-size: 0.9rem; }
         .cal-nav-btn { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--card-border); color: var(--accent-color); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
@@ -42,21 +121,15 @@
         .calendar-day:hover { border-color: var(--accent-color); background: var(--card-hover-bg); }
         .calendar-day.empty { background: transparent; border: none; cursor: default; }
         
-        /* Styles personnalisés par type d'événement inversés */
-        /* Technique en JAUNE */
         .calendar-day.has-technique { border-color: #facc15; background: rgba(250, 204, 21, 0.25); font-weight: bold; color: #fde047; }
-        /* Physique (co et solo) en VIOLET */
         .calendar-day.has-physique-co { border-color: #a855f7; background: rgba(168, 85, 247, 0.25); font-weight: bold; color: #e9d5ff; }
         .calendar-day.has-physique { border-color: #a855f7; background: rgba(168, 85, 247, 0.25); font-weight: bold; color: #e9d5ff; }
         .calendar-day.has-perso { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); font-weight: bold; color: #fca5a5; }
-        .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.15); font-weight: bold; color: var(--accent-color); }
-        
-        /* Styles spécifiques pour les jours avec des infos / notes joueurs (en ROUGE) */
+        .calendar-day.has-match { border-color: var(--accent-color); background: rgba(23, 184, 144, 0.25); font-weight: bold; color: var(--accent-color); }
         .calendar-day.has-info { border-color: #ef4444; background: rgba(239, 68, 68, 0.15); font-weight: bold; color: #ef4444; }
 
         .calendar-day.selected { border: 2px solid #ffffff !important; }
 
-        /* Gestion des points multiples par jour */
         .event-dots-container { display: flex; gap: 3px; justify-content: center; align-items: center; margin-top: 3px; flex-wrap: wrap; max-width: 28px; }
         .multi-dot { width: 5px; height: 5px; border-radius: 50%; }
         .multi-dot.match { background-color: var(--accent-color); }
@@ -75,16 +148,15 @@
         .card-item.card-info { border-color: #ef4444; }
 
         .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 2px; }
-        .item-sub { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; }
+        .item-sub { font-size: 0.72rem; color: var(--text-muted); }
 
-        /* Bouton programmation avec dégradé prononcé et bordure cyan lumineuse */
         .program-btn { 
             background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%); 
             border: 2px solid #06b6d4; 
             color: #ffffff; 
-            padding: 14px; 
-            border-radius: 30px; 
-            font-size: 0.9rem; 
+            padding: 12px; 
+            border-radius: 14px; 
+            font-size: 0.85rem; 
             font-weight: 800; 
             cursor: pointer; 
             width: 100%; 
@@ -92,14 +164,13 @@
             text-align: center; 
             display: block; 
             text-decoration: none; 
-            margin-bottom: 16px; 
-            box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35); 
-            transition: all 0.2s ease;
+            margin-bottom: 12px; 
+            box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3); 
         }
         .program-btn:hover {
             opacity: 0.95;
             transform: translateY(-1px);
-            box-shadow: 0 6px 22px rgba(6, 182, 212, 0.5);
+            box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45);
         }
     </style>
 </head>
@@ -109,19 +180,64 @@
     <div class="top-header">
         <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img" style="height: 35px;">
         <div class="header-actions">
-            <!-- Bouton retour accueil -->
             <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
-            <!-- Bouton de bascule de thème -->
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
-            <!-- Bouton profil / compte -->
             <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
         </div>
     </div>
 
     <hr class="separator" style="margin-bottom: 15px;">
 
-    <!-- Bouton d'ajout d'entraînement avec un ID pour pouvoir le masquer -->
-    <a href="nouveau-entrainement.html" id="btnProgrammerEntrainement" class="program-btn">+ Programmer un entraînement</a>
+    <!-- Boutons d'actions réservés aux admins / entraîneurs -->
+    <div id="adminActionSection" style="display: none;">
+        <a href="nouveau-entrainement.html" class="program-btn">+ Programmer un entraînement</a>
+
+        <!-- Bouton cliquable pour ouvrir/fermer le formulaire d'événement avec le même style -->
+        <button onclick="toggleEventForm()" class="btn-toggle-form">
+            <span>📅</span> + Ajouter un événement / partie
+        </button>
+
+        <!-- BLOC FORMULAIRE D'ÉVÉNEMENT (Masqué par défaut) -->
+        <div id="addEventCardAdmin" class="add-event-card">
+            <div class="add-event-title">➕ Nouvel événement ou partie</div>
+            
+            <div class="form-group">
+                <input type="text" id="eventTitleInput" class="form-input" placeholder="Titre (ex: Championnat du Pays Basque...)">
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <span class="form-label">Date de début</span>
+                    <input type="date" id="eventStartDateInput" class="form-input">
+                </div>
+                <div>
+                    <span class="form-label">Date de fin (optionnel)</span>
+                    <input type="date" id="eventEndDateInput" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <span class="form-label">Heure de début (optionnel)</span>
+                    <input type="time" id="eventStartTimeInput" class="form-input">
+                </div>
+                <div>
+                    <span class="form-label">Heure de fin (optionnel)</span>
+                    <input type="time" id="eventEndTimeInput" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="eventLieuInput" class="form-input" placeholder="Lieu (ex: St Jean de Luz)">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="eventDescriptionInput" class="form-input" placeholder="Détail / Affiche (ex: Garcia-Basque / Garat-laborde)">
+            </div>
+
+            <button class="btn-save-event" onclick="ajouterEvenementAdmin()">Enregistrer dans le calendrier</button>
+        </div>
+    </div>
 
     <div class="section-title">Calendrier Collectif</div>
 
@@ -141,12 +257,11 @@
     </div>
 </div>
 
-<!-- Inclusion du fichier de données des joueurs -->
 <script src="joueurs-data.js"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -182,18 +297,29 @@
         themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
     }
 
-    // Gestion des rôles au chargement de la page
+    // Gestion de l'affichage des éléments admin selon le rôle
     document.addEventListener("DOMContentLoaded", () => {
         const role = localStorage.getItem('cesta_user_role');
+        const adminSection = document.getElementById('adminActionSection');
         
-        // Si l'utilisateur connecté est un joueur, on masque le bouton d'ajout
-        if (role === 'joueur') {
-            const btnProgrammer = document.getElementById('btnProgrammerEntrainement');
-            if (btnProgrammer) {
-                btnProgrammer.style.display = 'none';
-            }
+        if (role === 'admin' || role === 'entraineur') {
+            if (adminSection) adminSection.style.display = 'block';
+        } else {
+            if (adminSection) adminSection.style.display = 'none';
         }
     });
+
+    // Fonction pour ouvrir / fermer le formulaire d'événement au clic
+    window.toggleEventForm = function() {
+        const card = document.getElementById('addEventCardAdmin');
+        if (card) {
+            if (card.style.display === 'block') {
+                card.style.display = 'none';
+            } else {
+                card.style.display = 'block';
+            }
+        }
+    };
 
     let currentDate = new Date();
     let selectedDateStr = new Date().toISOString().split('T')[0];
@@ -201,17 +327,66 @@
 
     async function chargerCalendrierFirebase() {
         try {
-            const querySnapshot = await getDocs(collection(db, "entrainements"));
+            const entrainementsSnap = await getDocs(collection(db, "entrainements"));
             calendrierCloudEvents = [];
-            querySnapshot.forEach((docSnap) => {
+            entrainementsSnap.forEach((docSnap) => {
                 calendrierCloudEvents.push({ id: docSnap.id, ...docSnap.data() });
             });
+
             renderCalendar();
             selectCalendarDate(selectedDateStr);
         } catch (error) {
-            console.error("Erreur lors du chargement des entraînements Firebase :", error);
+            console.error("Erreur chargement Firebase :", error);
         }
     }
+
+    // Enregistrement de l'événement admin dans Firebase
+    window.ajouterEvenementAdmin = async function() {
+        const titre = document.getElementById('eventTitleInput').value.trim();
+        const startDate = document.getElementById('eventStartDateInput').value;
+        const endDate = document.getElementById('eventEndDateInput').value;
+        const heureDebut = document.getElementById('eventStartTimeInput').value;
+        const heureFin = document.getElementById('eventEndTimeInput').value;
+        const lieu = document.getElementById('eventLieuInput').value.trim();
+        const description = document.getElementById('eventDescriptionInput').value.trim();
+
+        if (!titre || !startDate) {
+            alert("Veuillez remplir au moins le titre et la date de début.");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "entrainements"), {
+                type: "info",
+                titre: titre,
+                startDate: startDate,
+                endDate: endDate || startDate,
+                heureDebut: heureDebut || "",
+                heureFin: heureFin || "",
+                lieu: lieu || "St Jean de Luz",
+                description: description || "",
+                createur: "Admin",
+                createdAt: new Date().toISOString()
+            });
+
+            alert("Événement enregistré avec succès dans le calendrier !");
+            
+            // Réinitialiser les champs et refermer le formulaire
+            document.getElementById('eventTitleInput').value = "";
+            document.getElementById('eventStartDateInput').value = "";
+            document.getElementById('eventEndDateInput').value = "";
+            document.getElementById('eventStartTimeInput').value = "";
+            document.getElementById('eventEndTimeInput').value = "";
+            document.getElementById('eventLieuInput').value = "";
+            document.getElementById('eventDescriptionInput').value = "";
+            document.getElementById('addEventCardAdmin').style.display = 'none';
+
+            chargerCalendrierFirebase();
+        } catch (e) {
+            console.error("Erreur lors de l'enregistrement :", e);
+            alert("Erreur lors de l'enregistrement dans Firebase.");
+        }
+    };
 
     function estDansLaPlage(dateStr, event) {
         const start = event.startDate || event.date;
@@ -220,30 +395,18 @@
         return dateStr >= start && dateStr <= end;
     }
 
-    function formaterDateFR(dateStr) {
-        if (!dateStr) return '';
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
-        }
-        return dateStr;
-    }
-
     function getTypeOfEvent(event) {
         const typeStr = (event.type || "").toLowerCase();
         const titleStr = (event.titre || event.title || "").toLowerCase();
 
-        if (typeStr === 'perso' || typeStr === 'info' || titleStr.includes('perso') || titleStr.includes('kiné') || titleStr.includes('personnel')) {
-            return 'perso';
+        if (typeStr === 'info' || typeStr === 'perso' || titleStr.includes('partie') || titleStr.includes('championnat')) {
+            return 'info';
         }
-        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif')) || titleStr.includes('physique collectif') || titleStr.includes('physique co')) {
+        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif'))) {
             return 'physique-co';
         }
-        if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu') || titleStr.includes('prepa')) {
+        if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu')) {
             return 'physique';
-        }
-        if (typeStr.includes('technique') || titleStr.includes('technique') || titleStr.includes('cesta') || titleStr.includes('fronton') || titleStr.includes('paleta')) {
-            return 'technique';
         }
         return 'technique';
     }
@@ -273,27 +436,20 @@
             let dotsHtml = '';
 
             if (matchingEvents.length > 0) {
-                const hasPerso = matchingEvents.some(e => getTypeOfEvent(e) === 'perso' || e.type === 'info');
-                const hasPhysiqueCo = matchingEvents.some(e => getTypeOfEvent(e) === 'physique-co');
-                const hasPhysique = matchingEvents.some(e => getTypeOfEvent(e) === 'physique');
+                const hasInfo = matchingEvents.some(e => getTypeOfEvent(e) === 'info');
+                const hasPhysique = matchingEvents.some(e => getTypeOfEvent(e).includes('physique'));
                 const hasTechnique = matchingEvents.some(e => getTypeOfEvent(e) === 'technique');
 
-                if (hasPerso) {
-                    matchClass = 'has-perso';
-                } else if (hasPhysiqueCo || hasPhysique) {
-                    matchClass = 'has-physique';
-                } else if (hasTechnique) {
-                    matchClass = 'has-technique';
-                } else {
-                    matchClass = 'has-match';
-                }
+                if (hasInfo) matchClass = 'has-info';
+                else if (hasPhysique) matchClass = 'has-physique';
+                else if (hasTechnique) matchClass = 'has-technique';
 
                 dotsHtml = `<div class="event-dots-container">`;
                 matchingEvents.forEach(ev => {
                     const t = getTypeOfEvent(ev);
                     let dotClass = 'technique';
-                    if (t === 'perso' || ev.type === 'info') dotClass = 'perso';
-                    else if (t === 'physique-co' || t === 'physique') dotClass = 'physique';
+                    if (t === 'info') dotClass = 'info';
+                    else if (t.includes('physique')) dotClass = 'physique';
                     
                     dotsHtml += `<div class="multi-dot ${dotClass}"></div>`;
                 });
@@ -324,120 +480,47 @@
         const parts = dateStr.split('-');
         
         const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
-        
-        const allAreInfos = matchingEvents.length > 0 && matchingEvents.every(e => e.type === 'info' || getTypeOfEvent(e) === 'perso');
-        const titreTeteBox = document.getElementById('selectedDateTitle');
-        
-        if (allAreInfos) {
-            titreTeteBox.innerText = `INFORMATIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
-        } else {
-            titreTeteBox.innerText = `SESSIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
-        }
+        document.getElementById('selectedDateTitle').innerText = `SESSIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
 
         renderCalendar();
 
         const previewBox = document.getElementById('matchPreviewBox');
         const previewContent = document.getElementById('matchPreviewContent');
 
-        const userRole = localStorage.getItem('cesta_user_role');
-
         if (matchingEvents.length > 0) {
             let htmlText = "";
             matchingEvents.forEach(ev => {
-                const isInfo = ev.type === 'info' || getTypeOfEvent(ev) === 'perso';
-                const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut} - ${ev.heureFin || ''}` : '';
-                const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
-                
-                let detailsHtml = "";
-                let titreHtml = "";
-                let sousTitreLigne = "";
+                const isInfo = ev.type === 'info' || getTypeOfEvent(ev) === 'info';
 
                 if (isInfo) {
-                    const createurNom = ev.createur || ev.joueur || ev.nomJoueur || ev.auteur || "";
-                    const titreTexte = ev.titre || ev.title || "";
-                    const dateDebutFR = formaterDateFR(ev.startDate || ev.date);
-                    const dateFinFR = formaterDateFR(ev.endDate);
-                    const lieuNom = ev.lieu || "";
-                    
-                    const heureDebutVal = ev.heureDebut || "";
-                    const heureFinVal = ev.heureFin || "";
-                    
-                    let texteHeure = "";
-                    if (heureDebutVal && heureFinVal) {
-                        texteHeure = `de ${heureDebutVal} à ${heureFinVal}`;
-                    } else if (heureDebutVal) {
-                        texteHeure = `à ${heureDebutVal}`;
-                    }
-                    
-                    titreHtml = `<span style="color: #ef4444;">${createurNom}</span> <span style="color: var(--accent-color);">${titreTexte}</span>`;
+                    const titreTexte = ev.titre || "";
+                    const lieuTxt = ev.lieu ? ` • 📍 ${ev.lieu}` : '';
+                    const heureTxt = ev.heureDebut ? ` • 🕒 ${ev.heureDebut}` : '';
+                    const descTxt = ev.description ? `<div style="font-size: 0.75rem; color: var(--container-text); margin-top: 4px;">${ev.description}</div>` : '';
 
-                    let partiesSub = [];
-                    let texteDate = "";
-                    if (dateDebutFR && dateFinFR && dateFinFR !== dateDebutFR) {
-                        texteDate = `du ${dateDebutFR} au ${dateFinFR}`;
-                    } else if (dateDebutFR) {
-                        texteDate = `le ${dateDebutFR}`;
-                    }
-
-                    if (texteDate) {
-                        let ligneDateHeure = `🕒 ${texteDate}`;
-                        if (texteHeure) {
-                            ligneDateHeure += ` (${texteHeure})`;
-                        }
-                        partiesSub.push(ligneDateHeure);
-                    }
-
-                    if (lieuNom) {
-                        partiesSub.push(`📍 ${lieuNom}`);
-                    }
-                    sousTitreLigne = partiesSub.join(' • ');
-
-                    const texteInfo = ev.description || ev.commentaire || ev.note || ev.message || ev.details || ev.texte || ev.contenu || "";
-                    if (texteInfo) {
-                        detailsHtml = `<div style="font-size: 0.75rem; color: var(--container-text); font-weight: normal; line-height: 1.4; margin-top: 4px;">${texteInfo}</div>`;
-                    }
+                    htmlText += `
+                        <div class="card-item card-info">
+                            <div class="item-title">📌 ${titreTexte}</div>
+                            <div class="item-sub">${heureTxt}${lieuTxt}</div>
+                            ${descTxt}
+                        </div>
+                    `;
                 } else {
-                    titreHtml = ev.titre || ev.title;
+                    const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut}` : '';
+                    const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
                     
-                    if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
-                        ev.convoques.forEach(conv => {
-                            let badgeStatut = "⏳ En attente";
-                            if (conv.statut === 'present') badgeStatut = "✅ Présent";
-                            else if (conv.statut === 'absent') badgeStatut = `❌ Absent (${conv.motif || 'Sans motif'})`;
-
-                            detailsHtml += `
-                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                    <span>👤 ${conv.nom}</span>
-                                    <span style="font-weight:600;">${badgeStatut}</span>
-                                </div>
-                            `;
-                        });
-
-                        if (userRole === 'joueur') {
-                            detailsHtml += `
-                                <div style="font-size: 0.7rem; color: var(--accent-color); padding-top: 6px; text-align: center; font-weight: bold; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 4px;">
-                                    📅 Répondez à cette convocation via votre calendrier personnel (Page Joueur).
-                                </div>
-                            `;
-                        }
-                    } else {
-                        detailsHtml = `<div style="font-size: 0.7rem; color: var(--text-muted);">Aucun joueur spécifiquement convoqué.</div>`;
-                    }
+                    htmlText += `
+                        <div class="card-item">
+                            <div class="item-title">${ev.titre || ev.title}</div>
+                            <div class="item-sub">${heureDebut} ${lieu}</div>
+                        </div>
+                    `;
                 }
-
-                htmlText += `
-                    <div class="card-item ${isInfo ? 'card-info' : ''}">
-                        <div class="item-title" style="font-size: 0.9rem;">${titreHtml}</div>
-                        <div class="item-sub" style="${isInfo ? 'color: var(--container-text); font-size: 0.75rem; margin-top: 2px;' : ''}">${isInfo ? sousTitreLigne : `${heureDebut}${lieu}`}</div>
-                        ${!isInfo ? `<div style="font-size: 0.75rem; font-weight: bold; color: var(--accent-color); margin-top: 6px; margin-bottom: 4px;">Joueurs convoqués :</div>` : ''}
-                        ${detailsHtml ? `<div style="background: rgba(15, 76, 92, 0.2); border-radius: 8px; padding: 6px; margin-top: 6px;">${detailsHtml}</div>` : ''}
-                    </div>
-                `;
             });
             previewContent.innerHTML = htmlText;
             previewBox.classList.add('active');
         } else {
-            previewContent.innerHTML = `<div style="font-size: 0.78rem; color: var(--text-muted);">Aucun entraînement prévu ce jour-là.</div>`;
+            previewContent.innerHTML = `<div style="font-size: 0.78rem; color: var(--text-muted);">Aucun événement prévu ce jour-là.</div>`;
             previewBox.classList.add('active');
         }
     }
