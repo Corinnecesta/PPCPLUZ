@@ -31,7 +31,7 @@
             justify-content: center; 
         }
 
-        /* BOUTON DÉCLENCHEUR DU FORMULAIRE (Même style que Programmer un entraînement) */
+        /* BOUTON DÉCLENCHEUR DU FORMULAIRE */
         .btn-toggle-form {
             background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%);
             border: 2px solid #06b6d4;
@@ -66,7 +66,7 @@
             padding: 14px;
             margin-bottom: 16px;
             box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
-            display: none; /* Masqué par défaut */
+            display: none;
         }
 
         .add-event-title {
@@ -150,6 +150,30 @@
         .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 2px; }
         .item-sub { font-size: 0.72rem; color: var(--text-muted); }
 
+        .convoques-box {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+        .convoques-title {
+            font-size: 0.72rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+        .convoque-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            padding: 2px 0;
+            color: var(--container-text);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .badge-present { color: #34d399; font-weight: bold; }
+        .badge-absent { color: #fb7185; font-weight: bold; }
+        .badge-attente { color: var(--text-muted); }
+
         .program-btn { 
             background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%); 
             border: 2px solid #06b6d4; 
@@ -192,12 +216,10 @@
     <div id="adminActionSection" style="display: none;">
         <a href="nouveau-entrainement.html" class="program-btn">+ Programmer un entraînement</a>
 
-        <!-- Bouton cliquable pour ouvrir/fermer le formulaire d'événement avec le même style -->
         <button onclick="toggleEventForm()" class="btn-toggle-form">
             <span>📅</span> + Ajouter un événement / partie
         </button>
 
-        <!-- BLOC FORMULAIRE D'ÉVÉNEMENT (Masqué par défaut) -->
         <div id="addEventCardAdmin" class="add-event-card">
             <div class="add-event-title">➕ Nouvel événement ou partie</div>
             
@@ -297,7 +319,6 @@
         themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
     }
 
-    // Gestion de l'affichage des éléments admin selon le rôle
     document.addEventListener("DOMContentLoaded", () => {
         const role = localStorage.getItem('cesta_user_role');
         const adminSection = document.getElementById('adminActionSection');
@@ -309,15 +330,10 @@
         }
     });
 
-    // Fonction pour ouvrir / fermer le formulaire d'événement au clic
     window.toggleEventForm = function() {
         const card = document.getElementById('addEventCardAdmin');
         if (card) {
-            if (card.style.display === 'block') {
-                card.style.display = 'none';
-            } else {
-                card.style.display = 'block';
-            }
+            card.style.display = (card.style.display === 'block') ? 'none' : 'block';
         }
     };
 
@@ -340,7 +356,6 @@
         }
     }
 
-    // Enregistrement de l'événement admin dans Firebase
     window.ajouterEvenementAdmin = async function() {
         const titre = document.getElementById('eventTitleInput').value.trim();
         const startDate = document.getElementById('eventStartDateInput').value;
@@ -371,7 +386,6 @@
 
             alert("Événement enregistré avec succès dans le calendrier !");
             
-            // Réinitialiser les champs et refermer le formulaire
             document.getElementById('eventTitleInput').value = "";
             document.getElementById('eventStartDateInput').value = "";
             document.getElementById('eventEndDateInput').value = "";
@@ -402,7 +416,7 @@
         if (typeStr === 'info' || typeStr === 'perso' || titleStr.includes('partie') || titleStr.includes('championnat')) {
             return 'info';
         }
-        if (typeStr.includes('physique') && (typeStr.includes('co' ) || typeStr.includes('collectif'))) {
+        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif'))) {
             return 'physique-co';
         }
         if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu')) {
@@ -438,7 +452,7 @@
             if (matchingEvents.length > 0) {
                 const hasInfo = matchingEvents.some(e => getTypeOfEvent(e) === 'info');
                 const hasPhysique = matchingEvents.some(e => getTypeOfEvent(e).includes('physique'));
-                const hasTechnique = matchingEvents.some(e => getTypeOfEvent(e) === 'technique');
+                const hasTechnique = matchingEvents.some(e => getTypeOfEvent(e).includes('technique'));
 
                 if (hasInfo) matchClass = 'has-info';
                 else if (hasPhysique) matchClass = 'has-physique';
@@ -480,6 +494,19 @@
         const parts = dateStr.split('-');
         
         const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
+        
+        // Tri du plus récent au plus ancien (basé sur la date de début et l'heure de début)
+        matchingEvents.sort((a, b) => {
+            const dateA = a.startDate || a.date || "";
+            const dateB = b.startDate || b.date || "";
+            if (dateA !== dateB) {
+                return dateB.localeCompare(dateA); // Date la plus récente en premier
+            }
+            const heureA = a.heureDebut || "00:00";
+            const heureB = b.heureDebut || "00:00";
+            return heureB.localeCompare(heureA); // Heure la plus tardive/récente en premier
+        });
+
         document.getElementById('selectedDateTitle').innerText = `SESSIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
 
         renderCalendar();
@@ -491,38 +518,61 @@
             let htmlText = "";
             matchingEvents.forEach(ev => {
                 const isInfo = ev.type === 'info' || getTypeOfEvent(ev) === 'info';
+                const titreTexte = ev.titre || ev.title || "";
+                const lieuTxt = ev.lieu ? ` • 📍 ${ev.lieu}` : '';
+                const heureTxt = ev.heureDebut ? `🕒 ${ev.heureDebut}` : '';
+                
+                let infoBasTxt = "";
+                if (heureTxt && lieuTxt) {
+                    infoBasTxt = `${heureTxt} ${lieuTxt}`;
+                } else {
+                    infoBasTxt = `${heureTxt}${ev.lieu ? '📍 ' + ev.lieu : ''}`;
+                }
+
+                const descTxt = ev.description ? `<div style="font-size: 0.8rem; font-weight: bold; color: var(--container-text); margin-top: 4px; margin-bottom: 4px;">${ev.description}</div>` : '';
+
+                let convoquesHtml = "";
+                if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
+                    convoquesHtml += `
+                        <div class="convoques-box">
+                            <div class="convoques-title">👥 Convocations & Statuts :</div>
+                    `;
+                    ev.convoques.forEach(c => {
+                        const statut = c.statut ? c.statut.toLowerCase().trim() : "en_attente";
+                        let statutBadge = `<span class="badge-attente">⏳ En attente</span>`;
+                        if (statut === 'present') {
+                            statutBadge = `<span class="badge-present">✅ Présent</span>`;
+                        } else if (statut === 'absent') {
+                            const motifTxt = c.motif ? ` (${c.motif})` : '';
+                            statutBadge = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                        }
+
+                        convoquesHtml += `
+                            <div class="convoque-row">
+                                <span>${c.nom || "Joueur"}</span>
+                                <span>${statutBadge}</span>
+                            </div>
+                        `;
+                    });
+                    convoquesHtml += `</div>`;
+                }
 
                 if (isInfo) {
-                    const titreTexte = ev.titre || "";
-                    const lieuTxt = ev.lieu ? ` • 📍 ${ev.lieu}` : '';
-                    const heureTxt = ev.heureDebut ? `🕒 ${ev.heureDebut}` : '';
-                    
-                    // Assemblage de l'heure et du lieu sur la même ligne du bas
-                    let infoBasTxt = "";
-                    if (heureTxt && lieuTxt) {
-                        infoBasTxt = `${heureTxt} ${lieuTxt}`;
-                    } else {
-                        infoBasTxt = `${heureTxt}${ev.lieu ? '📍 ' + ev.lieu : ''}`;
-                    }
-
-                    // Description (les équipes) placée juste sous le titre
-                    const descTxt = ev.description ? `<div style="font-size: 0.8rem; font-weight: bold; color: var(--container-text); margin-top: 4px; margin-bottom: 4px;">${ev.description}</div>` : '';
-
                     htmlText += `
                         <div class="card-item card-info">
                             <div class="item-title">📌 ${titreTexte}</div>
                             ${descTxt}
                             <div class="item-sub">${infoBasTxt}</div>
+                            ${convoquesHtml}
                         </div>
                     `;
                 } else {
-                    const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut}` : '';
-                    const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
-                    
                     htmlText += `
                         <div class="card-item">
-                            <div class="item-title">${ev.titre || ev.title}</div>
-                            <div class="item-sub">${heureDebut} ${lieu}</div>
+                            <div class="item-title">${titreTexte}</div>
+                            ${descTxt}
+                            <div class="item-sub">${infoBasTxt}</div>
+                            ${convoquesHtml}
                         </div>
                     `;
                 }
