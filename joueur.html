@@ -180,7 +180,7 @@
         <div class="coach-form" style="margin-bottom: 12px;">
             <div style="font-size: 0.78rem; font-weight: bold; color: var(--container-text); margin-bottom: 8px;">➕ Ajouter un événement personnel</div>
             <form id="formAjoutEvenement" onsubmit="ajouterEvenementPersonnel(event)">
-                <input type="text" id="inputTitreEvenement" class="coach-input" placeholder="Titre (ex: Kiné, Entraînement perso...)" required>
+                <input type="text" id="inputTitreEvenement" class="coach-input" placeholder="Titre (ex: Championnat, Kiné...)" required>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
                     <div>
@@ -193,7 +193,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
                     <div>
                         <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Heure de début (optionnel)</label>
                         <input type="time" id="inputHeureDebut" class="coach-input">
@@ -202,6 +202,16 @@
                         <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Heure de fin (optionnel)</label>
                         <input type="time" id="inputHeureFin" class="coach-input">
                     </div>
+                </div>
+
+                <div style="margin-bottom: 6px;">
+                    <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Lieu (optionnel)</label>
+                    <input type="text" id="inputLieuEvenement" class="coach-input" placeholder="Lieu (ex: St Jean de Luz)">
+                </div>
+
+                <div style="margin-bottom: 6px;">
+                    <label style="font-size: 0.60rem; color: var(--text-muted); display: block;">Description / Équipes (optionnel)</label>
+                    <input type="text" id="inputDescriptionEvenement" class="coach-input" placeholder="Détail / Affiche (ex: Garcia-Basque / Garat-laborde)">
                 </div>
 
                 <button type="submit" class="coach-btn" style="margin-top: 4px;">Enregistrer dans mon calendrier</button>
@@ -426,6 +436,8 @@
         
         const heureDebut = document.getElementById('inputHeureDebut').value;
         const heureFin = document.getElementById('inputHeureFin').value;
+        const lieu = document.getElementById('inputLieuEvenement').value.trim();
+        const description = document.getElementById('inputDescriptionEvenement').value.trim();
 
         if (!titre || !startDate) {
             alert("Veuillez remplir le titre et la date de début.");
@@ -439,6 +451,8 @@
                 endDate: endDate,
                 heureDebut: heureDebut || "",
                 heureFin: heureFin || "",
+                lieu: lieu || "",
+                description: description || "",
                 type: "perso", 
                 createur: joueur ? `${joueur.prenom} ${joueur.nom}` : playerId
             });
@@ -560,12 +574,14 @@
             matchingEvents.forEach(ev => {
                 const heureDebut = ev.heureDebut ? `🕒 ${ev.heureDebut}${ev.heureFin ? ' - ' + ev.heureFin : ''}` : '';
                 const lieu = ev.lieu ? `📍 ${ev.lieu}` : '';
+                const description = ev.description ? `<div style="font-size: 0.73rem; color: var(--container-text); margin-top: 3px;">${ev.description}</div>` : '';
                 
                 if (ev.type === "info" || ev.type === "perso") {
                     htmlText += `
                         <div class="convocation-card">
                             <div style="font-weight:bold; font-size:0.82rem; color:var(--container-text);">${ev.titre || ev.title}</div>
                             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${heureDebut} ${lieu ? '| ' + lieu : ''}</div>
+                            ${description}
                             <div style="font-size: 0.7rem; color: #fca5a5; margin-top: 6px;">📌 Événement personnel ${ev.createur ? '(Ajouté par ' + ev.createur + ')' : ''}</div>
                         </div>
                     `;
@@ -633,6 +649,7 @@
                         <div class="convocation-card">
                             <div style="font-weight:bold; font-size:0.82rem; color:var(--container-text);">${ev.titre || ev.title}</div>
                             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${heureDebut} ${lieu ? '| ' + lieu : ''}</div>
+                            ${description}
                             ${actionsHtml}
                         </div>
                     `;
