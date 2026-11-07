@@ -8,6 +8,7 @@
     <!-- Configuration PWA (Progressive Web App) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f4c5c">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CestaPunta">
@@ -280,13 +281,16 @@
     </div>
 </div>
 
-<!-- Enregistrement du Service Worker PWA -->
+<!-- Nettoyage automatique des Service Workers parasites (Évite les conflits 404) -->
 <script>
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker PWA enregistré depuis index.html :', reg.scope))
-                .catch(err => console.log('Erreur Service Worker :', err));
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (let registration of registrations) {
+                if (!registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/')) {
+                    console.log('Nettoyage du Service Worker parasite depuis index.html :', registration);
+                    registration.unregister();
+                }
+            }
         });
     }
 </script>
