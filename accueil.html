@@ -74,7 +74,7 @@
             gap: 10px; 
         } 
         
-        /* En-tête tout en haut configuré en grille 2 colonnes (Logo à gauche, Actions à droite) */
+        /* En-tête tout en haut configuré en grille 2 colonnes */
         .top-header { 
             display: grid; 
             grid-template-columns: 1fr auto; 
@@ -389,7 +389,7 @@
         </div>
     </header>
 
-    <!-- Séparation -->
+    <!-- Séparateur -->
     <hr class="separator">
 
     <!-- CONTENEUR D'ALERTE ANNIVERSAIRE -->
@@ -494,13 +494,64 @@
 <script src="joueurs-data.js"></script>
 <script src="staff-data.js"></script>
 
-<!-- Firebase SDK Compat (pour la messagerie) -->
+<!-- Firebase SDK Compat (version 9.22.2) pour la messagerie et la base de données -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js"></script>
 
 <script>
-    // Gestion de la bascule de thème clair / sombre
+    // Config Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // --- ACTIVATION DES NOTIFICATIONS PUSH AVEC VAPID KEY ---
+    async function demanderPermissionNotification() {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+            console.log("Les notifications Push ne sont pas supportées par ce navigateur.");
+            return;
+        }
+
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                const messaging = firebase.messaging();
+                
+                // Jeton FCM généré via votre VAPID Key publique
+                const currentToken = await messaging.getToken({
+                    vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
+                });
+
+                if (currentToken) {
+                    const userUid = localStorage.getItem('cesta_user_uid');
+                    if (userUid) {
+                        await db.collection("users").doc(userUid).set({
+                            fcmToken: currentToken,
+                            lastNotificationUpdate: new Date().toISOString()
+                        }, { merge: true });
+
+                        console.log('Jeton FCM enregistré avec succès dans Firestore.');
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Erreur d\'activation des notifications FCM :', err);
+        }
+    }
+
+    // Gestion du thème clair / sombre
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
@@ -529,7 +580,7 @@
         }
     }
 
-    // --- CHARGEMENT DE LA PHOTO DE PROFIL DEPUIS LES FICHIERS LOCAUX (JOUEURS & STAFF) ---
+    // --- CHARGEMENT DE LA PHOTO DE PROFIL LOCALE ---
     function chargerPhotoProfilLocale() {
         const profileBtnContainer = document.getElementById('profileBtnContainer');
         const userEmail = localStorage.getItem('cesta_user_email');
@@ -557,7 +608,7 @@
         }
     }
 
-    // --- INITIALISATION AU CHARGEMENT DU DOM ---
+    // --- INITIALISATION DOM ---
     document.addEventListener("DOMContentLoaded", () => {
         const userRole = localStorage.getItem('cesta_user_role');
         const adminElements = document.querySelectorAll('.admin-only');
@@ -575,9 +626,10 @@
         verifierAnniversaires();
         chargerProchainEntrainement();
         chargerPhotoProfilLocale();
+        demanderPermissionNotification();
     });
 
-    // --- VÉRIFICATION AUTOMATIQUE DES ANNIVERSAIRES ---
+    // --- VÉRIFICATION ANNIVERSAIRES ---
     function verifierAnniversaires() {
         const aujourdHui = new Date();
         const jourActuel = String(aujourdHui.getDate()).padStart(2, '0');
@@ -636,7 +688,7 @@
         }
     }
 
-    // --- MISE À JOUR AUTOMATIQUE DU PROCHAIN ENTRAÎNEMENT ---
+    // --- PROCHAIN ENTRAÎNEMENT ---
     function chargerProchainEntrainement() {
         let trainingsData = null;
         
@@ -688,21 +740,8 @@
         }
     }
 
-    // --- ÉCOUTE DES NOUVEAUX MESSAGES POUR LE BADGE "ÉCHANGES" ---
+    // --- ECOUTE MESSAGES POUR BADGE "ECHANGES" ---
     try {
-        const firebaseConfig = {
-            apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
-            authDomain: "ppcestapunta64500.firebaseapp.com",
-            projectId: "ppcestapunta64500",
-            storageBucket: "ppcestapunta64500.firebasestorage.app",
-            messagingSenderId: "80945272911",
-            appId: "1:80945272911:web:154437e054b190e7ebb23a",
-            measurementId: "G-SCYGWMW7VF"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
         const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
         const echangesBadge = document.getElementById('echangesBadge');
 
