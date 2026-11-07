@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cesta Punta - Accueil</title>
+
+    <!-- Configuration PWA (Progressive Web App) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f4c5c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CestaPunta">
+    <link rel="apple-touch-icon" href="logoce.png">
+
     <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +51,6 @@
             width: 100%;
             box-sizing: border-box;
         }
-
 
         body { 
             font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
@@ -399,7 +407,7 @@
         <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
-    <!-- Carte "Prochain entraînement" (toujours affichée, mais sans texte par défaut si rien de prévu) -->
+    <!-- Carte "Prochain entraînement" -->
     <a href="entrainements.html" class="full-width-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
         <div class="full-width-event-left">
             <div class="event-icon-box" aria-hidden="true">⏳</div>
@@ -471,6 +479,17 @@
     </nav>
 </div>
 
+<!-- Enregistrement automatique du Service Worker PWA -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('PWA Service Worker enregistré avec succès :', reg.scope))
+                .catch(err => console.log('Erreur d\'enregistrement Service Worker :', err));
+        });
+    }
+</script>
+
 <!-- Fichiers de données locales (joueurs et staff) -->
 <script src="joueurs-data.js"></script>
 <script src="staff-data.js"></script>
@@ -519,7 +538,6 @@
 
         let avatarUrl = null;
 
-        // 1. Recherche dans les joueurs (joueurs-data.js)
         if (typeof joueursData !== 'undefined') {
             const joueurTrouve = joueursData.find(j => j.email && j.email.toLowerCase() === userEmail.toLowerCase());
             if (joueurTrouve && joueurTrouve.photo) {
@@ -527,7 +545,6 @@
             }
         }
 
-        // 2. Recherche dans le staff (staff-data.js) si non trouvé
         if (!avatarUrl && typeof staffData !== 'undefined') {
             const staffTrouve = staffData.find(s => s.email && s.email.toLowerCase() === userEmail.toLowerCase());
             if (staffTrouve && staffTrouve.photo) {
@@ -535,7 +552,6 @@
             }
         }
 
-        // 3. Application de l'image si trouvée
         if (avatarUrl) {
             profileBtnContainer.innerHTML = `<img src="${avatarUrl}" alt="Photo de profil" class="profile-img-avatar">`;
         }
@@ -558,7 +574,7 @@
 
         verifierAnniversaires();
         chargerProchainEntrainement();
-        chargerPhotoProfilLocale(); // Chargement de la photo depuis les fichiers locaux
+        chargerPhotoProfilLocale();
     });
 
     // --- VÉRIFICATION AUTOMATIQUE DES ANNIVERSAIRES ---

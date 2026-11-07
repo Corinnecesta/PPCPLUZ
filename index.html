@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cesta Punta - Connexion</title>
+
+    <!-- Configuration PWA (Progressive Web App) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f4c5c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CestaPunta">
+    <link rel="apple-touch-icon" href="logoce.png">
+
     <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -271,6 +280,17 @@
     </div>
 </div>
 
+<!-- Enregistrement du Service Worker PWA -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker PWA enregistré depuis index.html :', reg.scope))
+                .catch(err => console.log('Erreur Service Worker :', err));
+        });
+    }
+</script>
+
 <script>
     // --- CONFIGURATION FIREBASE ---
     const firebaseConfig = {
@@ -328,7 +348,7 @@
                 localStorage.setItem('cesta_user_id', user.uid);
                 localStorage.setItem('cesta_user_name', userData.nom || saisie);
 
-                // 4. Redirection vers l'accueil (ou l'accueil de l'application)
+                // 4. Redirection vers l'accueil de l'application
                 window.location.href = "accueil.html";
             } else {
                 throw new Error("Aucun profil associé à cet utilisateur dans la base de données.");
