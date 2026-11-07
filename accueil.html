@@ -492,17 +492,6 @@
     </nav>
 </div>
 
-<!-- Enregistrement automatique du Service Worker PWA -->
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('PWA Service Worker enregistré avec succès :', reg.scope))
-                .catch(err => console.log('Erreur d\'enregistrement Service Worker :', err));
-        });
-    }
-</script>
-
 <!-- Fichiers de données locales (joueurs et staff) -->
 <script src="joueurs-data.js"></script>
 <script src="staff-data.js"></script>
@@ -529,6 +518,18 @@
         firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.firestore();
+
+    // --- NETTOYAGE AUTOMATIQUE DES ANCIENS SERVICE WORKERS PARASITES (Correction 404) ---
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (let registration of registrations) {
+                if (registration.scope.endsWith('.io/') || !registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/')) {
+                    console.log('Nettoyage du Service Worker parasite :', registration);
+                    registration.unregister();
+                }
+            }
+        });
+    }
 
     // --- ACTIVATION DES NOTIFICATIONS PUSH (Chemin explicite pour GitHub Pages sous-dossier /PPCPLUZ/) ---
     async function demanderPermissionNotification() {
@@ -559,6 +560,9 @@
                             lastNotificationUpdate: new Date().toISOString()
                         }, { merge: true });
 
+                        // Abonnement automatique au sujet global
+                        await abonnerAuSujetGlobal(currentToken);
+
                         alert('Notifications activées avec succès sur cet appareil !');
                     } else {
                         alert('Jeton récupéré, mais aucun utilisateur connecté (UID manquant).');
@@ -572,6 +576,22 @@
         } catch (err) {
             console.error('Erreur d\'activation des notifications FCM :', err);
             alert('Erreur lors de l\'activation des notifications : ' + (err.message || JSON.stringify(err)));
+        }
+    }
+
+    // --- ABONNEMENT AU TOPIC GLOBAL ---
+    async function abonnerAuSujetGlobal(token) {
+        try {
+            await fetch(`https://iid.googleapis.com/iid/v1/${token}/rel/topics/tous_joueurs`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'key=AAAA_VOTRE_CLÉ_SERVEUR_FIREBASE', // Remplacez si besoin par votre clé serveur Firebase
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log("Abonné avec succès au sujet tous_joueurs");
+        } catch (e) {
+            console.error("Erreur lors de l'abonnement au sujet :", e);
         }
     }
 
