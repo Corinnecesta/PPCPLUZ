@@ -530,10 +530,10 @@
     }
     const db = firebase.firestore();
 
-    // --- ACTIVATION DES NOTIFICATIONS PUSH AVEC AFFICHAGE DE L'ERREUR EXACTE ---
+    // --- ACTIVATION DES NOTIFICATIONS PUSH AVEC VAPID KEY (Déclenchée par le bouton cloche) ---
     async function demanderPermissionNotification() {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-            alert("Erreur : Notifications ou Service Worker non supportés.");
+            alert("Les notifications Push ne sont pas supportées par ce navigateur.");
             return;
         }
 
@@ -542,6 +542,7 @@
             if (permission === 'granted') {
                 const messaging = firebase.messaging();
                 
+                // Jeton FCM généré via votre VAPID Key publique
                 const currentToken = await messaging.getToken({
                     vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
                 });
@@ -554,20 +555,17 @@
                             lastNotificationUpdate: new Date().toISOString()
                         }, { merge: true });
 
-                        alert('Succès ! Notifications activées et jeton enregistré.');
+                        alert('Notifications activées avec succès sur cet appareil !');
                     } else {
-                        alert('Erreur : Aucun UID utilisateur trouvé dans le stockage local (cesta_user_uid). Veuillez vous reconnecter.');
+                        alert('Jeton récupéré, mais aucun utilisateur connecté (UID manquant).');
                     }
-                } else {
-                    alert('Erreur : Aucun jeton FCM généré.');
                 }
             } else {
-                alert("Permission refusée par l'utilisateur.");
+                alert("L'autorisation de notification a été refusée.");
             }
         } catch (err) {
-            console.error('Erreur détaillée FCM :', err);
-            // Ceci va afficher l'erreur exacte directement à l'écran pour comprendre le blocage
-            alert("Erreur technique exacte : " + (err.message || JSON.stringify(err)));
+            console.error('Erreur d\'activation des notifications FCM :', err);
+            alert('Erreur lors de l\'activation des notifications.');
         }
     }
 
@@ -710,7 +708,6 @@
     // --- PROCHAIN ENTRAÎNEMENT ---
     function chargerProchainEntrainement() {
         let trainingsData = null;
-        
         
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
