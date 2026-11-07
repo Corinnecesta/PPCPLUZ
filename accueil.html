@@ -530,7 +530,7 @@
     }
     const db = firebase.firestore();
 
-    // --- ACTIVATION DES NOTIFICATIONS PUSH AVEC VAPID KEY (Adapté GitHub Pages sous-dossier /PPCPLUZ/) ---
+    // --- ACTIVATION DES NOTIFICATIONS PUSH (Compatible SDK 9.22.2 compat et GitHub Pages) ---
     async function demanderPermissionNotification() {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) {
             alert("Les notifications Push ne sont pas supportées par ce navigateur.");
@@ -540,15 +540,12 @@
         try {
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-                // Enregistrement explicite avec le chemin du sous-dossier pour GitHub Pages
-                const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
+                // Enregistrement standard du Service Worker avec le chemin correct pour le sous-dossier GitHub Pages
+                await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
                 
                 const messaging = firebase.messaging();
                 
-                // Association explicite du Service Worker à Firebase Messaging
-                messaging.useServiceWorker(swRegistration);
-                
-                // Jeton FCM généré via votre VAPID Key publique
+                // Récupération directe du jeton FCM (le SDK compat détecte automatiquement le Service Worker enregistré)
                 const currentToken = await messaging.getToken({
                     vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
                 });
@@ -565,6 +562,8 @@
                     } else {
                         alert('Jeton récupéré, mais aucun utilisateur connecté (UID manquant).');
                     }
+                } else {
+                    alert('Erreur : Aucun jeton FCM généré.');
                 }
             } else {
                 alert("L'autorisation de notification a été refusée.");
