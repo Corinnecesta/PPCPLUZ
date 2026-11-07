@@ -74,19 +74,27 @@
             gap: 10px; 
         } 
         
-        /* En-tête tout en haut configuré en grille 2 colonnes */
+        /* En-tête configuré en grille 3 colonnes (Logo | Bouton Notif Centré | Actions de droite) */
         .top-header { 
             display: grid; 
-            grid-template-columns: 1fr auto; 
+            grid-template-columns: auto 1fr auto; 
             align-items: center; 
+            gap: 10px;
             margin-bottom: 0; 
         }
         .logo-img { height: 50px; object-fit: contain; justify-self: start; }
         
+        /* Conteneur pour centrer le bouton de notification */
+        .header-center-action {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .header-actions { display: flex; gap: 8px; align-items: center; justify-self: end; }
 
         /* Boutons du haut en dégradé lagon */
-        .home-btn, .theme-toggle-btn, .profile-btn { 
+        .home-btn, .theme-toggle-btn, .profile-btn, .notif-trigger-btn { 
             background: var(--btn-gradient); 
             border: 1px solid var(--card-border); 
             width: 36px; 
@@ -104,7 +112,7 @@
             position: relative;
             overflow: hidden;
         }
-        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover { 
+        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover, .notif-trigger-btn:hover { 
             border-color: var(--accent-color); 
             background: var(--btn-hover-gradient);
             transform: translateY(-2px);
@@ -377,9 +385,14 @@
 <body>
 
 <div class="mobile-container">
-    <!-- En-tête tout en haut -->
+    <!-- En-tête mis en grille 3 colonnes : Logo à gauche | Bouton Notifications centré | Actions à droite -->
     <header class="top-header">
         <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
+        
+        <div class="header-center-action">
+            <button class="notif-trigger-btn" onclick="demanderPermissionNotification()" aria-label="Activer les notifications" title="Activer les notifications Push">🔔</button>
+        </div>
+
         <div class="header-actions">
             <a href="accueil.html" class="home-btn" aria-label="Retour à l'accueil" title="Retour Accueil">🏠</a>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Changer le thème visuel" title="Changer de thème">🌙</button>
@@ -517,10 +530,10 @@
     }
     const db = firebase.firestore();
 
-    // --- ACTIVATION DES NOTIFICATIONS PUSH AVEC VAPID KEY ---
+    // --- ACTIVATION DES NOTIFICATIONS PUSH AVEC VAPID KEY (Déclenchée par le bouton cloche) ---
     async function demanderPermissionNotification() {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-            console.log("Les notifications Push ne sont pas supportées par ce navigateur.");
+            alert("Les notifications Push ne sont pas supportées par ce navigateur.");
             return;
         }
 
@@ -542,12 +555,17 @@
                             lastNotificationUpdate: new Date().toISOString()
                         }, { merge: true });
 
-                        console.log('Jeton FCM enregistré avec succès dans Firestore.');
+                        alert('Notifications activées avec succès sur cet appareil !');
+                    } else {
+                        alert('Jeton récupéré, mais aucun utilisateur connecté (UID manquant).');
                     }
                 }
+            } else {
+                alert("L'autorisation de notification a été refusée.");
             }
         } catch (err) {
             console.error('Erreur d\'activation des notifications FCM :', err);
+            alert('Erreur lors de l\'activation des notifications.');
         }
     }
 
@@ -626,7 +644,6 @@
         verifierAnniversaires();
         chargerProchainEntrainement();
         chargerPhotoProfilLocale();
-        demanderPermissionNotification();
     });
 
     // --- VÉRIFICATION ANNIVERSAIRES ---
