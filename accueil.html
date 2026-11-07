@@ -530,7 +530,7 @@
     }
     const db = firebase.firestore();
 
-    // --- ACTIVATION DES NOTIFICATIONS PUSH (Compatible SDK 9.22.2 compat et GitHub Pages) ---
+    // --- ACTIVATION DES NOTIFICATIONS PUSH (Chemin explicite pour GitHub Pages sous-dossier /PPCPLUZ/) ---
     async function demanderPermissionNotification() {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) {
             alert("Les notifications Push ne sont pas supportées par ce navigateur.");
@@ -540,14 +540,15 @@
         try {
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-                // Enregistrement standard du Service Worker avec le chemin correct pour le sous-dossier GitHub Pages
-                await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
+                // 1. Enregistrement explicite du Service Worker avec le chemin complet du sous-dossier
+                const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
                 
                 const messaging = firebase.messaging();
                 
-                // Récupération directe du jeton FCM (le SDK compat détecte automatiquement le Service Worker enregistré)
+                // 2. Passage de serviceWorkerRegistration pour cibler explicitement le fichier distant
                 const currentToken = await messaging.getToken({
-                    vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
+                    vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY',
+                    serviceWorkerRegistration: swRegistration
                 });
 
                 if (currentToken) {
