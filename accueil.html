@@ -639,6 +639,11 @@
 
     // --- INITIALISATION DOM ---
     document.addEventListener("DOMContentLoaded", () => {
+        // EFFACER LE BADGE ROUGE DE L'ICÔNE DU TÉLÉPHONE DÈS L'OUVERTURE
+        if ('clearAppBadge' in navigator) {
+            navigator.clearAppBadge().catch((err) => console.log("Erreur effacement badge:", err));
+        }
+
         // Masquer la cloche au chargement si la permission est déjà accordée
         if ("Notification" in window && Notification.permission === "granted") {
             const notifContainer = document.getElementById('notifButtonContainer');
@@ -799,3 +804,4 @@
 
 </body>
 </html>
+
