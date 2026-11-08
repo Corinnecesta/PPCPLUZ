@@ -452,7 +452,7 @@
         try {
             const auteurNom = joueur ? `${joueur.prenom} ${joueur.nom}` : (playerId || "Membre");
 
-            // 1. Enregistrement dans Firestore
+            // 1. Enregistrement dans Firestore[cite: 4]
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -466,7 +466,7 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Récupération des tokens FCM de tous les utilisateurs pour envoyer la notification push
+            // 2. Récupération des tokens FCM de tous les utilisateurs (y compris l'auteur) pour l'envoi push
             const usersSnapshot = await getDocs(collection(db, "users"));
             let tokens = [];
             usersSnapshot.forEach((doc) => {
@@ -476,7 +476,7 @@
                 }
             });
 
-            // 3. Déclenchement de l'envoi des notifications push (avec badge sur l'écran d'accueil)
+            // 3. Déclenchement de l'API FCM pour envoyer les notifications et activer le badge rouge
             const titreNotif = "📌 Nouvel événement / Agenda";
             const corpsNotif = `${auteurNom} a ajouté : ${titre} (${startDate})`;
 
