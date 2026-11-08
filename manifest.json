@@ -1,7 +1,7 @@
 {
-  "name": "Cesta Punta - Pôle Performance",
-  "short_name": "CestaPunta",
-  "start_url": "index.html",
+  "name": "Pôle Performance Cesta Punta",
+  "short_name": "Pôle Performance",
+  "start_url": "/PPCPLUZ/index.html",
   "display": "standalone",
   "background_color": "#0a192f",
   "theme_color": "#0f4c5c",
