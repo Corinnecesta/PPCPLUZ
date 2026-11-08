@@ -345,7 +345,7 @@
         const currentUserUid = localStorage.getItem('cesta_user_uid');
 
         try {
-            // 1. Enregistrement dans Firestore
+            // 1. Enregistrement dans Firestore[cite: 5]
             await db.collection("matches").add({
                 date: dateVal,
                 competition: competitionVal,
@@ -357,23 +357,21 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Récupération des tokens FCM de tous les membres pour l'envoi de la notification push
+            // 2. Récupération des tokens FCM de tous les utilisateurs (y compris l'auteur) pour l'envoi push
             const usersSnapshot = await db.collection("users").get();
             let tokens = [];
 
             usersSnapshot.forEach((doc) => {
                 const data = doc.data();
-                // On envoie à tous les appareils enregistrés sauf celui de l'auteur si souhaité
                 if (data.fcmToken) {
                     tokens.push(data.fcmToken);
                 }
             });
 
-            // 3. Déclenchement de l'API FCM HTTP V1 / Send vers les téléphones
+            // 3. Déclenchement de l'API FCM pour envoyer les notifications et activer le badge rouge
             const titreNotif = "🎯 Nouvelle partie enregistrée";
             const corpsNotif = `${competitionVal} : ${equipe1Val} vs ${equipe2Val}`;
 
-            // Envoi des requêtes push via l'API Web Push / FCM
             for (const token of tokens) {
                 fetch('https://fcm.googleapis.com/fcm/send', {
                     method: 'POST',
@@ -390,7 +388,7 @@
                             badge: '/PPCPLUZ/pole.png'
                         },
                         data: {
-                            url: '/PPCPLUZ/accueil.html'
+                            url: '/PPCPLUZ/match.html'
                         }
                     })
                 }).catch(err => console.log("Erreur push individuelle :", err));
