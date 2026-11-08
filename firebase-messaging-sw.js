@@ -23,8 +23,8 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification ? payload.notification.title : "Pôle Performance Cesta Punta";
     const notificationOptions = {
         body: payload.notification ? payload.notification.body : "Nouvelle notification",
-        icon: '/PPCPLUZ/logoce.png',
-        badge: '/PPCPLUZ/logoce.png',
+        icon: '/PPCPLUZ/pole.png',
+        badge: '/PPCPLUZ/pole.png',
         data: {
             url: '/PPCPLUZ/index.html' // URL de redirection ciblée
         }
