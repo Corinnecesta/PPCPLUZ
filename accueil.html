@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cesta Punta - Accueil</title>
+    <title>Pôle Performance - Accueil</title>
 
     <!-- Configuration PWA (Progressive Web App) -->
     <link rel="manifest" href="manifest.json">
@@ -11,7 +11,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CestaPunta">
+    <meta name="apple-mobile-web-app-title" content="Pôle Performance">
     <link rel="apple-touch-icon" href="pole.png">
 
     <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
@@ -390,7 +390,7 @@
     <header class="top-header">
         <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
         
-        <div class="header-center-action">
+        <div class="header-center-action" id="notifButtonContainer">
             <button class="notif-trigger-btn" onclick="demanderPermissionNotification()" aria-label="Activer les notifications" title="Activer les notifications Push">🔔</button>
         </div>
 
@@ -542,12 +542,9 @@
         try {
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-                // Enregistrement explicite du Service Worker avec le chemin complet du sous-dossier
                 const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
-                
                 const messaging = firebase.messaging();
                 
-                // Passage de serviceWorkerRegistration pour cibler explicitement le fichier du sous-dossier
                 const currentToken = await messaging.getToken({
                     vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY',
                     serviceWorkerRegistration: swRegistration
@@ -562,6 +559,12 @@
                         }, { merge: true });
 
                         alert('Notifications activées avec succès sur cet appareil !');
+
+                        // Masquer immédiatement la cloche une fois autorisée
+                        const notifContainer = document.getElementById('notifButtonContainer');
+                        if (notifContainer) {
+                            notifContainer.style.display = 'none';
+                        }
                     } else {
                         alert('Jeton récupéré, mais aucun utilisateur connecté (UID manquant).');
                     }
@@ -636,6 +639,14 @@
 
     // --- INITIALISATION DOM ---
     document.addEventListener("DOMContentLoaded", () => {
+        // Masquer la cloche au chargement si la permission est déjà accordée
+        if ("Notification" in window && Notification.permission === "granted") {
+            const notifContainer = document.getElementById('notifButtonContainer');
+            if (notifContainer) {
+                notifContainer.style.display = 'none';
+            }
+        }
+
         const userRole = localStorage.getItem('cesta_user_role');
         const adminElements = document.querySelectorAll('.admin-only');
 
