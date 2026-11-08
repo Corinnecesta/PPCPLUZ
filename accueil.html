@@ -520,12 +520,12 @@
     }
     const db = firebase.firestore();
 
-    // --- NETTOYAGE AUTOMATIQUE DES ANCIENS SERVICE WORKERS PARASITES ---
+    // --- NETTOYAGE RADICAL DES ANCIENS SERVICE WORKERS PARASITES ---
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for (let registration of registrations) {
-                if (!registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/')) {
-                    console.log('Nettoyage du Service Worker parasite :', registration);
+                if (!registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/firebase-messaging-sw.js')) {
+                    console.log('Suppression de l\'ancien Service Worker parasite :', registration.active ? registration.active.scriptURL : 'inconnu');
                     registration.unregister();
                 }
             }
