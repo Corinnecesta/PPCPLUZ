@@ -105,7 +105,6 @@
         .prep-app-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 6px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: bold; text-decoration: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
         .prep-app-btn:hover { opacity: 0.9; }
 
-        /* Bouton Page précédente aligné en haut à gauche */
         .top-nav-bar {
             display: flex;
             justify-content: flex-start;
@@ -146,7 +145,6 @@
 
     <hr class="separator">
 
-    <!-- Bouton Page précédente aligné en haut à gauche -->
     <div class="top-nav-bar">
         <button class="btn-back-prev" onclick="window.history.back()">⬅ Page précédente</button>
     </div>
@@ -214,7 +212,7 @@
                     <input type="text" id="inputDescriptionEvenement" class="coach-input" placeholder="Détail / Affiche (ex: Garcia-Basque / Garat-laborde)">
                 </div>
 
-                <button type="submit" class="coach-btn" style="margin-top: 4px;">Enregistrer dans mon calendrier</button>
+                <button type="submit" class="coach-btn" style="margin-top: 4px;" id="submitEvenementBtn">Enregistrer dans mon calendrier</button>
             </form>
         </div>
 
@@ -426,9 +424,14 @@
         }
     }
 
+    // --- AJOUT D'UN ÉVÉNEMENT PERSONNEL + NOTIFICATION PUSH ---
     window.ajouterEvenementPersonnel = async function(event) {
         event.preventDefault();
         
+        const submitBtn = document.getElementById('submitEvenementBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Enregistrement en cours...";
+
         const titre = document.getElementById('inputTitreEvenement').value.trim();
         const startDate = document.getElementById('inputDateDebut').value;
         const endDateInput = document.getElementById('inputDateFin').value;
@@ -441,10 +444,15 @@
 
         if (!titre || !startDate) {
             alert("Veuillez remplir le titre et la date de début.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Enregistrer dans mon calendrier";
             return;
         }
 
         try {
+            const auteurNom = joueur ? `${joueur.prenom} ${joueur.nom}` : (playerId || "Membre");
+
+            // 1. Enregistrement dans Firestore
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -454,15 +462,57 @@
                 lieu: lieu || "",
                 description: description || "",
                 type: "perso", 
-                createur: joueur ? `${joueur.prenom} ${joueur.nom}` : playerId
+                createur: auteurNom,
+                createdAt: new Date().toISOString()
             });
 
-            alert("Événement personnel ajouté avec succès !");
+            // 2. Récupération des tokens FCM de tous les utilisateurs pour envoyer la notification push
+            const usersSnapshot = await getDocs(collection(db, "users"));
+            let tokens = [];
+            usersSnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.fcmToken) {
+                    tokens.push(data.fcmToken);
+                }
+            });
+
+            // 3. Déclenchement de l'envoi des notifications push (avec badge sur l'écran d'accueil)
+            const titreNotif = "📌 Nouvel événement / Agenda";
+            const corpsNotif = `${auteurNom} a ajouté : ${titre} (${startDate})`;
+
+            for (const token of tokens) {
+                fetch('https://fcm.googleapis.com/fcm/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'key=BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
+                    },
+                    body: JSON.stringify({
+                        to: token,
+                        notification: {
+                            title: titreNotif,
+                            body: corpsNotif,
+                            icon: '/PPCPLUZ/pole.png',
+                            badge: '/PPCPLUZ/pole.png'
+                        },
+                        data: {
+                            url: '/PPCPLUZ/accueil.html'
+                        }
+                    })
+                }).catch(err => console.log("Erreur push individuelle :", err));
+            }
+
+            alert("Événement personnel ajouté avec succès et notifications envoyées !");
             document.getElementById('formAjoutEvenement').reset();
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Enregistrer dans mon calendrier";
+            
             await chargerCalendrierFirebase();
         } catch (e) {
             console.error("Erreur lors de l'ajout de l'événement :", e);
             alert("Erreur lors de l'enregistrement.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Enregistrer dans mon calendrier";
         }
     }
 
