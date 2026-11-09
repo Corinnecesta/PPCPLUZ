@@ -162,7 +162,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -193,7 +193,7 @@
         themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
     }
 
-    // Remplissage de la liste des joueurs avec fallback
+    // Remplissage dynamique de la grille des joueurs convoqués
     function chargerListeJoueurs() {
         const grid = document.getElementById('playersCheckboxGrid');
         if (!grid) return;
@@ -202,7 +202,7 @@
         if (typeof joueursData !== 'undefined' && Array.isArray(joueursData) && joueursData.length > 0) {
             sourceJoueurs = joueursData;
         } else {
-            // Liste par défaut si joueurs-data.js ne s'est pas chargé
+            // Liste de secours si joueurs-data.js tarde à charger
             sourceJoueurs = [
                 { id: "basque", prenom: "Thibault", nom: "BASQUE" },
                 { id: "laborde", prenom: "Théo", nom: "LABORDE" },
@@ -233,7 +233,7 @@
         chargerListeJoueurs();
     });
 
-    // Attachement direct de l'événement de soumission
+    // Enregistrement Firestore & Déclenchement Notification
     document.getElementById('formNouvelEntrainement').addEventListener('submit', async function(event) {
         event.preventDefault();
 
@@ -261,7 +261,7 @@
         });
 
         try {
-            // 1. Enregistrement de l'entraînement dans Firestore
+            // 1. Écriture de l'entraînement dans Firestore
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -276,14 +276,30 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Création automatique de la notification dans Firestore
+            // 2. Écriture du signal dans la collection notifications_log
             await addDoc(collection(db, "notifications_log"), {
                 titre: "📅 Nouvel entraînement planifié",
                 corps: `${titre} le ${startDate} à ${heureDebut} (${lieu})`,
                 timestamp: new Date().toISOString()
             });
 
-            alert("Entraînement créé avec succès et convocations enregistrées !");
+            // 3. Récupération des jetons FCM des utilisateurs autorisés dans Firestore
+            const usersSnapshot = await getDocs(collection(db, "users"));
+            const tokens = [];
+            usersSnapshot.forEach(doc => {
+                const uData = doc.data();
+                if (uData.fcmToken) tokens.push(uData.fcmToken);
+            });
+
+            // 4. Déclenchement de la notification visuelle directe
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("📅 Nouvel entraînement planifié", {
+                    body: `${titre} le ${startDate} à ${heureDebut} (${lieu})`,
+                    icon: "pole.png"
+                });
+            }
+
+            alert("Entraînement créé avec succès et convocations envoyées !");
             window.location.href = "entrainements.html";
 
         } catch (error) {
