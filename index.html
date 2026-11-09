@@ -19,10 +19,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- SDK Firebase (compat version) -->
+    <!-- SDK Firebase (compat version) incluant messaging -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
     <style>
         /* --- VARIABLES DE COULEURS (Mode Sombre - Océan & Lagon) --- */
@@ -314,7 +315,36 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // --- GESTION DE LA SOUMMISSION DU FORMULAIRE ---
+    // --- FONCTION DE SYNCHRONISATION DU JETON FCM LORS DE LA CONNEXION ---
+    async function synchroniserJetonFCM(userUid, userEmail) {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+
+        try {
+            // Vérifier si l'utilisateur a déjà accordé la permission par le passé
+            if (Notification.permission === 'granted') {
+                const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
+                const messaging = firebase.messaging();
+                
+                const currentToken = await messaging.getToken({
+                    vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY',
+                    serviceWorkerRegistration: swRegistration
+                });
+
+                if (currentToken && userUid) {
+                    await db.collection("users").doc(userUid).set({
+                        fcmToken: currentToken,
+                        email: userEmail || "",
+                        lastNotificationUpdate: new Date().toISOString()
+                    }, { merge: true });
+                    console.log("Jeton FCM synchronisé automatiquement à la connexion.");
+                }
+            }
+        } catch (err) {
+            console.error("Erreur lors de la synchronisation automatique du jeton FCM :", err);
+        }
+    }
+
+    // --- GESTION DE LA SOUMISSION DU FORMULAIRE ---
     const loginForm = document.getElementById('loginForm');
     const userInput = document.getElementById('userInput');
     const passwordInput = document.getElementById('password');
@@ -352,7 +382,10 @@
                 localStorage.setItem('cesta_user_id', user.uid);
                 localStorage.setItem('cesta_user_name', userData.nom || saisie);
 
-                // 4. Redirection vers l'accueil de l'application
+                // 4. Synchronisation automatique et silencieuse du token FCM lié à cet UID
+                await synchroniserJetonFCM(user.uid, user.email);
+
+                // 5. Redirection vers l'accueil de l'application
                 window.location.href = "accueil.html";
             } else {
                 throw new Error("Aucun profil associé à cet utilisateur dans la base de données.");
@@ -397,4 +430,3 @@
 
 </body>
 </html>
-

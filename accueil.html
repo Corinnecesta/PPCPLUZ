@@ -520,63 +520,72 @@
     }
     const db = firebase.firestore();
 
-    // --- NETTOYAGE RADICAL DES ANCIENS SERVICE WORKERS PARASITES ---
+    // --- NETTOYAGE DES ANCIENS SERVICE WORKERS PARASITES ---
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for (let registration of registrations) {
                 if (!registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/firebase-messaging-sw.js')) {
-                    console.log('Suppression de l\'ancien Service Worker parasite :', registration.active ? registration.active.scriptURL : 'inconnu');
+                    console.log('Suppression du Service Worker parasite :', registration.active ? registration.active.scriptURL : 'inconnu');
                     registration.unregister();
                 }
             }
         });
     }
 
-    // --- ACTIVATION DES NOTIFICATIONS PUSH (Chemin explicite pour GitHub Pages sous-dossier /PPCPLUZ/) ---
+    // --- ACTIVATION & ENREGISTREMENT AUTOMATIQUE DU TOKEN FCM ---
+    async function synchroniserJetonFCM(silencieux = false) {
+        if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+
+        try {
+            const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
+            const messaging = firebase.messaging();
+            
+            const currentToken = await messaging.getToken({
+                vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY',
+                serviceWorkerRegistration: swRegistration
+            });
+
+            if (currentToken) {
+                // Priorité à l'UID d'authentification Firebase, puis repli sur le localStorage
+                const userObj = firebase.auth().currentUser;
+                const userUid = userObj ? userObj.uid : (localStorage.getItem('cesta_user_uid') || localStorage.getItem('cesta_user_id'));
+
+                if (userUid) {
+                    await db.collection("users").doc(userUid).set({
+                        fcmToken: currentToken,
+                        email: localStorage.getItem('cesta_user_email') || "",
+                        lastNotificationUpdate: new Date().toISOString()
+                    }, { merge: true });
+
+                    const notifContainer = document.getElementById('notifButtonContainer');
+                    if (notifContainer) {
+                        notifContainer.style.display = 'none';
+                    }
+
+                    if (!silencieux) {
+                        alert('Notifications activées et synchronisées avec succès !');
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Erreur de synchronisation FCM :', err);
+            if (!silencieux) {
+                alert('Erreur d\'activation des notifications : ' + (err.message || JSON.stringify(err)));
+            }
+        }
+    }
+
     async function demanderPermissionNotification() {
-        if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        if (!('Notification' in window)) {
             alert("Les notifications Push ne sont pas supportées par ce navigateur.");
             return;
         }
 
-        try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
-                const messaging = firebase.messaging();
-                
-                const currentToken = await messaging.getToken({
-                    vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY',
-                    serviceWorkerRegistration: swRegistration
-                });
-
-                if (currentToken) {
-                    const userUid = localStorage.getItem('cesta_user_uid');
-                    if (userUid) {
-                        await db.collection("users").doc(userUid).set({
-                            fcmToken: currentToken,
-                            lastNotificationUpdate: new Date().toISOString()
-                        }, { merge: true });
-
-                        alert('Notifications activées avec succès sur cet appareil !');
-
-                        // Masquer immédiatement la cloche une fois autorisée
-                        const notifContainer = document.getElementById('notifButtonContainer');
-                        if (notifContainer) {
-                            notifContainer.style.display = 'none';
-                        }
-                    } else {
-                        alert('Jeton récupéré, mais aucun utilisateur connecté (UID manquant).');
-                    }
-                } else {
-                    alert('Erreur : Aucun jeton FCM généré.');
-                }
-            } else {
-                alert("L'autorisation de notification a été refusée.");
-            }
-        } catch (err) {
-            console.error('Erreur d\'activation des notifications FCM :', err);
-            alert('Erreur lors de l\'activation des notifications : ' + (err.message || JSON.stringify(err)));
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            await synchroniserJetonFCM(false);
+        } else {
+            alert("L'autorisation de notification a été refusée.");
         }
     }
 
@@ -639,17 +648,14 @@
 
     // --- INITIALISATION DOM ---
     document.addEventListener("DOMContentLoaded", () => {
-        // EFFACER LE BADGE ROUGE DE L'ICÔNE DU TÉLÉPHONE DÈS L'OUVERTURE
+        // Effacer le badge rouge sur l'icône de l'application mobile lors de l'ouverture
         if ('clearAppBadge' in navigator) {
             navigator.clearAppBadge().catch((err) => console.log("Erreur effacement badge:", err));
         }
 
-        // Masquer la cloche au chargement si la permission est déjà accordée
+        // Si la permission est déjà accordée, mise à jour silencieuse du fcmToken dans Firestore
         if ("Notification" in window && Notification.permission === "granted") {
-            const notifContainer = document.getElementById('notifButtonContainer');
-            if (notifContainer) {
-                notifContainer.style.display = 'none';
-            }
+            synchroniserJetonFCM(true);
         }
 
         const userRole = localStorage.getItem('cesta_user_role');
@@ -668,6 +674,13 @@
         verifierAnniversaires();
         chargerProchainEntrainement();
         chargerPhotoProfilLocale();
+    });
+
+    // Synchronisation automatique après vérification de la session Auth Firebase
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user && "Notification" in window && Notification.permission === "granted") {
+            synchroniserJetonFCM(true);
+        }
     });
 
     // --- VÉRIFICATION ANNIVERSAIRES ---
@@ -781,7 +794,7 @@
         }
     }
 
-    // --- ECOUTE MESSAGES POUR BADGE "ECHANGES" ---
+    // --- ÉCOUTE MESSAGES POUR BADGE "ÉCHANGES" ---
     try {
         const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
         const echangesBadge = document.getElementById('echangesBadge');
@@ -804,4 +817,3 @@
 
 </body>
 </html>
-
