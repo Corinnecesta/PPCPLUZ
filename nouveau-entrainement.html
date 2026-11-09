@@ -56,8 +56,37 @@
 
         .form-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
         
-        .players-checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 150px; overflow-y: auto; background: rgba(15, 76, 92, 0.1); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; margin-bottom: 10px; }
-        .player-checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--container-text); }
+        .players-checkbox-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px 12px; 
+            max-height: 180px; 
+            overflow-y: auto; 
+            background: rgba(15, 76, 92, 0.15); 
+            border: 1px solid var(--card-border); 
+            border-radius: 8px; 
+            padding: 10px; 
+            margin-bottom: 12px; 
+            box-sizing: border-box; 
+        }
+        .player-checkbox-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.75rem; 
+            color: var(--container-text); 
+            cursor: pointer; 
+        }
+        .player-checkbox-item input[type="checkbox"] { 
+            width: 16px; 
+            height: 16px; 
+            accent-color: var(--accent-color); 
+            cursor: pointer; 
+        }
+        .player-checkbox-item label { 
+            cursor: pointer; 
+            width: 100%; 
+        }
     </style>
 </head>
 <body>
@@ -82,7 +111,7 @@
     <div class="section-title">Planifier un nouvel entraînement</div>
 
     <div class="form-container">
-        <form id="formNouvelEntrainement" onsubmit="creerEntrainement(event)">
+        <form id="formNouvelEntrainement">
             
             <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Titre de l'entraînement :</label>
             <input type="text" id="inputTitre" class="form-input" placeholder="Ex: Entraînement Collectif" required>
@@ -133,7 +162,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -164,17 +193,32 @@
         themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
     }
 
-    document.getElementById('inputStartDate').value = new Date().toISOString().split('T')[0];
-
+    // Remplissage de la liste des joueurs avec fallback
     function chargerListeJoueurs() {
         const grid = document.getElementById('playersCheckboxGrid');
-        if (typeof joueursData === 'undefined' || !Array.isArray(joueursData)) {
-            grid.innerHTML = "<span style='font-size:0.7rem; color:var(--text-muted);'>Aucun joueur trouvé.</span>";
-            return;
+        if (!grid) return;
+
+        let sourceJoueurs = [];
+        if (typeof joueursData !== 'undefined' && Array.isArray(joueursData) && joueursData.length > 0) {
+            sourceJoueurs = joueursData;
+        } else {
+            // Liste par défaut si joueurs-data.js ne s'est pas chargé
+            sourceJoueurs = [
+                { id: "basque", prenom: "Thibault", nom: "BASQUE" },
+                { id: "laborde", prenom: "Théo", nom: "LABORDE" },
+                { id: "laduche", prenom: "Ludovic", nom: "LADUCHE" },
+                { id: "garcia", prenom: "Clément", nom: "GARCIA" },
+                { id: "oyhenard", prenom: "Guillen", nom: "OYHENARD" },
+                { id: "caparrus", prenom: "Paul", nom: "CAPARRUS" },
+                { id: "libois", prenom: "Emeric", nom: "LIBOIS" },
+                { id: "bonnin", prenom: "Charles", nom: "BONNIN" }
+            ];
         }
 
+        const joueursTries = [...sourceJoueurs].sort((a, b) => a.nom.localeCompare(b.nom));
+
         grid.innerHTML = "";
-        joueursData.forEach(j => {
+        joueursTries.forEach(j => {
             grid.innerHTML += `
                 <div class="player-checkbox-item">
                     <input type="checkbox" name="convoque" value="${j.id}" data-nom="${j.prenom} ${j.nom}" id="player_${j.id}" checked>
@@ -184,9 +228,13 @@
         });
     }
 
-    chargerListeJoueurs();
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('inputStartDate').value = new Date().toISOString().split('T')[0];
+        chargerListeJoueurs();
+    });
 
-    window.creerEntrainement = async function(event) {
+    // Attachement direct de l'événement de soumission
+    document.getElementById('formNouvelEntrainement').addEventListener('submit', async function(event) {
         event.preventDefault();
 
         const submitBtn = document.getElementById('submitBtn');
@@ -213,7 +261,7 @@
         });
 
         try {
-            // 1. Enregistrement de l'entraînement dans Firestore[cite: 3]
+            // 1. Enregistrement de l'entraînement dans Firestore
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -228,43 +276,14 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Récupération des tokens FCM de tous les utilisateurs (pour que tout le monde, y compris l'auteur, reçoive l'alerte)
-            const usersSnapshot = await getDocs(collection(db, "users"));
-            let tokens = [];
-            usersSnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.fcmToken) {
-                    tokens.push(data.fcmToken);
-                }
+            // 2. Création automatique de la notification dans Firestore
+            await addDoc(collection(db, "notifications_log"), {
+                titre: "📅 Nouvel entraînement planifié",
+                corps: `${titre} le ${startDate} à ${heureDebut} (${lieu})`,
+                timestamp: new Date().toISOString()
             });
 
-            // 3. Déclenchement de l'envoi des notifications push avec badge rouge sur l'écran d'accueil
-            const titreNotif = "📅 Nouvel entraînement planifié";
-            const corpsNotif = `${titre} le ${startDate} à ${heureDebut} (${lieu})`;
-
-            for (const token of tokens) {
-                fetch('https://fcm.googleapis.com/fcm/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'key=BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
-                    },
-                    body: JSON.stringify({
-                        to: token,
-                        notification: {
-                            title: titreNotif,
-                            body: corpsNotif,
-                            icon: '/PPCPLUZ/pole.png',
-                            badge: '/PPCPLUZ/pole.png'
-                        },
-                        data: {
-                            url: '/PPCPLUZ/entrainements.html'
-                        }
-                    })
-                }).catch(err => console.log("Erreur push individuelle :", err));
-            }
-
-            alert("Entraînement créé avec succès et notifications envoyées !");
+            alert("Entraînement créé avec succès et convocations enregistrées !");
             window.location.href = "entrainements.html";
 
         } catch (error) {
@@ -273,9 +292,8 @@
             submitBtn.disabled = false;
             submitBtn.textContent = "Créer l'entraînement et envoyer les convocations";
         }
-    }
+    });
 </script>
 
 </body>
 </html>
-
