@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cesta Punta - Staff</title>
+    <title>Cesta Punta - Staff & Joueurs</title>
     
     <!-- Polices -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +14,50 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* Styles spécifiques à la page Staff */
-        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; letter-spacing: 0.5px; }
+        /* Styles spécifiques à la page */
+        .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
+
+        /* --- SYSTÈMES D'ONGLETS --- */
+        .tabs-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--container-text);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.15);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--card-hover-bg);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%);
+            border-color: var(--accent-color);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(23, 184, 144, 0.3);
+        }
+
+        /* Conteneurs des sections */
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
 
         .staff-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px; }
         
@@ -68,11 +110,8 @@
     <div class="top-header">
         <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
         <div class="header-actions">
-            <!-- Bouton retour accueil avec icône maison -->
             <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
-            <!-- Bouton de bascule de thème -->
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
-            <!-- Bouton profil / compte -->
             <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
         </div>
     </div>
@@ -80,114 +119,237 @@
     <!-- Trait de séparation -->
     <hr class="separator">
 
-    <!-- Titre de la page -->
-    <div class="section-title">L'Équipe & Staff Technique</div>
+    <!-- Boutons d'onglets Staff / Joueurs -->
+    <div class="tabs-container">
+        <button class="tab-btn active" id="btnTabStaff" onclick="changerOnglet('staff')">👥 Staff Technique</button>
+        <button class="tab-btn" id="btnTabJoueurs" onclick="changerOnglet('joueurs')">🎯 Joueurs du Pôle</button>
+    </div>
 
-    <!-- Grille des membres du staff (Style onglets) -->
-    <div class="staff-grid">
-        
-        <!-- Membre 1 -->
-        <div class="staff-card">
-            <img src="fred.jpeg" alt="Photo" class="staff-photo">
-            <div class="staff-name">Frédéric CADET</div>
-            <div class="staff-role">Directeur</div>
-            <div class="staff-contact">
-                <a href="mailto:frederic.cadet@sjdl.fr" class="contact-link" title="Envoyer un e-mail">✉️ frederic.cadet@...</a>
-                <a href="tel:+33611037756" class="contact-link" title="Appeler">📞 06 11 03 77 56</a>
+    <!-- SECTION 1 : STAFF -->
+    <div id="sectionStaff" class="content-section active">
+        <div class="section-title">L'Équipe & Staff Technique</div>
+
+        <div class="staff-grid">
+            <!-- Membre 1 -->
+            <div class="staff-card">
+                <img src="fred.jpeg" alt="Photo" class="staff-photo">
+                <div class="staff-name">Frédéric CADET</div>
+                <div class="staff-role">Directeur</div>
+                <div class="staff-contact">
+                    <a href="mailto:frederic.cadet@sjdl.fr" class="contact-link" title="Envoyer un e-mail">✉️ frederic.cadet@...</a>
+                    <a href="tel:+33611037756" class="contact-link" title="Appeler">📞 06 11 03 77 56</a>
+                </div>
+            </div>
+
+            <!-- Membre 2 -->
+            <div class="staff-card">
+                <img src="fifi.jpg" alt="Photo" class="staff-photo">
+                <div class="staff-name">Philippe ETCHEBERRY</div>
+                <div class="staff-role">Entraîneur</div>
+                <div class="staff-contact">
+                    <a href="mailto:fifi.etcheberry@icloud.com" class="contact-link" title="Envoyer un e-mail">✉️ fifi.etcheberry@...</a>
+                    <a href="tel:+33681748869" class="contact-link" title="Appeler">📞 06 81 74 88 69</a>
+                </div>
+            </div>
+
+            <!-- Membre 3 -->
+            <div class="staff-card">
+                <img src="irastorza.png" alt="Photo" class="staff-photo">
+                <div class="staff-name">Eric IRASTORZA</div>
+                <div class="staff-role">Entraîneur</div>
+                <div class="staff-contact">
+                    <a href="mailto:bitxi@msn.com" class="contact-link" title="Envoyer un e-mail">✉️ bitxi@...</a>
+                    <a href="tel:+33608984919" class="contact-link" title="Appeler">📞 06 08 98 49 19</a>
+                </div>
+            </div>
+
+            <!-- Membre 4 -->
+            <div class="staff-card">
+                <img src="dany.jpeg" alt="Photo" class="staff-photo">
+                <div class="staff-name">Dany ERDOCIO</div>
+                <div class="staff-role">Entraîneur</div>
+                <div class="staff-contact">
+                    <a href="mailto:lohitzun23@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ lohitzun23@...</a>
+                    <a href="tel:+33681739919" class="contact-link" title="Appeler">📞 06 81 73 99 19</a>
+                </div>
+            </div>
+
+            <!-- Membre 5 -->
+            <div class="staff-card">
+                <img src="herve.png" alt="Photo" class="staff-photo">
+                <div class="staff-name">Hervé MURILLO</div>
+                <div class="staff-role">Président Luzean</div>
+                <div class="staff-contact">
+                    <a href="mailto:herve.murillo@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ herve.murillo@...</a>
+                    <a href="tel:+33622544410" class="contact-link" title="Appeler">📞 06 22 54 44 10</a>
+                </div>
+            </div>
+
+            <!-- Membre 6 -->
+            <div class="staff-card">
+                <img src="julien.png" alt="Photo" class="staff-photo">
+                <div class="staff-name">Julien GUTIEREZ</div>
+                <div class="staff-role">Préparateur physique</div>
+                <div class="staff-contact">
+                    <a href="mailto:jgutierez.coaching@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ jgutierez.coaching@...</a>
+                    <a href="tel:+33637107384" class="contact-link" title="Appeler">📞 06 37 10 73 84</a>
+                </div>
+            </div>
+
+            <!-- Membre 7 -->
+            <div class="staff-card">
+                <img src="deborah.png" alt="Photo" class="staff-photo">
+                <div class="staff-name">Déborah LECONTE</div>
+                <div class="staff-role">Préparatrice mentale</div>
+                <div class="staff-contact">
+                    <a href="mailto:deborah.energetique@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ deborah.energetique@...</a>
+                    <a href="tel:+33650238137" class="contact-link" title="Appeler">📞 06 50 23 81 37</a>
+                </div>
+            </div>
+
+            <!-- Membre 8 -->
+            <div class="staff-card">
+                <img src="corinne.png" alt="Photo" class="staff-photo">
+                <div class="staff-name">Corinne ELISSALDE</div>
+                <div class="staff-role">Analyste Data, Vidéos</div>
+                <div class="staff-contact">
+                    <a href="mailto:koko.elissalde@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ koko.elissalde@...</a>
+                    <a href="tel:+33658242059" class="contact-link" title="Appeler">📞 06 58 24 20 59</a>
+                </div>
+            </div>
+
+            <!-- Membre 9 -->
+            <div class="staff-card">
+                <img src="jon.png" alt="Photo" class="staff-photo">
+                <div class="staff-name">Jon TAMBOURINDEGUY</div>
+                <div class="staff-role">Analyste Vidéo</div>
+                <div class="staff-contact">
+                    <a href="mailto:Tambour5759@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ Tambour5759@...</a>   
+                    <a href="tel:+33674801117" class="contact-link" title="Appeler">📞 06 74 80 11 17</a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Membre 2 -->
-        <div class="staff-card">
-            <img src="fifi.jpg" alt="Photo" class="staff-photo">
-            <div class="staff-name">Philippe ETCHEBERRY</div>
-            <div class="staff-role">Entraîneur</div>
-            <div class="staff-contact">
-                <a href="mailto:fifi.etcheberry@icloud.com" class="contact-link" title="Envoyer un e-mail">✉️ fifi.etcheberry@...</a>
-                <a href="tel:+33681748869" class="contact-link" title="Appeler">📞 06 81 74 88 69</a>
+    <!-- SECTION 2 : JOUEURS DU PÔLE (Classés par ordre alphabétique) -->
+    <div id="sectionJoueurs" class="content-section">
+        <div class="section-title">Coordonnées des Joueurs</div>
+        <div class="staff-grid">
+            
+            <!-- 1. BASQUE Thibault -->
+            <div class="staff-card">
+                <img src="basque.png" alt="Thibault BASQUE" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Thibault BASQUE</div>
+                <div class="staff-role">Arrière</div>
+                <div class="staff-contact">
+                    <a href="mailto:basque.thibault64@gmail.com" class="contact-link" title="basque.thibault64@gmail.com">✉️ basque.thibault...</a>
+                    <a href="tel:+33669746365" class="contact-link" title="Appeler">📞 06 69 74 63 65</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Membre 3 -->
-        <div class="staff-card">
-            <img src="irastorza.png" alt="Photo" class="staff-photo">
-            <div class="staff-name">Eric IRASTORZA</div>
-            <div class="staff-role">Entraîneur</div>
-            <div class="staff-contact">
-                <a href="mailto:bitxi@msn.com" class="contact-link" title="Envoyer un e-mail">✉️ bitxi@...</a>
-                <a href="tel:+33608984919" class="contact-link" title="Appeler">📞 06 08 98 49 19</a>
+            <!-- 2. BONNIN Charles -->
+            <div class="staff-card">
+                <img src="bonnin.png" alt="Charles BONNIN" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Charles BONNIN</div>
+                <div class="staff-role">Avant</div>
+                <div class="staff-contact">
+                   <a href="mailto:charles01042004@gmail.com" class="contact-link" title="charles01042004@gmail.com">✉️ charles0104200...</a>
+                    <a href="tel:0771802656" class="contact-link" title="Appeler">📞 07 71 80 26 56</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Membre 4 -->
-        <div class="staff-card">
-            <img src="dany.jpeg" alt="Photo" class="staff-photo">
-            <div class="staff-name">Dany ERDOCIO</div>
-            <div class="staff-role">Entraîneur</div>
-            <div class="staff-contact">
-                <a href="mailto:lohitzun23@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ lohitzun23@...</a>
-                <a href="tel:+33681739919" class="contact-link" title="Appeler">📞 06 81 73 99 19</a>
+            <!-- 3. CAPARRUS Paul -->
+            <div class="staff-card">
+                <img src="caparrus.png" alt="Paul CAPARRUS" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Paul CAPARRUS</div>
+                <div class="staff-role">Arrière</div>
+                <div class="staff-contact">
+                    <a href="mailto:paul.caparrus@gmail.com" class="contact-link" title="paul.caparrus@gmail.com">✉️ paul.caparrus...</a>
+                    <a href="tel:" class="contact-link" title="Appeler">📞 06 29 82 35 94</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Membre 5 -->
-        <div class="staff-card">
-            <img src="herve.png" alt="Photo" class="staff-photo">
-            <div class="staff-name">Hervé MURILLO</div>
-            <div class="staff-role">Président Luzean</div>
-            <div class="staff-contact">
-                <a href="mailto:herve.murillo@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ herve.murillo@...</a>
-                <a href="tel:+33622544410" class="contact-link" title="Appeler">📞 06 22 54 44 10</a>
+            <!-- 4. GARCIA Clément -->
+            <div class="staff-card">
+                <img src="garcia.png" alt="Clément GARCIA" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Clément GARCIA</div>
+                <div class="staff-role">Avant</div>
+                <div class="staff-contact">
+                    <a href="mailto:c.garcia@net.estia.fr" class="contact-link" title="c.garcia@net.estia.fr">✉️ c.garcia...</a>
+                    <a href="tel:" class="contact-link" title="Appeler">📞 06 51 95 08 56</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Membre 6 -->
-        <div class="staff-card">
-            <img src="julien.png" alt="Photo" class="staff-photo">
-            <div class="staff-name">Julien GUTIEREZ</div>
-            <div class="staff-role">Préparateur physique</div>
-            <div class="staff-contact">
-                <a href="mailto:jgutierez.coaching@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ jgutierez.coaching@...</a>
-                <a href="tel:+33637107384" class="contact-link" title="Appeler">📞 06 37 10 73 84</a>
+            <!-- 5. LABORDE Théo -->
+            <div class="staff-card">
+                <img src="laborde.png" alt="Théo LABORDE" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Théo LABORDE</div>
+                <div class="staff-role">Arrière</div>
+                <div class="staff-contact">
+                    <a href="mailto:theo.laborde64@gmail.com" class="contact-link" title="theo.laborde64@gmail.com">✉️ theo.laborde...</a>
+                    <a href="tel:" class="contact-link" title="Appeler">📞 06 29 76 38 57</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Membre 7 -->
-        <div class="staff-card">
-            <img src="deborah.png" alt="Photo" class="staff-photo">
-            <div class="staff-name">Déborah LECONTE</div>
-            <div class="staff-role">Préparatrice mentale</div>
-            <div class="staff-contact">
-                <a href="mailto:deborah.energetique@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ deborah.energetique@...</a>
-                <a href="tel:+33650238137" class="contact-link" title="Appeler">📞 06 50 23 81 37</a>
+            <!-- 6. LADUCHE Ludovic -->
+            <div class="staff-card">
+                <img src="laduche.png" alt="Ludovic LADUCHE" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Ludovic LADUCHE</div>
+                <div class="staff-role">Avant</div>
+                <div class="staff-contact">
+                    <a href="mailto:ludo.64@hotmail.fr" class="contact-link" title="ludo.64@hotmail.fr">✉️ ludo.64...</a>
+                    <a href="tel:" class="contact-link" title="Appeler">📞 06 36 52 04 54</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Membre 8 -->
-        <div class="staff-card">
-            <img src="corinne.png" alt="Photo" class="staff-photo">
-            <div class="staff-name">Corinne ELISSALDE</div>
-            <div class="staff-role">Analyste Data, Vidéos</div>
-            <div class="staff-contact">
-                <a href="mailto:koko.elissalde@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️ koko.elissalde@...</a>
-                <a href="tel:+33658242059" class="contact-link" title="Appeler">📞 06 58 24 20 59</a>
+            <!-- 7. LIBOIS Emeric -->
+            <div class="staff-card">
+                <img src="libois.png" alt="Emeric LIBOIS" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Emeric LIBOIS</div>
+                <div class="staff-role">Avant</div>
+                <div class="staff-contact">
+                    <a href="mailto:emeric.libois@gmail.com" class="contact-link" title="emeric.libois@gmail.com">✉️ emeric.libois...</a>
+                    <a href="tel:" class="contact-link" title="Appeler">📞 06 15 08 79 87</a>
+                </div>
             </div>
+
+            <!-- 8. OYHENARD Guillen -->
+            <div class="staff-card">
+                <img src="oyhenard.png" alt="Guillen OYHENARD" class="staff-photo" onerror="this.src='pole.png'">
+                <div class="staff-name">Guillen OYHENARD</div>
+                <div class="staff-role">Arrière</div>
+                <div class="staff-contact">
+                    <a href="mailto:guillen.oyhenard@icloud.com" class="contact-link" title="guillen.oyhenard@icloud.com">✉️ guillen.oyhenard...</a>
+                    <a href="tel:" class="contact-link" title="Appeler">📞 07 79 88 47 42</a>
+                </div>
+            </div>
+
         </div>
-
-        <!-- Membre 9 -->
-        <div class="staff-card">
-            <img src="jon.png" alt="Photo" class="staff-photo">
-            <div class="staff-name">Jon TAMBOURINDEGUY</div>
-            <div class="staff-role">Analyste Vidéo</div>
-            <div class="staff-contact">
-                <a href="mailto:Tambour5759@gmail.com" class="contact-link" title="Envoyer un e-mail">✉️  Tambour5759@...</a>   
-             <a href="tel:+33674801117" class="contact-link" title="Appeler">📞 06 74 80 11 17</a>
-
     </div>
 </div>
 
 <script>
-    // Lecture et synchronisation automatique du thème au chargement
+    // --- GESTION DES ONGLETS ---
+    function changerOnglet(type) {
+        const btnStaff = document.getElementById('btnTabStaff');
+        const btnJoueurs = document.getElementById('btnTabJoueurs');
+        const secStaff = document.getElementById('sectionStaff');
+        const secJoueurs = document.getElementById('sectionJoueurs');
+
+        if (type === 'staff') {
+            btnStaff.classList.add('active');
+            btnJoueurs.classList.remove('active');
+            secStaff.classList.add('active');
+            secJoueurs.classList.remove('active');
+        } else {
+            btnJoueurs.classList.add('active');
+            btnStaff.classList.remove('active');
+            secJoueurs.classList.add('active');
+            secStaff.classList.remove('active');
+        }
+    }
+
+    // --- LECTURE ET SYNCHRONISATION DU THÈME ---
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -195,22 +357,16 @@
     htmlElement.setAttribute('data-theme', savedTheme);
     updateButtonIcon(savedTheme);
 
-    // Fonction de bascule de thème
     function toggleTheme() {
         const currentTheme = htmlElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
         htmlElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('cesta_theme', newTheme);
         updateButtonIcon(newTheme);
     }
 
     function updateButtonIcon(theme) {
-        if (theme === 'light') {
-            themeToggleBtn.innerHTML = '☀️';
-        } else {
-            themeToggleBtn.innerHTML = '🌙';
-        }
+        themeToggleBtn.innerHTML = theme === 'light' ? '☀️' : '🌙';
     }
 </script>
 
