@@ -130,24 +130,6 @@
             gap: 8px;
         }
 
-        .new-message-indicator {
-            display: none;
-            align-items: center;
-            gap: 5px;
-            background-color: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            animation: pulse-badge 2s infinite;
-        }
-
-        .new-message-indicator.active {
-            display: flex;
-        }
-
         .chat-messages {
             flex: 1;
             padding: 12px;
@@ -251,12 +233,6 @@
             color: #0a192f;
             transform: scale(1.05);
         }
-
-        @keyframes pulse-badge {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
     </style>
 </head>
 <body>
@@ -281,17 +257,14 @@
             <div class="chat-header-left">
                 💬 Échanges • Pôle Performance
             </div>
-            <div class="new-message-indicator" id="newMessageIndicator">
-                🔴 Nouveau message
-            </div>
         </div>
 
-        <div class="chat-messages" id="chatMessages" onclick="markMessagesAsRead()">
+        <div class="chat-messages" id="chatMessages">
             <!-- Messages Firebase -->
         </div>
 
         <div class="chat-input-area">
-            <input type="text" id="messageInput" class="chat-input" placeholder="Écrire un message..." onkeypress="handleKeyPress(event)" onfocus="markMessagesAsRead()">
+            <input type="text" id="messageInput" class="chat-input" placeholder="Écrire un message..." onkeypress="handleKeyPress(event)">
             <button class="chat-send-btn" onclick="sendMessage()">➤</button>
         </div>
     </div>
@@ -321,16 +294,21 @@
 
     const currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email') || "Membre";
     const messagesContainer = document.getElementById('chatMessages');
-    const newMessageIndicator = document.getElementById('newMessageIndicator');
 
     let lastLoadedCount = 0;
 
-    // Restauration du statut du rond rouge si enregistré en mémoire
-    if (localStorage.getItem('cesta_new_message') === 'true') {
-        newMessageIndicator.classList.add('active');
+    // Réinitialisation des notifications dès l'accès à la page des échanges
+    function markMessagesAsRead() {
+        localStorage.setItem('cesta_new_message', 'false');
+        if (navigator.clearAppBadge) {
+            navigator.clearAppBadge().catch(err => console.log(err));
+        }
     }
 
-    // Récupération en temps réel avec déclenchement garanti du témoin de notification
+    // Exécution immédiate au chargement de la page
+    markMessagesAsRead();
+
+    // Écoute des messages Firestore en temps réel
     db.collection("echanges_messages")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) => {
@@ -340,18 +318,17 @@
               docsArray.push(doc.data());
           });
 
-          // Test direct : dès qu'un message s'ajoute en base au-delà du premier chargement
+          // Si un nouveau message arrive de la part d'un autre membre
           if (docsArray.length > lastLoadedCount && lastLoadedCount > 0) {
-              newMessageIndicator.classList.add('active');
-              localStorage.setItem('cesta_new_message', 'true');
-
-              // Notification système optionnelle si permise par le navigateur
               const latest = docsArray[docsArray.length - 1];
-              if (latest && latest.author !== currentUser && "Notification" in window && Notification.permission === "granted") {
-                  new Notification(`💬 ${latest.author}`, {
-                      body: latest.text,
-                      icon: 'pole.png'
-                  });
+              if (latest && latest.author !== currentUser) {
+                  // Active le voyant rouge sur la page d'accueil (bloc Échanges)
+                  localStorage.setItem('cesta_new_message', 'true');
+
+                  // Active la pastille rouge sur l'icône de l'application (écran d'accueil du smartphone)
+                  if (navigator.setAppBadge) {
+                      navigator.setAppBadge(1).catch(err => console.log(err));
+                  }
               }
           }
           lastLoadedCount = docsArray.length;
@@ -379,12 +356,6 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
 
-    // Marquer les messages comme lus (désactive le rond rouge)
-    function markMessagesAsRead() {
-        newMessageIndicator.classList.remove('active');
-        localStorage.setItem('cesta_new_message', 'false');
-    }
-
     async function sendMessage() {
         const input = document.getElementById('messageInput');
         const text = input.value.trim();
@@ -395,12 +366,14 @@
         markMessagesAsRead();
 
         try {
+            // 1. Sauvegarde du message dans Firestore
             await db.collection("echanges_messages").add({
                 text: text,
                 author: currentUser,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            // 2. Journalisation globale pour avertir tous les utilisateurs
             await db.collection("notifications_log").add({
                 titre: `💬 ${currentUser} sur Échanges`,
                 corps: text,
