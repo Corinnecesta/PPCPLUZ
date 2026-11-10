@@ -393,8 +393,8 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 2. Notification push d'arrière-plan aux autres utilisateurs
-            envoyerNotificationNouveauMessage(currentUser, text);
+            // 2. Enregistrement d'un log propre dans Firestore pour les applications en écoute
+            await envoyerNotificationNouveauMessage(currentUser, text);
 
         } catch (error) {
             console.error("Erreur lors de l'envoi du message : ", error);
@@ -403,38 +403,13 @@
 
     async function envoyerNotificationNouveauMessage(auteur, messageText) {
         try {
-            const snapshot = await db.collection("users").get();
-            const tokens = [];
-            const myEmail = localStorage.getItem('cesta_user_email');
-            
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.fcmToken && data.email !== myEmail) {
-                    tokens.push(data.fcmToken);
-                }
-            });
-
-            if (tokens.length === 0) return;
-
-            // Appel FCM Legacy HTTP (clé serveur)
-            await fetch('https://fcm.googleapis.com/fcm/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Remplacer si besoin par ta Server Key FCM
-                },
-                body: JSON.stringify({
-                    registration_ids: tokens,
-                    notification: {
-                        title: `💬 ${auteur} sur Échanges`,
-                        body: messageText,
-                        icon: 'pole.png',
-                        click_action: 'https://ppcestapunta64500.web.app/echanges.html'
-                    }
-                })
+            await db.collection("notifications_log").add({
+                titre: `💬 ${auteur} sur Échanges`,
+                corps: messageText,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
         } catch (err) {
-            console.error("Erreur d'envoi de la notification push :", err);
+            console.error("Erreur d'enregistrement du log de notification :", err);
         }
     }
 
