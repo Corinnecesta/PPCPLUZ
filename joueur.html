@@ -424,7 +424,7 @@
         }
     }
 
-    // --- AJOUT D'UN ÉVÉNEMENT PERSONNEL + NOTIFICATION PUSH ---
+    // --- AJOUT D'UN ÉVÉNEMENT PERSONNEL (SANS APPEL FCM BLOQUANT) ---
     window.ajouterEvenementPersonnel = async function(event) {
         event.preventDefault();
         
@@ -452,7 +452,7 @@
         try {
             const auteurNom = joueur ? `${joueur.prenom} ${joueur.nom}` : (playerId || "Membre");
 
-            // 1. Enregistrement dans Firestore[cite: 4]
+            // 1. Enregistrement de l'événement dans Firestore[cite: 4]
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -466,43 +466,14 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Récupération des tokens FCM de tous les utilisateurs (y compris l'auteur) pour l'envoi push
-            const usersSnapshot = await getDocs(collection(db, "users"));
-            let tokens = [];
-            usersSnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.fcmToken) {
-                    tokens.push(data.fcmToken);
-                }
+            // 2. Enregistrement du log de notification pour les applications en écoute
+            await addDoc(collection(db, "notifications_log"), {
+                titre: "📌 Nouvel événement / Agenda",
+                corps: `${auteurNom} a ajouté : ${titre} (${startDate})`,
+                timestamp: new Date().toISOString()
             });
 
-            // 3. Déclenchement de l'API FCM pour envoyer les notifications et activer le badge rouge
-            const titreNotif = "📌 Nouvel événement / Agenda";
-            const corpsNotif = `${auteurNom} a ajouté : ${titre} (${startDate})`;
-
-            for (const token of tokens) {
-                fetch('https://fcm.googleapis.com/fcm/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'key=BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
-                    },
-                    body: JSON.stringify({
-                        to: token,
-                        notification: {
-                            title: titreNotif,
-                            body: corpsNotif,
-                            icon: '/PPCPLUZ/pole.png',
-                            badge: '/PPCPLUZ/pole.png'
-                        },
-                        data: {
-                            url: '/PPCPLUZ/accueil.html'
-                        }
-                    })
-                }).catch(err => console.log("Erreur push individuelle :", err));
-            }
-
-            alert("Événement personnel ajouté avec succès et notifications envoyées !");
+            alert("Événement personnel ajouté avec succès !");
             document.getElementById('formAjoutEvenement').reset();
             submitBtn.disabled = false;
             submitBtn.textContent = "Enregistrer dans mon calendrier";
