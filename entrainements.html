@@ -385,7 +385,7 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Envoi de la notification Push aux membres
+            // 2. Envoi de la notification Push à TOUS les tokens enregistrés
             await envoyerNotifNouvelEvenement(titre, startDate, heureDebut, lieu || "St Jean de Luz");
 
             alert("Événement enregistré et notification envoyée !");
@@ -410,11 +410,11 @@
         try {
             const snapshot = await getDocs(collection(db, "users"));
             const tokens = [];
-            const myEmail = localStorage.getItem('cesta_user_email');
             
             snapshot.forEach(doc => {
                 const data = doc.data();
-                if (data.fcmToken && data.email !== myEmail) {
+                // Récupération de TOUS les tokens FCM disponibles
+                if (data.fcmToken) {
                     tokens.push(data.fcmToken);
                 }
             });
@@ -425,11 +425,12 @@
             const dateFormatee = `${parts[2]}/${parts[1]}/${parts[0]}`;
             const detailHeure = heureStr ? ` à ${heureStr}` : '';
 
+            // Requête FCM HTTP compatible avec le Service Worker
             await fetch('https://fcm.googleapis.com/fcm/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Votre Clé Serveur Firebase
+                    'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Remplacer par votre clé serveur FCM Firebase valide
                 },
                 body: JSON.stringify({
                     registration_ids: tokens,
@@ -437,7 +438,10 @@
                         title: `📅 Nouvel événement : ${titre}`,
                         body: `Prévu le ${dateFormatee}${detailHeure} (${lieuStr})`,
                         icon: 'pole.png',
-                        click_action: 'https://ppcestapunta64500.web.app/entrainements.html'
+                        click_action: '/PPCPLUZ/entrainements.html'
+                    },
+                    data: {
+                        url: '/PPCPLUZ/entrainements.html'
                     }
                 })
             });
@@ -539,7 +543,6 @@
         
         const matchingEvents = calendrierCloudEvents.filter(e => estDansLaPlage(dateStr, e));
         
-        // Tri du plus récent au plus ancien (basé sur la date de début et l'heure de début)
         matchingEvents.sort((a, b) => {
             const dateA = a.startDate || a.date || "";
             const dateB = b.startDate || b.date || "";
