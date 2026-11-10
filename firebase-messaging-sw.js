@@ -15,37 +15,42 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// 1. Gestion de la réception en arrière-plan (campagnes ou push serveur)
+// 1. Gestion de la réception en arrière-plan (lorsque l'application est fermée)
 messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Message de campagne reçu en arrière-plan :', payload);
+    console.log('[firebase-messaging-sw.js] Message reçu en arrière-plan :', payload);
     
     const notificationTitle = payload.notification?.title || "Pôle Performance";
     const notificationOptions = {
         body: payload.notification?.body || "Nouvelle information disponible",
-        icon: '/PPCPLUZ/pole.png',
-        badge: '/PPCPLUZ/pole.png',
-        data: payload.data || {}
+        icon: 'pole.png',
+        badge: 'pole.png',
+        data: {
+            url: payload.notification?.click_action || payload.data?.url || './accueil.html'
+        }
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// 2. Gestion du clic sur la notification (ouverture / redirection vers l'appli)
+// 2. Gestion du clic sur la notification (redirection vers l'application)
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     
-    // Détermination de l'URL cible (par défaut sur entrainements.html)
-    const targetUrl = event.notification.data?.url || '/PPCPLUZ/entrainements.html';
+    const targetUrl = event.notification.data?.url || './accueil.html';
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-            // Si l'application est déjà ouverte, on met au premier plan la fenêtre
+            // Si l'application est déjà ouverte dans un onglet, on l'active
             for (let client of windowClients) {
-                if (client.url.includes('/PPCPLUZ/') && 'focus' in client) {
-                    return client.focus();
+                if ('focus' in client) {
+                    client.focus();
+                    if (client.url !== targetUrl && 'navigate' in client) {
+                        return client.navigate(targetUrl);
+                    }
+                    return;
                 }
             }
-            // Sinon on ouvre une nouvelle fenêtre avec l'URL de l'application
+            // Sinon, on ouvre une nouvelle fenêtre/onglet vers la page cible
             if (clients.openWindow) {
                 return clients.openWindow(targetUrl);
             }
