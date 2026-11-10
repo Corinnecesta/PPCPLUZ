@@ -328,7 +328,7 @@
 
     let lastLoadedCount = 0;
 
-    // Récupération des messages en temps réel depuis Firestore
+    // 1. Récupération des messages du tchat en temps réel
     db.collection("echanges_messages")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) => {
@@ -370,6 +370,34 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
 
+    // 2. Écoute en temps réel des nouveaux logs de notification pour déclencher l'alerte visuelle et sonore/bannière
+    db.collection("notifications_log")
+      .orderBy("timestamp", "desc")
+      .limit(1)
+      .onSnapshot((snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+              if (change.type === "added") {
+                  const data = change.doc.data();
+                  const logTime = data.timestamp ? data.timestamp.toMillis() : new Date().getTime();
+                  const now = new Date().getTime();
+                  
+                  // Si le log date de moins de 15 secondes et ne provient pas de l'utilisateur actuel
+                  if (now - logTime < 15000 && !data.titre.includes(currentUser)) {
+                      newMessageIndicator.classList.add('active');
+                      localStorage.setItem('cesta_new_message', 'true');
+
+                      // Déclenchement de la notification native du navigateur si permise
+                      if ("Notification" in window && Notification.permission === "granted") {
+                          new Notification(data.titre || "Pôle Performance", {
+                              body: data.corps,
+                              icon: 'pole.png'
+                          });
+                      }
+                  }
+              }
+          });
+      });
+
     // Marquer les messages comme lus
     function markMessagesAsRead() {
         newMessageIndicator.classList.remove('active');
@@ -386,30 +414,22 @@
         markMessagesAsRead();
 
         try {
-            // 1. Sauvegarde dans Firestore
+            // 1. Sauvegarde du message dans Firestore
             await db.collection("echanges_messages").add({
                 text: text,
                 author: currentUser,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 2. Enregistrement d'un log propre dans Firestore pour les applications en écoute
-            await envoyerNotificationNouveauMessage(currentUser, text);
+            // 2. Enregistrement d'un log propre dans Firestore pour alerter les autres
+            await db.collection("notifications_log").add({
+                titre: `💬 ${currentUser} sur Échanges`,
+                corps: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
 
         } catch (error) {
             console.error("Erreur lors de l'envoi du message : ", error);
-        }
-    }
-
-    async function envoyerNotificationNouveauMessage(auteur, messageText) {
-        try {
-            await db.collection("notifications_log").add({
-                titre: `💬 ${auteur} sur Échanges`,
-                corps: messageText,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (err) {
-            console.error("Erreur d'enregistrement du log de notification :", err);
         }
     }
 
