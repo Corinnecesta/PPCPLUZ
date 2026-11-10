@@ -371,6 +371,7 @@
         }
 
         try {
+            // 1. Sauvegarde Firestore
             await addDoc(collection(db, "entrainements"), {
                 type: "info",
                 titre: titre,
@@ -384,7 +385,10 @@
                 createdAt: new Date().toISOString()
             });
 
-            alert("Événement enregistré avec succès dans le calendrier !");
+            // 2. Envoi de la notification Push aux membres
+            await envoyerNotifNouvelEvenement(titre, startDate, heureDebut, lieu || "St Jean de Luz");
+
+            alert("Événement enregistré et notification envoyée !");
             
             document.getElementById('eventTitleInput').value = "";
             document.getElementById('eventStartDateInput').value = "";
@@ -401,6 +405,46 @@
             alert("Erreur lors de l'enregistrement dans Firebase.");
         }
     };
+
+    async function envoyerNotifNouvelEvenement(titre, dateStr, heureStr, lieuStr) {
+        try {
+            const snapshot = await getDocs(collection(db, "users"));
+            const tokens = [];
+            const myEmail = localStorage.getItem('cesta_user_email');
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.fcmToken && data.email !== myEmail) {
+                    tokens.push(data.fcmToken);
+                }
+            });
+
+            if (tokens.length === 0) return;
+
+            const parts = dateStr.split('-');
+            const dateFormatee = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            const detailHeure = heureStr ? ` à ${heureStr}` : '';
+
+            await fetch('https://fcm.googleapis.com/fcm/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Votre Clé Serveur Firebase
+                },
+                body: JSON.stringify({
+                    registration_ids: tokens,
+                    notification: {
+                        title: `📅 Nouvel événement : ${titre}`,
+                        body: `Prévu le ${dateFormatee}${detailHeure} (${lieuStr})`,
+                        icon: 'pole.png',
+                        click_action: 'https://ppcestapunta64500.web.app/entrainements.html'
+                    }
+                })
+            });
+        } catch (err) {
+            console.error("Erreur d'envoi de la notification push :", err);
+        }
+    }
 
     function estDansLaPlage(dateStr, event) {
         const start = event.startDate || event.date;
@@ -500,11 +544,11 @@
             const dateA = a.startDate || a.date || "";
             const dateB = b.startDate || b.date || "";
             if (dateA !== dateB) {
-                return dateB.localeCompare(dateA); // Date la plus récente en premier
+                return dateB.localeCompare(dateA);
             }
             const heureA = a.heureDebut || "00:00";
             const heureB = b.heureDebut || "00:00";
-            return heureB.localeCompare(heureA); // Heure la plus tardive/récente en premier
+            return heureB.localeCompare(heureA);
         });
 
         document.getElementById('selectedDateTitle').innerText = `SESSIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
