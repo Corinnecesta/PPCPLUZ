@@ -301,18 +301,20 @@
 <!-- Firebase SDK Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
-    // Réinitialisation de l'indicateur de nouveau message dès l'ouverture de la page d'échanges
+    // Réinitialisation de l'indicateur de nouveau message dès l'ouverture de la page
     localStorage.setItem('cesta_new_message', 'false');
 
     const firebaseConfig = {
-        apiKey: "VOTRE_API_KEY",
-        authDomain: "VOTRE_PROJET.firebaseapp.com",
-        projectId: "VOTRE_PROJET_ID",
-        storageBucket: "VOTRE_PROJET.appspot.com",
-        messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
-        appId: "VOTRE_APP_ID"
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
     };
 
     if (!firebase.apps.length) {
@@ -320,13 +322,13 @@
     }
     const db = firebase.firestore();
 
-    const currentUser = localStorage.getItem('cesta_username') || "Membre";
+    const currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email') || "Membre";
     const messagesContainer = document.getElementById('chatMessages');
     const newMessageIndicator = document.getElementById('newMessageIndicator');
 
     let lastLoadedCount = 0;
 
-    // Récupération des messages en temps réel
+    // Récupération des messages en temps réel depuis Firestore
     db.collection("echanges_messages")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) => {
@@ -368,13 +370,13 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
 
-    // Marquer les messages comme lus au clic / consultation
+    // Marquer les messages comme lus
     function markMessagesAsRead() {
         newMessageIndicator.classList.remove('active');
         localStorage.setItem('cesta_new_message', 'false');
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         const input = document.getElementById('messageInput');
         const text = input.value.trim();
 
@@ -383,14 +385,57 @@
         input.value = "";
         markMessagesAsRead();
 
-        db.collection("echanges_messages").add({
-            text: text,
-            author: currentUser,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .catch((error) => {
+        try {
+            // 1. Sauvegarde dans Firestore
+            await db.collection("echanges_messages").add({
+                text: text,
+                author: currentUser,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // 2. Notification push d'arrière-plan aux autres utilisateurs
+            envoyerNotificationNouveauMessage(currentUser, text);
+
+        } catch (error) {
             console.error("Erreur lors de l'envoi du message : ", error);
-        });
+        }
+    }
+
+    async function envoyerNotificationNouveauMessage(auteur, messageText) {
+        try {
+            const snapshot = await db.collection("users").get();
+            const tokens = [];
+            const myEmail = localStorage.getItem('cesta_user_email');
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.fcmToken && data.email !== myEmail) {
+                    tokens.push(data.fcmToken);
+                }
+            });
+
+            if (tokens.length === 0) return;
+
+            // Appel FCM Legacy HTTP (clé serveur)
+            await fetch('https://fcm.googleapis.com/fcm/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Remplacer si besoin par ta Server Key FCM
+                },
+                body: JSON.stringify({
+                    registration_ids: tokens,
+                    notification: {
+                        title: `💬 ${auteur} sur Échanges`,
+                        body: messageText,
+                        icon: 'pole.png',
+                        click_action: 'https://ppcestapunta64500.web.app/echanges.html'
+                    }
+                })
+            });
+        } catch (err) {
+            console.error("Erreur d'envoi de la notification push :", err);
+        }
     }
 
     function handleKeyPress(event) {
@@ -405,7 +450,7 @@
         return text.replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
-    // Gestion du thème
+    // Gestion du thème visuel
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');

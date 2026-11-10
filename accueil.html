@@ -171,60 +171,100 @@
             object-fit: contain;
         }
 
-        .full-width-event-card {
-            padding: 12px 14px;
+        /* --- DISPOSITION CÔTE À CÔTE (Échanges 1fr + Entraînement 2fr) --- */
+        .top-widgets-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .mini-event-card {
+            padding: 10px 12px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: center;
             text-decoration: none;
             color: var(--container-text);
             transition: all 0.25s ease;
+            box-sizing: border-box;
+            height: 100%;
         }
-        .full-width-event-card:hover {
+        .mini-event-card:hover {
             background: var(--card-hover-bg);
             border-color: var(--accent-color);
             transform: translateY(-2px);
         }
-        .full-width-event-left {
+        .mini-event-top {
             display: flex;
             align-items: center;
-            gap: 10px;
-            min-width: 0;
-            flex: 1;
+            gap: 6px;
         }
         .event-icon-box {
             background: linear-gradient(135deg, rgba(15, 76, 92, 0.4) 0%, rgba(23, 184, 144, 0.3) 100%);
             border: 1px solid var(--accent-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             flex-shrink: 0;
         }
-        .event-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
-            flex: 1;
-        }
         .event-label {
-            font-size: 0.75rem;
+            font-size: 0.68rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--accent-color);
             font-weight: 700;
         }
+        .event-arrow {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            flex-shrink: 0;
+        }
         .event-details {
-            font-size: 0.82rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--container-text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .mini-chat-card {
+            padding: 10px;
+            text-decoration: none;
+            color: var(--container-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 4px;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+            position: relative;
+            height: 100%;
+        }
+        .mini-chat-card:hover {
+            background: var(--card-hover-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        .mini-chat-icon {
+            font-size: 1.3rem;
+            position: relative;
+        }
+        .mini-chat-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-color);
+            font-weight: 700;
         }
 
         .skeleton-loader {
@@ -238,14 +278,6 @@
         @keyframes shimmer {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
-        }
-
-        .event-arrow {
-            font-size: 1rem;
-            color: var(--accent-color);
-            font-weight: bold;
-            flex-shrink: 0;
-            margin-left: 8px;
         }
 
         .admin-actions-grid {
@@ -405,16 +437,27 @@
         <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
-    <a href="entrainements.html" class="full-width-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
-        <div class="full-width-event-left">
-            <div class="event-icon-box" aria-hidden="true">⏳</div>
-            <div class="event-info">
-                <div class="event-label">Prochain entraînement</div>
-                <div class="event-details skeleton-loader" id="nextTrainingDetails">Chargement des données...</div>
+    <!-- CONTENEUR CÔTE À CÔTE : Tchat Échanges en premier + Prochain entraînement -->
+    <div class="top-widgets-grid">
+        <a href="echanges.html" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
+            <div class="mini-chat-icon" aria-hidden="true">
+                💬
+                <span class="notification-badge" id="echangesBadge">N</span>
             </div>
-        </div>
-        <div class="event-arrow" aria-hidden="true">➔</div>
-    </a>
+            <div class="mini-chat-label">Échanges</div>
+        </a>
+
+        <a href="entrainements.html" class="mini-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div class="mini-event-top" style="margin-bottom: 0;">
+                    <div class="event-icon-box" aria-hidden="true">⏳</div>
+                    <div class="event-label">Prochain entraînement</div>
+                </div>
+                <div class="event-arrow" aria-hidden="true">➔</div>
+            </div>
+            <div class="event-details skeleton-loader" id="nextTrainingDetails" style="margin-top: 4px;">Chargement...</div>
+        </a>
+    </div>
 
     <nav class="admin-actions-grid admin-only" aria-label="Actions administrateur" style="display: none;">
         <a href="ajouter_partie.html" class="admin-action-card">
@@ -431,8 +474,12 @@
     </nav>
 
     <nav class="menu-grid" aria-label="Navigation principale">
+        <!-- Bouton Entraînements : Chistera + Haltères côte à côte -->
         <a href="entrainements.html" class="menu-card active-primary">
-            <div class="menu-icon-wrapper" aria-hidden="true">🏟️</div>
+            <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 35px;">
+                <img src="chistera.png" alt="Chistera" style="height: 28px; width: auto; object-fit: contain; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
+                <span style="font-size: 1.3rem;">🏋️</span>
+            </div>
             <div class="menu-label">Entraînements</div>
         </a>
         <a href="joueurs.html" class="menu-card">
@@ -451,7 +498,7 @@
             <div class="menu-icon-wrapper" aria-hidden="true">🏆</div>
             <div class="menu-label">Classement</div>
         </a>
-        <!-- Bouton Staff / Joueurs mis à jour avec Téléphone + Mail -->
+        <!-- Bouton Staff / Joueurs avec Téléphone + Mail -->
         <a href="staff.html" class="menu-card">
             <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; gap: 2px; justify-content: center; font-size: 1.4rem;">
                 <span>📞</span><span>✉️</span>
@@ -466,13 +513,6 @@
         <a href="video.html" class="menu-card" style="display: none;">
             <div class="menu-icon-wrapper" aria-hidden="true">🎥</div>
             <div class="menu-label">Vidéos</div>
-        </a>
-        <a href="echanges.html" class="menu-card" style="display: none;">
-            <div class="menu-icon-wrapper" aria-hidden="true">
-                💬
-                <span class="notification-badge active" id="echangesBadge">N</span>
-            </div>
-            <div class="menu-label">Échanges</div>
         </a>
     </nav>
 </div>
