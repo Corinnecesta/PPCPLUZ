@@ -202,7 +202,6 @@
         if (typeof joueursData !== 'undefined' && Array.isArray(joueursData) && joueursData.length > 0) {
             sourceJoueurs = joueursData;
         } else {
-            // Liste de secours si joueurs-data.js tarde à charger
             sourceJoueurs = [
                 { id: "basque", prenom: "Thibault", nom: "BASQUE" },
                 { id: "laborde", prenom: "Théo", nom: "LABORDE" },
@@ -233,7 +232,7 @@
         chargerListeJoueurs();
     });
 
-    // Enregistrement Firestore & Déclenchement Notification
+    // Enregistrement Firestore & Déclenchement Notification Push FCM
     document.getElementById('formNouvelEntrainement').addEventListener('submit', async function(event) {
         event.preventDefault();
 
@@ -283,7 +282,7 @@
                 timestamp: new Date().toISOString()
             });
 
-            // 3. Récupération des jetons FCM des utilisateurs autorisés dans Firestore
+            // 3. Récupération de TOUS les jetons FCM enregistrés dans Firestore
             const usersSnapshot = await getDocs(collection(db, "users"));
             const tokens = [];
             usersSnapshot.forEach(doc => {
@@ -291,11 +290,29 @@
                 if (uData.fcmToken) tokens.push(uData.fcmToken);
             });
 
-            // 4. Déclenchement de la notification visuelle directe
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("📅 Nouvel entraînement planifié", {
-                    body: `${titre} le ${startDate} à ${heureDebut} (${lieu})`,
-                    icon: "pole.png"
+            // 4. Envoi effectif de la notification Push via l'API FCM (compatible Service Worker)
+            if (tokens.length > 0) {
+                const parts = startDate.split('-');
+                const dateFormatee = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+                await fetch('https://fcm.googleapis.com/fcm/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Remplacer par votre clé serveur FCM Firebase valide
+                    },
+                    body: JSON.stringify({
+                        registration_ids: tokens,
+                        notification: {
+                            title: `📅 Nouvel entraînement : ${titre}`,
+                            body: `Prévu le ${dateFormatee} à ${heureDebut} (${lieu})`,
+                            icon: 'pole.png',
+                            click_action: '/PPCPLUZ/entrainements.html'
+                        },
+                        data: {
+                            url: '/PPCPLUZ/entrainements.html'
+                        }
+                    })
                 });
             }
 
