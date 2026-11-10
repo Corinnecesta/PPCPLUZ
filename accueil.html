@@ -75,7 +75,7 @@
             gap: 10px; 
         } 
         
-        /* En-tête configuré en grille 3 colonnes (Logo | Bouton Notif Centré | Actions de droite) */
+        /* En-tête configuré en grille 3 colonnes */
         .top-header { 
             display: grid; 
             grid-template-columns: auto 1fr auto; 
@@ -85,7 +85,6 @@
         }
         .logo-img { height: 50px; object-fit: contain; justify-self: start; }
         
-        /* Conteneur pour centrer le bouton de notification */
         .header-center-action {
             display: flex;
             justify-content: center;
@@ -94,7 +93,6 @@
 
         .header-actions { display: flex; gap: 8px; align-items: center; justify-self: end; }
 
-        /* Boutons du haut en dégradé lagon */
         .home-btn, .theme-toggle-btn, .profile-btn, .notif-trigger-btn { 
             background: var(--btn-gradient); 
             border: 1px solid var(--card-border); 
@@ -126,10 +124,8 @@
             border-radius: 50%;
         }
 
-        /* Ligne de séparation */
         .separator { border: none; height: 1px; background-color: var(--card-border); margin: 2px 0; width: 100%; }
 
-        /* --- CLASSE COMMUNE POUR HARMONISER LA LARGEUR DES BLOCS --- */
         .full-width-block {
             width: 100%;
             box-sizing: border-box;
@@ -139,7 +135,6 @@
             box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
         }
 
-        /* --- BLOC TITRE PLEINE LARGEUR --- */
         .header-banner-card {
             padding: 10px 14px;
             display: flex;
@@ -163,7 +158,6 @@
             margin: 0;
         }
 
-        /* Bannière photo principale */
         .hero-banner { 
             height: auto; 
             overflow: hidden;
@@ -177,7 +171,6 @@
             object-fit: contain;
         }
 
-        /* --- CARTE "PROCHAIN ENTRAÎNEMENT" --- */
         .full-width-event-card {
             padding: 12px 14px;
             display: flex;
@@ -234,7 +227,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Effet Skeleton Loader pour le chargement fluide */
         .skeleton-loader {
             background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 75%);
             background-size: 200% 100%;
@@ -256,7 +248,6 @@
             margin-left: 8px;
         }
 
-        /* --- GRILLE DES ACTIONS ADMIN CÔTE À CÔTE --- */
         .admin-actions-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -316,7 +307,6 @@
             line-height: 1.2;
         }
 
-        /* --- GRILLE DES ONGLETS --- */
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         
         .menu-card { 
@@ -356,7 +346,6 @@
         .menu-icon-wrapper { font-size: 1.8rem; position: relative; } 
         .menu-label { font-weight: bold; font-size: 0.85rem; } 
 
-        /* --- BADGE DE NOTIFICATION --- */
         .notification-badge {
             position: absolute;
             top: -6px;
@@ -386,7 +375,6 @@
 <body>
 
 <div class="mobile-container">
-    <!-- En-tête mis en grille 3 colonnes : Logo à gauche | Bouton Notifications centré | Actions à droite -->
     <header class="top-header">
         <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
         
@@ -403,25 +391,20 @@
         </div>
     </header>
 
-    <!-- Séparateur -->
     <hr class="separator">
 
-    <!-- CONTENEUR D'ALERTE ANNIVERSAIRE -->
     <div id="birthdayAlertContainer" aria-live="polite"></div>
 
-    <!-- Bloc titre pleine largeur -->
     <section class="header-banner-card full-width-block">
         <div class="header-text-group">
             <h1 class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</h1>
         </div>
     </section>
 
-    <!-- Photo principale -->
     <div class="hero-banner full-width-block">
         <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
-    <!-- Carte "Prochain entraînement" -->
     <a href="entrainements.html" class="full-width-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
         <div class="full-width-event-left">
             <div class="event-icon-box" aria-hidden="true">⏳</div>
@@ -433,7 +416,6 @@
         <div class="event-arrow" aria-hidden="true">➔</div>
     </a>
 
-    <!-- BLOCS ACTIONS RAPIDES ADMIN -->
     <nav class="admin-actions-grid admin-only" aria-label="Actions administrateur" style="display: none;">
         <a href="ajouter_partie.html" class="admin-action-card">
             <div class="admin-action-icon" aria-hidden="true">➕</div>
@@ -448,7 +430,6 @@
         </a>
     </nav>
 
-    <!-- Grille des onglets -->
     <nav class="menu-grid" aria-label="Navigation principale">
         <a href="entrainements.html" class="menu-card active-primary">
             <div class="menu-icon-wrapper" aria-hidden="true">🏟️</div>
@@ -470,11 +451,14 @@
             <div class="menu-icon-wrapper" aria-hidden="true">🏆</div>
             <div class="menu-label">Classement</div>
         </a>
+        <!-- Bouton Staff / Joueurs mis à jour avec Téléphone + Mail -->
         <a href="staff.html" class="menu-card">
-            <div class="menu-icon-wrapper" aria-hidden="true">👥</div>
+            <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; gap: 2px; justify-content: center; font-size: 1.4rem;">
+                <span>📞</span><span>✉️</span>
+            </div>
             <div class="menu-label">Staff / Joueurs</div>
         </a>
-        <!-- Onglets cachés -->
+        
         <a href="analyses.html" class="menu-card" style="display: none;">
             <div class="menu-icon-wrapper" aria-hidden="true">📊</div>
             <div class="menu-label">Analyses</div>
@@ -493,18 +477,15 @@
     </nav>
 </div>
 
-<!-- Fichiers de données locales (joueurs et staff) -->
 <script src="joueurs-data.js"></script>
 <script src="staffe-data.js"></script>
 
-<!-- Firebase SDK Compat (version 9.22.2) pour la messagerie et la base de données -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js"></script>
 
 <script>
-    // Config Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
         authDomain: "ppcestapunta64500.firebaseapp.com",
@@ -520,19 +501,16 @@
     }
     const db = firebase.firestore();
 
-    // --- NETTOYAGE DES ANCIENS SERVICE WORKERS PARASITES ---
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for (let registration of registrations) {
                 if (!registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/firebase-messaging-sw.js')) {
-                    console.log('Suppression du Service Worker parasite :', registration.active ? registration.active.scriptURL : 'inconnu');
                     registration.unregister();
                 }
             }
         });
     }
 
-    // --- ACTIVATION & ENREGISTREMENT AUTOMATIQUE DU TOKEN FCM ---
     async function synchroniserJetonFCM(silencieux = false) {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
 
@@ -546,7 +524,6 @@
             });
 
             if (currentToken) {
-                // Priorité à l'UID d'authentification Firebase, puis repli sur le localStorage
                 const userObj = firebase.auth().currentUser;
                 const userUid = userObj ? userObj.uid : (localStorage.getItem('cesta_user_uid') || localStorage.getItem('cesta_user_id'));
 
@@ -589,7 +566,6 @@
         }
     }
 
-    // Gestion du thème clair / sombre
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
@@ -618,7 +594,6 @@
         }
     }
 
-    // --- CHARGEMENT DE LA PHOTO DE PROFIL LOCALE ---
     function chargerPhotoProfilLocale() {
         const profileBtnContainer = document.getElementById('profileBtnContainer');
         const userEmail = localStorage.getItem('cesta_user_email');
@@ -646,14 +621,11 @@
         }
     }
 
-    // --- INITIALISATION DOM ---
     document.addEventListener("DOMContentLoaded", () => {
-        // Effacer le badge rouge sur l'icône de l'application mobile lors de l'ouverture
         if ('clearAppBadge' in navigator) {
             navigator.clearAppBadge().catch((err) => console.log("Erreur effacement badge:", err));
         }
 
-        // Si la permission est déjà accordée, mise à jour silencieuse du fcmToken dans Firestore
         if ("Notification" in window && Notification.permission === "granted") {
             synchroniserJetonFCM(true);
         }
@@ -676,14 +648,12 @@
         chargerPhotoProfilLocale();
     });
 
-    // Synchronisation automatique après vérification de la session Auth Firebase
     firebase.auth().onAuthStateChanged((user) => {
         if (user && "Notification" in window && Notification.permission === "granted") {
             synchroniserJetonFCM(true);
         }
     });
 
-    // --- VÉRIFICATION ANNIVERSAIRES ---
     function verifierAnniversaires() {
         const aujourdHui = new Date();
         const jourActuel = String(aujourdHui.getDate()).padStart(2, '0');
@@ -742,7 +712,6 @@
         }
     }
 
-    // --- PROCHAIN ENTRAÎNEMENT ---
     function chargerProchainEntrainement() {
         let trainingsData = null;
         
@@ -794,7 +763,6 @@
         }
     }
 
-    // --- ÉCOUTE MESSAGES POUR BADGE "ÉCHANGES" ---
     try {
         const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
         const echangesBadge = document.getElementById('echangesBadge');
