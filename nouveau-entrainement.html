@@ -162,7 +162,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -232,13 +232,13 @@
         chargerListeJoueurs();
     });
 
-    // Enregistrement Firestore & Déclenchement Notification Push FCM
+    // Enregistrement Firestore propre et sans blocage
     document.getElementById('formNouvelEntrainement').addEventListener('submit', async function(event) {
         event.preventDefault();
 
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.textContent = "Création et envoi en cours...";
+        submitBtn.textContent = "Création en cours...";
 
         const titre = document.getElementById('inputTitre').value.trim();
         const startDate = document.getElementById('inputStartDate').value;
@@ -282,41 +282,7 @@
                 timestamp: new Date().toISOString()
             });
 
-            // 3. Récupération de TOUS les jetons FCM enregistrés dans Firestore
-            const usersSnapshot = await getDocs(collection(db, "users"));
-            const tokens = [];
-            usersSnapshot.forEach(doc => {
-                const uData = doc.data();
-                if (uData.fcmToken) tokens.push(uData.fcmToken);
-            });
-
-            // 4. Envoi effectif de la notification Push via l'API FCM (compatible Service Worker)
-            if (tokens.length > 0) {
-                const parts = startDate.split('-');
-                const dateFormatee = `${parts[2]}/${parts[1]}/${parts[0]}`;
-
-                await fetch('https://fcm.googleapis.com/fcm/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Remplacer par votre clé serveur FCM Firebase valide
-                    },
-                    body: JSON.stringify({
-                        registration_ids: tokens,
-                        notification: {
-                            title: `📅 Nouvel entraînement : ${titre}`,
-                            body: `Prévu le ${dateFormatee} à ${heureDebut} (${lieu})`,
-                            icon: 'pole.png',
-                            click_action: '/PPCPLUZ/entrainements.html'
-                        },
-                        data: {
-                            url: '/PPCPLUZ/entrainements.html'
-                        }
-                    })
-                });
-            }
-
-            alert("Entraînement créé avec succès et convocations envoyées !");
+            alert("Entraînement créé avec succès et convocations enregistrées !");
             window.location.href = "entrainements.html";
 
         } catch (error) {

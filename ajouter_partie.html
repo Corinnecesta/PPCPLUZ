@@ -566,14 +566,12 @@
         const selectEl = document.getElementById('selecteurAjoutJoueur');
         const containerCheckboxes = document.getElementById('joueursCheckboxContainer');
 
-        // Création des groupes pour le menu déroulant
         const optGroupPole = document.createElement('optgroup');
         optGroupPole.label = "Pôle Performance";
 
         const optGroupAutres = document.createElement('optgroup');
         optGroupAutres.label = "Autres Joueurs";
 
-        // Fonction d'aide pour insérer un joueur dans le DOM et les checkboxes cachées
         function ajouterJoueurAuDOM(id, prenom, nom, groupeCible) {
             const option = document.createElement('option');
             option.value = id;
@@ -949,7 +947,7 @@
         return str;
     }
 
-    // --- ENREGISTREMENT ET ENVOI DE LA NOTIFICATION AUTOMATIQUE ---
+    // --- ENREGISTREMENT DE LA PARTIE (SANS APPEL FCM BLOQUANT) ---
     async function enregistrerPartie(event) {
         event.preventDefault();
 
@@ -960,7 +958,7 @@
 
         const btnSubmit = document.getElementById('btnSubmitForm');
         btnSubmit.disabled = true;
-        btnSubmit.textContent = "Enregistrement et envoi en cours...";
+        btnSubmit.textContent = "Enregistrement en cours...";
 
         sauvegarderEtatActuel();
 
@@ -1014,47 +1012,18 @@
         };
 
         try {
-            // 1. Enregistrement dans Firestore
+            // 1. Enregistrement propre dans Firestore[cite: 4]
             const idPropre = `${nettoyerPourId(competition)}_${nettoyerPourId(equipe1)}_${date.replace(/\//g, '-')}`;
             await window.setDocCloud(window.docCloud(window.dbCloud, "matchs", idPropre), nouveauMatch);
 
-            // 2. Récupération de TOUS les jetons FCM enregistrés dans la collection "users" (y compris l'auteur)
-            const usersSnapshot = await window.getDocs(window.collectionCloud(window.dbCloud, "users"));
-            let tokens = [];
-            usersSnapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                if (data.fcmToken) {
-                    tokens.push(data.fcmToken);
-                }
+            // 2. Écriture du signal de log pour les applications en écoute
+            await window.setDocCloud(window.docCloud(window.dbCloud, "notifications_log", "notif_" + Date.now()), {
+                titre: "🎯 Nouvelle partie enregistrée",
+                corps: `${competition} : ${equipe1} vs ${equipe2} (${date})`,
+                timestamp: new Date().toISOString()
             });
 
-            // 3. Envoi de la notification push via l'API FCM pour déclencher le badge rouge
-            const titreNotif = "🎯 Nouvelle partie enregistrée";
-            const corpsNotif = `${competition} : ${equipe1} vs ${equipe2} (${date})`;
-
-            for (const token of tokens) {
-                fetch('https://fcm.googleapis.com/fcm/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'key=BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY'
-                    },
-                    body: JSON.stringify({
-                        to: token,
-                        notification: {
-                            title: titreNotif,
-                            body: corpsNotif,
-                            icon: '/PPCPLUZ/pole.png',
-                            badge: '/PPCPLUZ/pole.png'
-                        },
-                        data: {
-                            url: '/PPCPLUZ/accueil.html'
-                        }
-                    })
-                }).catch(err => console.log("Erreur push individuelle :", err));
-            }
-
-            alert("Partie et statistiques enregistrées avec succès ! Notifications envoyées.");
+            alert("Partie et statistiques enregistrées avec succès !");
             
             const premierCb = checkboxes[0];
             const premierId = isNaN(premierCb.value) ? premierCb.value : Number(premierCb.value);
