@@ -323,15 +323,14 @@
     const messagesContainer = document.getElementById('chatMessages');
     const newMessageIndicator = document.getElementById('newMessageIndicator');
 
-    let initialLoad = true;
     let lastLoadedCount = 0;
 
-    // Restauration du statut du rond rouge s'il y en avait un en attente
+    // Restauration du statut du rond rouge si enregistré en mémoire
     if (localStorage.getItem('cesta_new_message') === 'true') {
         newMessageIndicator.classList.add('active');
     }
 
-    // Récupération des messages du tchat en temps réel
+    // Récupération en temps réel avec déclenchement garanti du témoin de notification
     db.collection("echanges_messages")
       .orderBy("timestamp", "asc")
       .onSnapshot((snapshot) => {
@@ -341,26 +340,20 @@
               docsArray.push(doc.data());
           });
 
-          // Si un nouveau message arrive après le chargement initial
-          if (!initialLoad && docsArray.length > lastLoadedCount) {
-              const latestMessage = docsArray[docsArray.length - 1];
-              
-              // Déclenche le rond rouge si le message vient d'un autre utilisateur
-              if (latestMessage && latestMessage.author !== currentUser) {
-                  newMessageIndicator.classList.add('active');
-                  localStorage.setItem('cesta_new_message', 'true');
+          // Test direct : dès qu'un message s'ajoute en base au-delà du premier chargement
+          if (docsArray.length > lastLoadedCount && lastLoadedCount > 0) {
+              newMessageIndicator.classList.add('active');
+              localStorage.setItem('cesta_new_message', 'true');
 
-                  // Déclenche la bannière système si autorisée
-                  if ("Notification" in window && Notification.permission === "granted") {
-                      new Notification(`💬 ${latestMessage.author}`, {
-                          body: latestMessage.text,
-                          icon: 'pole.png'
-                      });
-                  }
+              // Notification système optionnelle si permise par le navigateur
+              const latest = docsArray[docsArray.length - 1];
+              if (latest && latest.author !== currentUser && "Notification" in window && Notification.permission === "granted") {
+                  new Notification(`💬 ${latest.author}`, {
+                      body: latest.text,
+                      icon: 'pole.png'
+                  });
               }
           }
-
-          initialLoad = false;
           lastLoadedCount = docsArray.length;
 
           docsArray.forEach((data) => {
@@ -386,7 +379,7 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
       });
 
-    // Marquer les messages comme lus (enlève le rond rouge)
+    // Marquer les messages comme lus (désactive le rond rouge)
     function markMessagesAsRead() {
         newMessageIndicator.classList.remove('active');
         localStorage.setItem('cesta_new_message', 'false');
@@ -402,14 +395,12 @@
         markMessagesAsRead();
 
         try {
-            // 1. Sauvegarde du message dans Firestore
             await db.collection("echanges_messages").add({
                 text: text,
                 author: currentUser,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 2. Enregistrement d'un log pour la synchronisation
             await db.collection("notifications_log").add({
                 titre: `💬 ${currentUser} sur Échanges`,
                 corps: text,
