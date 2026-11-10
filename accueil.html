@@ -807,6 +807,12 @@
         const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
         const echangesBadge = document.getElementById('echangesBadge');
 
+        // 1. Vérification de l'état local enregistré
+        if (localStorage.getItem('cesta_new_message') === 'true') {
+            echangesBadge.classList.add('active');
+        }
+
+        // 2. Écouteur en temps réel Firestore pour l'indicateur d'accueil
         db.collection("echanges_messages")
           .orderBy("timestamp", "desc")
           .limit(1)
@@ -815,6 +821,7 @@
                   const latestMsg = snapshot.docs[0].data();
                   if (latestMsg && latestMsg.author !== currentUser) {
                       echangesBadge.classList.add('active');
+                      localStorage.setItem('cesta_new_message', 'true');
                   }
               }
           });
