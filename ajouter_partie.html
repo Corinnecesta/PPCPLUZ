@@ -947,7 +947,7 @@
         return str;
     }
 
-    // --- ENREGISTREMENT DE LA PARTIE (SANS APPEL FCM BLOQUANT) ---
+    // --- ENREGISTREMENT DE LA PARTIE AVEC NOTIFICATION PUSH ---
     async function enregistrerPartie(event) {
         event.preventDefault();
 
@@ -1016,14 +1016,15 @@
             const idPropre = `${nettoyerPourId(competition)}_${nettoyerPourId(equipe1)}_${date.replace(/\//g, '-')}`;
             await window.setDocCloud(window.docCloud(window.dbCloud, "matchs", idPropre), nouveauMatch);
 
-            // 2. Écriture du signal de log pour les applications en écoute
+            // 2. Écriture du signal dans notifications_log pour déclencher la Cloud Function FCM
             await window.setDocCloud(window.docCloud(window.dbCloud, "notifications_log", "notif_" + Date.now()), {
-                titre: "🎯 Nouvelle partie enregistrée",
-                corps: `${competition} : ${equipe1} vs ${equipe2} (${date})`,
+                titre: `🎯 Nouvelle partie : ${competition}`,
+                corps: `${equipe1} vs ${equipe2} (${date})`,
+                url: "./match.html",
                 timestamp: new Date().toISOString()
             });
 
-            alert("Partie et statistiques enregistrées avec succès !");
+            alert("Partie et statistiques enregistrées avec succès et notifications push envoyées !");
             
             const premierCb = checkboxes[0];
             const premierId = isNaN(premierCb.value) ? premierCb.value : Number(premierCb.value);

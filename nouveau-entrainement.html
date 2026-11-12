@@ -16,7 +16,6 @@
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .header-actions { display: flex; gap: 8px; align-items: center; }
         
-        /* Boutons d'en-tête ronds harmonisés */
         .home-btn, .theme-toggle-btn, .profile-btn { 
             text-decoration: none; 
             font-size: 1.1rem; 
@@ -32,7 +31,6 @@
             justify-content: center; 
         }
 
-        /* Style pour le bouton de retour / page précédente */
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -44,14 +42,10 @@
             margin-bottom: 12px;
             transition: opacity 0.2s;
         }
-        .back-link:hover {
-            opacity: 0.8;
-        }
+        .back-link:hover { opacity: 0.8; }
 
         .form-container { background: var(--card-bg); border: 2px solid var(--accent-color); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .form-input, .form-select { width: 100%; background: rgba(15, 76, 92, 0.2); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; color: var(--container-text); font-size: 0.78rem; margin-bottom: 10px; box-sizing: border-box; font-family: inherit; }
-        
-        /* Style spécifique pour forcer le texte des options en noir */
         .form-select option { color: #000000; background: #ffffff; }
 
         .form-btn { background: var(--btn-gradient); border: 1px solid var(--accent-color); color: var(--container-text); padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; width: 100%; text-align: center; }
@@ -69,24 +63,9 @@
             margin-bottom: 12px; 
             box-sizing: border-box; 
         }
-        .player-checkbox-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            font-size: 0.75rem; 
-            color: var(--container-text); 
-            cursor: pointer; 
-        }
-        .player-checkbox-item input[type="checkbox"] { 
-            width: 16px; 
-            height: 16px; 
-            accent-color: var(--accent-color); 
-            cursor: pointer; 
-        }
-        .player-checkbox-item label { 
-            cursor: pointer; 
-            width: 100%; 
-        }
+        .player-checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--container-text); cursor: pointer; }
+        .player-checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-color); cursor: pointer; }
+        .player-checkbox-item label { cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
@@ -103,7 +82,6 @@
 
     <hr class="separator" style="margin-bottom: 10px;">
 
-    <!-- Flèche de retour / Page précédente -->
     <a href="javascript:history.back()" class="back-link">
         <span>←</span> Page précédente
     </a>
@@ -148,21 +126,18 @@
             </select>
 
             <label style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Sélectionner les joueurs convoqués :</label>
-            <div id="playersCheckboxGrid" class="players-checkbox-grid">
-                <!-- Rempli dynamiquement par le script -->
-            </div>
+            <div id="playersCheckboxGrid" class="players-checkbox-grid"></div>
 
             <button type="submit" class="form-btn" id="submitBtn">Créer l'entraînement et envoyer les convocations</button>
         </form>
     </div>
 </div>
 
-<!-- Fichier contenant la liste des joueurs -->
 <script src="joueurs-data.js"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -193,30 +168,16 @@
         themeToggleBtn.innerHTML = (newTheme === 'light') ? '☀️' : '🌙';
     }
 
-    // Remplissage dynamique de la grille des joueurs convoqués
     function chargerListeJoueurs() {
         const grid = document.getElementById('playersCheckboxGrid');
         if (!grid) return;
 
-        let sourceJoueurs = [];
-        if (typeof joueursData !== 'undefined' && Array.isArray(joueursData) && joueursData.length > 0) {
-            sourceJoueurs = joueursData;
-        } else {
-            // Liste de secours si joueurs-data.js tarde à charger
-            sourceJoueurs = [
-                { id: "basque", prenom: "Thibault", nom: "BASQUE" },
-                { id: "laborde", prenom: "Théo", nom: "LABORDE" },
-                { id: "laduche", prenom: "Ludovic", nom: "LADUCHE" },
-                { id: "garcia", prenom: "Clément", nom: "GARCIA" },
-                { id: "oyhenard", prenom: "Guillen", nom: "OYHENARD" },
-                { id: "caparrus", prenom: "Paul", nom: "CAPARRUS" },
-                { id: "libois", prenom: "Emeric", nom: "LIBOIS" },
-                { id: "bonnin", prenom: "Charles", nom: "BONNIN" }
-            ];
-        }
+        let sourceJoueurs = (typeof joueursData !== 'undefined' && Array.isArray(joueursData)) ? joueursData : [
+            { id: "basque", prenom: "Thibault", nom: "BASQUE" },
+            { id: "laborde", prenom: "Théo", nom: "LABORDE" }
+        ];
 
         const joueursTries = [...sourceJoueurs].sort((a, b) => a.nom.localeCompare(b.nom));
-
         grid.innerHTML = "";
         joueursTries.forEach(j => {
             grid.innerHTML += `
@@ -233,7 +194,6 @@
         chargerListeJoueurs();
     });
 
-    // Enregistrement Firestore & Déclenchement Notification
     document.getElementById('formNouvelEntrainement').addEventListener('submit', async function(event) {
         event.preventDefault();
 
@@ -261,7 +221,7 @@
         });
 
         try {
-            // 1. Écriture de l'entraînement dans Firestore
+            // 1. Enregistrement Firestore de l'entraînement
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -276,30 +236,15 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Écriture du signal dans la collection notifications_log
+            // 2. Écriture obligatoire dans notifications_log pour déclencher la Cloud Function FCM
             await addDoc(collection(db, "notifications_log"), {
-                titre: "📅 Nouvel entraînement planifié",
-                corps: `${titre} le ${startDate} à ${heureDebut} (${lieu})`,
-                timestamp: new Date().toISOString()
+                titre: `📅 Nouvel entraînement : ${titre}`,
+                corps: `Prévu le ${startDate} à ${heureDebut} (${lieu})`,
+                url: "./entrainements.html",
+                timestamp: serverTimestamp()
             });
 
-            // 3. Récupération des jetons FCM des utilisateurs autorisés dans Firestore
-            const usersSnapshot = await getDocs(collection(db, "users"));
-            const tokens = [];
-            usersSnapshot.forEach(doc => {
-                const uData = doc.data();
-                if (uData.fcmToken) tokens.push(uData.fcmToken);
-            });
-
-            // 4. Déclenchement de la notification visuelle directe
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("📅 Nouvel entraînement planifié", {
-                    body: `${titre} le ${startDate} à ${heureDebut} (${lieu})`,
-                    icon: "pole.png"
-                });
-            }
-
-            alert("Entraînement créé avec succès et convocations envoyées !");
+            alert("Entraînement créé avec succès et notifications push envoyées !");
             window.location.href = "entrainements.html";
 
         } catch (error) {
