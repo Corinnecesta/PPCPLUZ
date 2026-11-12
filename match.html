@@ -216,6 +216,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
+    // Remise à zéro immédiate du badge dynamique de parties sur l'accueil
+    localStorage.setItem('dernier_clic_matchs', Date.now());
+
     // Gestion du thème
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -310,7 +313,7 @@
     }
 
     // Enregistrer une partie rapide liée à la compétition sélectionnée dans Firebase avec le titre
-    function saveQuickMatch() {
+    async function saveQuickMatch() {
         const competition = document.getElementById('qCompetition').value;
         const titre = document.getElementById('qTitre').value.trim();
         const dateInput = document.getElementById('qDate').value.trim();
@@ -322,19 +325,30 @@
 
         let dateFormatee = dateInput.replace(/-/g, '/');
 
-        db.collection("parties_rapides").add({
-            competition: competition,
-            titre: titre || "",
-            date: dateFormatee || "",
-            heure: heure || "",
-            lieu: lieu || "Fronton",
-            joueurs: joueurs || "",
-            score: score || "",
-            videoUrl: videoUrl || "",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => {
-            alert("Partie ajoutée avec succès à la compétition " + competition + " !");
+        try {
+            // 1. Enregistrement de la partie rapide
+            await db.collection("parties_rapides").add({
+                competition: competition,
+                titre: titre || "",
+                date: dateFormatee || "",
+                heure: heure || "",
+                lieu: lieu || "Fronton",
+                joueurs: joueurs || "",
+                score: score || "",
+                videoUrl: videoUrl || "",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // 2. Écriture du signal de log pour la Cloud Function Firebase FCM
+            await db.collection("notifications_log").add({
+                titre: `🎯 Nouvelle partie : ${competition}`,
+                corps: `${titre ? titre + ' - ' : ''}${joueurs ? joueurs : competition} (${dateFormatee || 'Aujourd\'hui'})`,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                url: "./match.html"
+            });
+
+            alert("Partie ajoutée avec succès à la compétition " + competition + " et notification envoyée !");
+            
             document.getElementById('qTitre').value = '';
             document.getElementById('qDate').value = '';
             document.getElementById('qHeure').value = '';
@@ -344,11 +358,10 @@
             document.getElementById('qVideo').value = '';
             toggleQuickForm();
             chargerCompteursMatchs();
-        })
-        .catch((error) => {
+        } catch (error) {
             console.error("Erreur lors de l'ajout : ", error);
             alert("Erreur lors de l'enregistrement.");
-        });
+        }
     }
 </script>
 </body>
