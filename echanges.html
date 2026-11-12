@@ -297,9 +297,10 @@
 
     let lastLoadedCount = 0;
 
-    // Réinitialisation des notifications dès l'accès à la page des échanges
+    // Réinitialisation des notifications et du compteur de nouveaux messages dès l'accès à la page
     function markMessagesAsRead() {
         localStorage.setItem('cesta_new_message', 'false');
+        localStorage.setItem('dernier_clic_echanges', Date.now()); // Remet à zéro le badge dynamique sur l'accueil
         if (navigator.clearAppBadge) {
             navigator.clearAppBadge().catch(err => console.log(err));
         }
