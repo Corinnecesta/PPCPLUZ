@@ -298,6 +298,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil
+    localStorage.setItem('dernier_clic_entrainements', Date.now());
+
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
@@ -385,8 +388,13 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Envoi de la notification Push à TOUS les tokens enregistrés
-            await envoyerNotifNouvelEvenement(titre, startDate, heureDebut, lieu || "St Jean de Luz");
+            // 2. Écriture du signal de log pour la Cloud Function Firebase FCM
+            await addDoc(collection(db, "notifications_log"), {
+                titre: `📅 Nouvel événement : ${titre}`,
+                corps: `Prévu le ${startDate} (${lieu || "St Jean de Luz"})`,
+                timestamp: new Date().toISOString(),
+                url: "./entrainements.html"
+            });
 
             alert("Événement enregistré et notification envoyée !");
             
@@ -405,50 +413,6 @@
             alert("Erreur lors de l'enregistrement dans Firebase.");
         }
     };
-
-    async function envoyerNotifNouvelEvenement(titre, dateStr, heureStr, lieuStr) {
-        try {
-            const snapshot = await getDocs(collection(db, "users"));
-            const tokens = [];
-            
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                // Récupération de TOUS les tokens FCM disponibles
-                if (data.fcmToken) {
-                    tokens.push(data.fcmToken);
-                }
-            });
-
-            if (tokens.length === 0) return;
-
-            const parts = dateStr.split('-');
-            const dateFormatee = `${parts[2]}/${parts[1]}/${parts[0]}`;
-            const detailHeure = heureStr ? ` à ${heureStr}` : '';
-
-            // Requête FCM HTTP compatible avec le Service Worker
-            await fetch('https://fcm.googleapis.com/fcm/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'key=AAAAsX8...VOTRE_KEY_SERVEUR_FIREBASE' // Remplacer par votre clé serveur FCM Firebase valide
-                },
-                body: JSON.stringify({
-                    registration_ids: tokens,
-                    notification: {
-                        title: `📅 Nouvel événement : ${titre}`,
-                        body: `Prévu le ${dateFormatee}${detailHeure} (${lieuStr})`,
-                        icon: 'pole.png',
-                        click_action: '/PPCPLUZ/entrainements.html'
-                    },
-                    data: {
-                        url: '/PPCPLUZ/entrainements.html'
-                    }
-                })
-            });
-        } catch (err) {
-            console.error("Erreur d'envoi de la notification push :", err);
-        }
-    }
 
     function estDansLaPlage(dateStr, event) {
         const start = event.startDate || event.date;
