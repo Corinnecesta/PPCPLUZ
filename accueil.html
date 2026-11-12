@@ -391,6 +391,7 @@
             border: 2px solid #0d1b2a;
             animation: pulse-badge 2s infinite;
             display: none;
+            z-index: 5;
         }
 
         .notification-badge.active {
@@ -442,7 +443,7 @@
         <a href="echanges.html" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
             <div class="mini-chat-icon" aria-hidden="true">
                 💬
-                <span class="notification-badge" id="echangesBadge">N</span>
+                <span class="notification-badge" id="badgeEchanges">0</span>
             </div>
             <div class="mini-chat-label">Échanges</div>
         </a>
@@ -474,11 +475,12 @@
     </nav>
 
     <nav class="menu-grid" aria-label="Navigation principale">
-        <!-- Bouton Entraînements : Chistera + Haltères côte à côte -->
+        <!-- Bouton Entraînements avec badge -->
         <a href="entrainements.html" class="menu-card active-primary">
-            <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 35px;">
+            <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 35px; position: relative;">
                 <img src="chistera.png" alt="Chistera" style="height: 28px; width: auto; object-fit: contain; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
                 <span style="font-size: 1.3rem;">🏋️</span>
+                <span class="notification-badge" id="badgeEntrainements">0</span>
             </div>
             <div class="menu-label">Entraînements</div>
         </a>
@@ -486,8 +488,12 @@
             <div class="menu-icon-wrapper" aria-hidden="true">👥</div>
             <div class="menu-label">Joueurs</div>
         </a>
-        <a href="match.html" class="menu-card">
-            <div class="menu-icon-wrapper" aria-hidden="true">🎯</div>
+        <!-- Bouton Parties avec badge -->
+        <a href="match.html" class="menu-card" style="position: relative;">
+            <div class="menu-icon-wrapper" aria-hidden="true" style="position: relative;">
+                🎯
+                <span class="notification-badge" id="badgeParties">0</span>
+            </div>
             <div class="menu-label">Parties</div>
         </a>
         <a href="entraineurs.html" class="menu-card">
@@ -686,6 +692,7 @@
         verifierAnniversaires();
         chargerProchainEntrainement();
         chargerPhotoProfilLocale();
+        initialiserBadgesTempsReel();
     });
 
     firebase.auth().onAuthStateChanged((user) => {
@@ -803,30 +810,93 @@
         }
     }
 
-    try {
+    // --- GESTION DES BADGES DE NOTIFICATION EN TEMPS RÉEL ---
+    function initialiserBadgesTempsReel() {
         const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
-        const echangesBadge = document.getElementById('echangesBadge');
 
-        // 1. Vérification de l'état local enregistré
-        if (localStorage.getItem('cesta_new_message') === 'true') {
-            echangesBadge.classList.add('active');
+        // 1. Badge Échanges (messages non lus)
+        try {
+            db.collection("echanges_messages").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+                let nonLus = 0;
+                const dernierVisite = localStorage.getItem('dernier_clic_echanges') || 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.timestamp && new Date(data.timestamp).getTime() > Number(dernierVisite)) {
+                        if (data.author !== currentUser) {
+                            nonLus++;
+                        }
+                    }
+                });
+
+                const badge = document.getElementById('badgeEchanges');
+                if (badge) {
+                    if (nonLus > 0) {
+                        badge.textContent = nonLus;
+                        badge.classList.add('active');
+                    } else {
+                        badge.classList.remove('active');
+                    }
+                }
+            });
+        } catch (e) {
+            console.log("Erreur badge échanges :", e);
         }
 
-        // 2. Écouteur en temps réel Firestore pour l'indicateur d'accueil
-        db.collection("echanges_messages")
-          .orderBy("timestamp", "desc")
-          .limit(1)
-          .onSnapshot((snapshot) => {
-              if (!snapshot.empty) {
-                  const latestMsg = snapshot.docs[0].data();
-                  if (latestMsg && latestMsg.author !== currentUser) {
-                      echangesBadge.classList.add('active');
-                      localStorage.setItem('cesta_new_message', 'true');
-                  }
-              }
-          });
-    } catch (e) {
-        console.log("Firebase non configuré pour les messages.");
+        // 2. Badge Entraînements (nombre d'entraînements futurs)
+        try {
+            db.collection("entrainements").onSnapshot((snapshot) => {
+                const maintenant = new Date();
+                let countFuturs = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const dateEvt = new Date(data.dateIso || data.date || data.start);
+                    if (!isNaN(dateEvt) && dateEvt >= maintenant) {
+                        countFuturs++;
+                    }
+                });
+
+                const badge = document.getElementById('badgeEntrainements');
+                if (badge) {
+                    if (countFuturs > 0) {
+                        badge.textContent = countFuturs;
+                        badge.classList.add('active');
+                    } else {
+                        badge.classList.remove('active');
+                    }
+                }
+            });
+        } catch (e) {
+            console.log("Erreur badge entraînements :", e);
+        }
+
+        // 3. Badge Parties (matchs récents non consultés)
+        try {
+            db.collection("matchs").onSnapshot((snapshot) => {
+                const dernierVisiteMatchs = localStorage.getItem('dernier_clic_matchs') || 0;
+                let nouveauxMatchs = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.createdAt && new Date(data.createdAt).getTime() > Number(dernierVisiteMatchs)) {
+                        nouveauxMatchs++;
+                    }
+                });
+
+                const badge = document.getElementById('badgeParties');
+                if (badge) {
+                    if (nouveauxMatchs > 0) {
+                        badge.textContent = nouveauxMatchs;
+                        badge.classList.add('active');
+                    } else {
+                        badge.classList.remove('active');
+                    }
+                }
+            });
+        } catch (e) {
+            console.log("Erreur badge parties :", e);
+        }
     }
 </script>
 
