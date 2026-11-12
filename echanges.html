@@ -366,54 +366,19 @@
         markMessagesAsRead();
 
         try {
-            // 1. Sauvegarde du message dans Firestore
+            // 1. Sauvegarde du message dans le tchat
             await db.collection("echanges_messages").add({
                 text: text,
                 author: currentUser,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 2. Journalisation globale
+            // 2. Enregistrement dans notifications_log pour déclencher la Cloud Function Firebase
             await db.collection("notifications_log").add({
                 titre: `💬 ${currentUser} sur Échanges`,
                 corps: text,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            // 3. Récupération des tokens FCM de tous les utilisateurs pour déclencher le Push natif
-            const usersSnapshot = await db.collection("users").get();
-            const tokens = [];
-            const myEmail = localStorage.getItem('cesta_user_email');
-
-            usersSnapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.fcmToken) {
-                    tokens.push(data.fcmToken);
-                }
-            });
-
-            // 4. Envoi de l'alerte Push FCM vers l'API Google (Wake-up du Service Worker)
-            if (tokens.length > 0) {
-                await fetch('https://fcm.googleapis.com/fcm/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'key=AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA' // Votre clé serveur Firebase
-                    },
-                    body: JSON.stringify({
-                        registration_ids: tokens,
-                        notification: {
-                            title: `💬 ${currentUser} sur Échanges`,
-                            body: text,
-                            icon: 'pole.png',
-                            click_action: 'https://ppcestapunta64500.web.app/echanges.html'
-                        },
-                        data: {
-                            url: 'https://ppcestapunta64500.web.app/echanges.html'
-                        }
-                    })
-                });
-            }
 
         } catch (error) {
             console.error("Erreur lors de l'envoi du message : ", error);
