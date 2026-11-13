@@ -166,7 +166,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.7rem;
-            padding: 2px 0;
+            padding: 3px 0;
             color: var(--container-text);
             border-bottom: 1px solid rgba(255,255,255,0.03);
         }
@@ -332,7 +332,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page
+    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page[cite: 7]
     localStorage.setItem('dernier_clic_entrainements', Date.now());
 
     const htmlElement = document.documentElement;
@@ -394,8 +394,8 @@
         }
     }
 
-    // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC NETTOYAGE LARGE DES EMAILS/NOMS ET MOTIF OBLIGATOIRE
-    window.repondreEntrainement = async function(entrainementId, statutChoisi) {
+    // Récupération unifiée du nom de l'utilisateur connecté
+    function getNomUtilisateurActuel() {
         let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
         let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
         
@@ -410,6 +410,29 @@
                 nomFinal = `${jTrouve.prenom} ${jTrouve.nom}`;
             }
         }
+        return nomFinal;
+    }
+
+    function estMonNom(cNom) {
+        if (!cNom) return false;
+        cNom = cNom.trim().toLowerCase();
+        let userEmail = (localStorage.getItem('cesta_user_email') || "").trim().toLowerCase();
+        let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim().toLowerCase();
+        let emailPrefix = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
+        let monNomCanonique = getNomUtilisateurActuel().trim().toLowerCase();
+
+        return cNom === monNomCanonique || 
+               (userName && cNom === userName) || 
+               (userEmail && cNom === userEmail) || 
+               (emailPrefix && cNom === emailPrefix);
+    }
+
+    // FONCTION DE RÉPONSE MISE À JOUR (MET À JOUR L'ENTRÉE EXISTANTE AU LIEU DE DUPLIQUER)
+    window.repondreEntrainement = async function(entrainementId, statutChoisi) {
+        let nomFinal = getNomUtilisateurActuel();
+        let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
+        let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
+        let emailPrefix = userEmail.includes('@') ? userEmail.split('@')[0].toLowerCase() : userEmail.toLowerCase();
 
         if (!nomFinal || nomFinal === "Membre" || nomFinal === "") {
             nomFinal = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
@@ -452,20 +475,23 @@
             const data = docSnap.data();
             let convoques = data.convoques || [];
 
-            // Nettoyage radical : on supprime les doublons qu'ils soient sous format nom ou e-mail
-            convoques = convoques.filter(c => {
-                const cNom = (c.nom || "").trim().toLowerCase();
-                return cNom !== nomFinal.toLowerCase() && 
-                       (userEmail === "" || cNom !== userEmail.toLowerCase()) && 
-                       (userName === "" || cNom !== userName.toLowerCase());
-            });
+            // Recherche si l'utilisateur existe déjà dans la liste (par nom, email ou pseudo abrégé type "tbasque")
+            let indexTrouve = convoques.findIndex(c => estMonNom(c.nom));
 
-            // Ajout propre de la réponse unique
-            convoques.push({
-                nom: nomFinal,
-                statut: statutChoisi,
-                motif: motifAbsence
-            });
+            if (indexTrouve !== -1) {
+                // Mise à jour de l'entrée existante sans créer de doublon
+                convoques[indexTrouve].nom = nomFinal;
+                convoques[indexTrouve].statut = statutChoisi;
+                convoques[indexTrouve].motif = motifAbsence;
+            } else {
+                // Nettoyage de sécurité des anciennes entrées et ajout
+                convoques = convoques.filter(c => !estMonNom(c.nom));
+                convoques.push({
+                    nom: nomFinal,
+                    statut: statutChoisi,
+                    motif: motifAbsence
+                });
+            }
 
             await updateDoc(docRef, {
                 convoques: convoques
@@ -495,7 +521,6 @@
         }
 
         try {
-            // 1. Sauvegarde Firestore
             await addDoc(collection(db, "entrainements"), {
                 type: "info",
                 titre: titre,
@@ -509,7 +534,6 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Écriture du signal de log pour la Cloud Function Firebase FCM
             await addDoc(collection(db, "notifications_log"), {
                 titre: `📅 Nouvel événement : ${titre}`,
                 corps: `Prévu le ${startDate} (${lieu || "St Jean de Luz"})`,
@@ -664,19 +688,44 @@
                 const descTxt = ev.description ? `<div style="font-size: 0.8rem; font-weight: bold; color: var(--container-text); margin-top: 4px; margin-bottom: 4px;">${ev.description}</div>` : '';
 
                 let convoquesHtml = "";
+                let userEstConvoque = false;
+
                 if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
                     convoquesHtml += `
                         <div class="convoques-box">
                             <div class="convoques-title">👥 Convocations & Statuts :</div>
                     `;
                     ev.convoques.forEach(c => {
+                        const isMe = estMonNom(c.nom);
+                        if (isMe) userEstConvoque = true;
+
                         const statut = c.statut ? c.statut.toLowerCase().trim() : "en_attente";
-                        let statutBadge = `<span class="badge-attente">⏳ En attente</span>`;
-                        if (statut === 'present') {
-                            statutBadge = `<span class="badge-present">✅ Présent</span>`;
-                        } else if (statut === 'absent') {
-                            const motifTxt = c.motif ? ` (${c.motif})` : '';
-                            statutBadge = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                        let statutBadge = "";
+
+                        if (isMe && !isInfo) {
+                            // Si c'est l'utilisateur connecté, affichage des boutons d'action directement en face de son nom
+                            let badgeActuel = `<span class="badge-attente">⏳ En attente</span>`;
+                            if (statut === 'present') badgeActuel = `<span class="badge-present">✅ Présent</span>`;
+                            else if (statut === 'absent') {
+                                const motifTxt = c.motif ? ` (${c.motif})` : '';
+                                badgeActuel = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                            }
+
+                            statutBadge = `
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    ${badgeActuel}
+                                    <button onclick="repondreEntrainement('${ev.id}', 'present')" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; color: #34d399; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer;">Présent</button>
+                                    <button onclick="repondreEntrainement('${ev.id}', 'absent')" style="background: rgba(251,113,133,0.2); border: 1px solid #fb7185; color: #fb7185; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer;">Absent</button>
+                                </div>
+                            `;
+                        } else {
+                            statutBadge = `<span class="badge-attente">⏳ En attente</span>`;
+                            if (statut === 'present') {
+                                statutBadge = `<span class="badge-present">✅ Présent</span>`;
+                            } else if (statut === 'absent') {
+                                const motifTxt = c.motif ? ` (${c.motif})` : '';
+                                statutBadge = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                            }
                         }
 
                         convoquesHtml += `
@@ -689,9 +738,9 @@
                     convoquesHtml += `</div>`;
                 }
 
-                // Boutons de présence affichés UNIQUEMENT pour les entraînements (exclut les infos/championnats à contour rouge)
+                // Boutons de présence en bas si l'utilisateur n'est pas encore dans la liste des convoqués
                 let presenceButtonsHtml = "";
-                if (!isInfo) {
+                if (!isInfo && !userEstConvoque) {
                     presenceButtonsHtml = `
                         <div class="presence-actions">
                             <button class="btn-present" onclick="repondreEntrainement('${ev.id}', 'present')">✅ Je serai présent</button>
