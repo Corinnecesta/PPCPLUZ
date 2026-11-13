@@ -394,18 +394,31 @@
         }
     }
 
-    // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC MOTIF OBLIGATOIRE SI ABSENT
+    // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC NETTOYAGE LARGE ET MOTIF OBLIGATOIRE
     window.repondreEntrainement = async function(entrainementId, statutChoisi) {
-        let currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email');
+        let userEmail = localStorage.getItem('cesta_user_email') || "";
+        let userName = localStorage.getItem('cesta_username'] || localStorage.getItem('cesta_user_name') || "";
         
-        if (!currentUser || currentUser === "Membre") {
-            currentUser = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
-            if (!currentUser || currentUser.trim() === "") {
+        // Résolution automatique du vrai nom complet via joueursData si disponible
+        let nomFinal = userName || userEmail;
+        if (typeof joueursData !== 'undefined') {
+            const jTrouve = joueursData.find(j => 
+                (j.email && userEmail && j.email.toLowerCase() === userEmail.toLowerCase()) ||
+                (j.email && userName && j.email.toLowerCase() === userName.toLowerCase()) ||
+                (userName && `${j.prenom} ${j.nom}`.toLowerCase() === userName.toLowerCase())
+            );
+            if (jTrouve) {
+                nomFinal = `${jTrouve.prenom} ${jTrouve.nom}`;
+            }
+        }
+
+        if (!nomFinal || nomFinal === "Membre" || nomFinal === "") {
+            nomFinal = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
+            if (!nomFinal || nomFinal.trim() === "") {
                 alert("Action annulée : nom requis.");
                 return;
             }
-            currentUser = currentUser.trim();
-            localStorage.setItem('cesta_username', currentUser);
+            nomFinal = nomFinal.trim();
         }
 
         if (!entrainementId) {
@@ -440,16 +453,17 @@
             const data = docSnap.data();
             let convoques = data.convoques || [];
 
-            // Nettoyage de toutes les anciennes entrées de cet utilisateur pour éviter les doublons
+            // Nettoyage radical : on supprime toutes les anciennes entrées correspondantes au nom, pseudo ou e-mail
             convoques = convoques.filter(c => {
-                const nomEnregistre = (c.nom || "").trim().toLowerCase();
-                const utilisateurActuel = currentUser.trim().toLowerCase();
-                return nomEnregistre !== utilisateurActuel;
+                const cNom = (c.nom || "").trim().toLowerCase();
+                return cNom !== nomFinal.toLowerCase() && 
+                       cNom !== userEmail.toLowerCase() && 
+                       cNom !== userName.toLowerCase();
             });
 
-            // Ajout de la nouvelle réponse unique
+            // Ajout propre de la réponse unique sous le format de nom complet unifié
             convoques.push({
-                nom: currentUser,
+                nom: nomFinal,
                 statut: statutChoisi,
                 motif: motifAbsence
             });
@@ -674,7 +688,7 @@
                     convoquesHtml += `</div>`;
                 }
 
-                // Boutons de présence affichés UNIQUEMENT pour les entraînements (exclut les infos/championnats avec contour rouge)
+                // Boutons de présence affichés UNIQUEMENT pour les entraînements (exclut les infos/championnats)
                 let presenceButtonsHtml = "";
                 if (!isInfo) {
                     presenceButtonsHtml = `
