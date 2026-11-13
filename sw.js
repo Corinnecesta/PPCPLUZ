@@ -1,6 +1,18 @@
-const CACHE_NAME = 'cesta-punta-v1';
+importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js');
 
-// Liste complète des fichiers à mettre en cache pour l'accès hors-ligne
+firebase.initializeApp({
+  apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+  authDomain: "ppcestapunta64500.firebaseapp.com",
+  projectId: "ppcestapunta64500",
+  storageBucket: "ppcestapunta64500.firebasestorage.app",
+  messagingSenderId: "80945272911",
+  appId: "1:80945272911:web:154437e054b190e7ebb23a"
+});
+
+const messaging = firebase.messaging();
+const CACHE_NAME = 'cesta-punta-v2';
+
 const urlsToCache = [
   './',
   'index.html',
@@ -28,26 +40,20 @@ const urlsToCache = [
   'manifest.json'
 ];
 
-// Phase 1 : Installation du Service Worker et mise en cache initiale des fichiers
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[Service Worker] Mise en cache initiale des ressources PWA');
-        return cache.addAll(urlsToCache);
-      })
+      .then(cache => cache.addAll(urlsToCache))
       .then(() => self.skipWaiting())
   );
 });
 
-// Phase 2 : Activation et suppression des anciens caches lors des mises à jour
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Suppression de l\'ancien cache :', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -56,9 +62,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Phase 3 : Interception des requêtes (Cache d'abord, puis Réseau en secours)
 self.addEventListener('fetch', event => {
-  // Ignorer les requêtes non-GET ou externes vers Firebase/Google APIs
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
     return;
   }
@@ -66,11 +70,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Retourne le fichier depuis le cache s'il existe
-        if (response) {
-          return response;
-        }
-        // Sinon effectue la requête réseau habituelle
+        if (response) return response;
         return fetch(event.request).then(networkResponse => {
           if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
             const responseToCache = networkResponse.clone();
@@ -82,7 +82,6 @@ self.addEventListener('fetch', event => {
         });
       })
       .catch(() => {
-        // Fallback en cas de rupture de connexion sur les pages HTML
         if (event.request.headers.get('accept').includes('text/html')) {
           return caches.match('index.html');
         }
@@ -90,24 +89,24 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Phase 4 : Réception et affichage des notifications Push (Data-only payloads)
-self.addEventListener('push', event => {
-  let data = { titre: 'Cesta Punta', corps: 'Nouvelle alerte sur l\'application', url: './accueil.html' };
+// Réception des notifications Push Firebase (en arrière-plan ou écran verrouillé)
+self.addEventListener('push', function(event) {
+  if (!event.data) return;
 
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data.corps = event.data.text();
-    }
+  let data = {};
+  try {
+    data = event.data.json();
+  } catch (e) {
+    data = { data: { titre: "Cesta Punta", corps: event.data.text() } };
   }
 
-  const title = data.titre || data.title || 'Cesta Punta';
+  const payload = data.notification || data.data || {};
+  const title = payload.title || payload.titre || "Cesta Punta";
   const options = {
-    body: data.corps || data.body || 'Nouvel événement enregistré',
+    body: payload.body || payload.corps || "Nouvelle notification",
     icon: 'logoce.png',
     badge: 'logoce.png',
-    data: { url: data.url || './accueil.html' }
+    data: { url: payload.url || './accueil.html' }
   };
 
   event.waitUntil(
@@ -115,8 +114,7 @@ self.addEventListener('push', event => {
   );
 });
 
-// Phase 5 : Gestion du clic sur la notification push (Redirection vers la bonne page)
-self.addEventListener('notificationclick', event => {
+self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : './accueil.html';
 
