@@ -853,7 +853,11 @@
         try {
             db.collection("entrainements").onSnapshot((snapshot) => {
                 const maintenant = new Date();
-                const dernierVisiteEntrainements = Number(localStorage.getItem('dernier_clic_entrainements') || 0);
+                // Si la clé n'existe pas encore (ex: après reconnexion), on l'initialise à maintenant
+                if (!localStorage.getItem('dernier_clic_entrainements')) {
+                    localStorage.setItem('dernier_clic_entrainements', Date.now());
+                }
+                const dernierVisiteEntrainements = Number(localStorage.getItem('dernier_clic_entrainements'));
                 let countNouveaux = 0;
 
                 snapshot.forEach(doc => {
