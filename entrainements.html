@@ -396,7 +396,6 @@
 
     // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC MOTIF OBLIGATOIRE SI ABSENT
     window.repondreEntrainement = async function(entrainementId, statutChoisi) {
-        // Récupération sécurisée du nom de l'utilisateur connecté
         let currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email');
         
         if (!currentUser || currentUser === "Membre") {
@@ -535,7 +534,7 @@
         if (typeStr === 'info' || typeStr === 'perso' || titleStr.includes('partie') || titleStr.includes('championnat')) {
             return 'info';
         }
-        if (typeStr.includes('physique') && (typeStr.includes('co' ) || typeStr.includes('collectif'))) {
+        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif'))) {
             return 'physique-co';
         }
         if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu')) {
@@ -632,6 +631,10 @@
         const previewBox = document.getElementById('matchPreviewBox');
         const previewContent = document.getElementById('matchPreviewContent');
 
+        // Détermination de la date du jour au format YYYY-MM-DD pour filtrer les entraînements à venir
+        const aujourdHuiStr = new Date().toISOString().split('T')[0];
+        const estEvenementFutur = dateStr >= aujourdHuiStr;
+
         if (matchingEvents.length > 0) {
             let htmlText = "";
             matchingEvents.forEach(ev => {
@@ -675,13 +678,16 @@
                     convoquesHtml += `</div>`;
                 }
 
-                // Boutons d'action robustes avec transmission de l'ID Firebase de l'événement
-                let presenceButtonsHtml = `
-                    <div class="presence-actions">
-                        <button class="btn-present" onclick="repondreEntrainement('${ev.id}', 'present')">✅ Je serai présent</button>
-                        <button class="btn-absent" onclick="repondreEntrainement('${ev.id}', 'absent')">❌ Absent</button>
-                    </div>
-                `;
+                // Les boutons de réponse n'apparaissent QUE pour les entraînements à venir (exclut les types "info" / événements / parties admin)
+                let presenceButtonsHtml = "";
+                if (estEvenementFutur && !isInfo) {
+                    presenceButtonsHtml = `
+                        <div class="presence-actions">
+                            <button class="btn-present" onclick="repondreEntrainement('${ev.id}', 'present')">✅ Je serai présent</button>
+                            <button class="btn-absent" onclick="repondreEntrainement('${ev.id}', 'absent')">❌ Absent</button>
+                        </div>
+                    `;
+                }
 
                 if (isInfo) {
                     htmlText += `
