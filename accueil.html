@@ -547,22 +547,27 @@
     }
     const db = firebase.firestore();
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (let registration of registrations) {
-                if (!registration.active || !registration.active.scriptURL.includes('/PPCPLUZ/firebase-messaging-sw.js')) {
-                    registration.unregister();
-                }
-            }
-        });
-    }
-
     async function synchroniserJetonFCM(silencieux = false) {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
 
         try {
-            const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
+            const swRegistration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+            await navigator.serviceWorker.ready;
+
             const messaging = firebase.messaging();
+
+            // Gestion de l'affichage en premier plan si l'application est ouverte
+            messaging.onMessage((payload) => {
+                const data = payload.notification || payload.data || {};
+                const title = data.title || data.titre || "Pôle Performance";
+                const body = data.body || data.corps || "Nouvelle notification";
+                
+                swRegistration.showNotification(title, {
+                    body: body,
+                    icon: 'pole.png',
+                    vibrate: [200, 100, 200]
+                });
+            });
             
             const currentToken = await messaging.getToken({
                 vapidKey: 'BNKyUB9icw5qaIypqEMcrJ4ME_zk5tkFaLZnPZO97Y-H7rx7qBzpKNyeSJYuvLJRBk-FetO3bvsV3qVeWl9SuqY',
