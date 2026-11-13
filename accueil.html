@@ -817,18 +817,19 @@
 
     // --- GESTION DES BADGES DE NOTIFICATION EN TEMPS RÉEL ---
     function initialiserBadgesTempsReel() {
-        const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
+        const currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email') || "Membre";
 
         // 1. Badge Échanges (messages non lus)
         try {
             db.collection("echanges_messages").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
                 let nonLus = 0;
-                const dernierVisite = localStorage.getItem('dernier_clic_echanges') || 0;
+                const dernierVisite = Number(localStorage.getItem('dernier_clic_echanges') || 0);
                 
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (data.timestamp && new Date(data.timestamp).getTime() > Number(dernierVisite)) {
-                        if (data.author !== currentUser) {
+                    if (data.timestamp) {
+                        const msgTime = data.timestamp.toDate ? data.timestamp.toDate().getTime() : new Date(data.timestamp).getTime();
+                        if (msgTime > dernierVisite && data.author !== currentUser) {
                             nonLus++;
                         }
                     }
@@ -856,9 +857,12 @@
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const dateEvt = new Date(data.dateIso || data.date || data.start);
-                    if (!isNaN(dateEvt) && dateEvt >= maintenant) {
-                        countFuturs++;
+                    const rawDate = data.startDate || data.dateIso || data.date || data.start;
+                    if (rawDate) {
+                        const dateEvt = new Date(rawDate);
+                        if (!isNaN(dateEvt) && dateEvt >= maintenant) {
+                            countFuturs++;
+                        }
                     }
                 });
 
@@ -876,31 +880,42 @@
             console.log("Erreur badge entraînements :", e);
         }
 
-        // 3. Badge Parties (matchs récents non consultés)
+        // 3. Badge Parties (matchs et parties rapides récents non consultés)
         try {
             db.collection("matchs").onSnapshot((snapshot) => {
-                const dernierVisiteMatchs = localStorage.getItem('dernier_clic_matchs') || 0;
-                let nouveauxMatchs = 0;
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.createdAt && new Date(data.createdAt).getTime() > Number(dernierVisiteMatchs)) {
-                        nouveauxMatchs++;
-                    }
-                });
-
-                const badge = document.getElementById('badgeParties');
-                if (badge) {
-                    if (nouveauxMatchs > 0) {
-                        badge.textContent = nouveauxMatchs;
-                        badge.classList.add('active');
-                    } else {
-                        badge.classList.remove('active');
-                    }
-                }
+                verifierNouveauxMatchs(snapshot);
+            });
+            db.collection("parties_rapides").onSnapshot((snapshot) => {
+                verifierNouveauxMatchs(snapshot);
             });
         } catch (e) {
             console.log("Erreur badge parties :", e);
+        }
+    }
+
+    function verifierNouveauxMatchs(snapshot) {
+        const dernierVisiteMatchs = Number(localStorage.getItem('dernier_clic_matchs') || 0);
+        let nouveauxMatchs = 0;
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const rawCreated = data.timestamp || data.createdAt || data.date;
+            if (rawCreated) {
+                const matchTime = rawCreated.toDate ? rawCreated.toDate().getTime() : new Date(rawCreated).getTime();
+                if (!isNaN(matchTime) && matchTime > dernierVisiteMatchs) {
+                    nouveauxMatchs++;
+                }
+            }
+        });
+
+        const badge = document.getElementById('badgeParties');
+        if (badge) {
+            if (nouveauxMatchs > 0) {
+                badge.textContent = nouveauxMatchs;
+                badge.classList.add('active');
+            } else {
+                badge.classList.remove('active');
+            }
         }
     }
 </script>
