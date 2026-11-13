@@ -47,7 +47,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Suppression de l'ancien cache :', cacheName);
+            console.log('[Service Worker] Suppression de l\'ancien cache :', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -72,7 +72,6 @@ self.addEventListener('fetch', event => {
         }
         // Sinon effectue la requête réseau habituelle
         return fetch(event.request).then(networkResponse => {
-          // Si la réponse est valide, on met à jour le cache à la volée
           if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then(cache => {
@@ -88,5 +87,50 @@ self.addEventListener('fetch', event => {
           return caches.match('index.html');
         }
       })
+  );
+});
+
+// Phase 4 : Réception et affichage des notifications Push (Data-only payloads)
+self.addEventListener('push', event => {
+  let data = { titre: 'Cesta Punta', corps: 'Nouvelle alerte sur l\'application', url: './accueil.html' };
+
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data.corps = event.data.text();
+    }
+  }
+
+  const title = data.titre || data.title || 'Cesta Punta';
+  const options = {
+    body: data.corps || data.body || 'Nouvel événement enregistré',
+    icon: 'logoce.png',
+    badge: 'logoce.png',
+    data: { url: data.url || './accueil.html' }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Phase 5 : Gestion du clic sur la notification push (Redirection vers la bonne page)
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : './accueil.html';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
   );
 });
