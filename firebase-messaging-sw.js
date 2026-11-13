@@ -12,7 +12,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Interception des notifications en arrière-plan ou écran verrouillé
+// Interception des notifications Push et mise à jour du badge de l'application
 self.addEventListener('push', function(event) {
   if (!event.data) return;
 
@@ -33,18 +33,31 @@ self.addEventListener('push', function(event) {
     data: { url: payload.url || './accueil.html' }
   };
 
+  // Affichage du badge rouge sur l'icône de la PWA sur le téléphone
+  if ('setAppBadge' in navigator) {
+    navigator.setAppBadge().catch(err => console.log("Erreur badge:", err));
+  }
+
   event.waitUntil(
     self.registration.showNotification(title, options)
   );
 });
 
+// Gestion du clic sur la notification : redirection et effacement du badge
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
+
+  // Effacer le badge rouge lorsque l'utilisateur clique sur la notification
+  if ('clearAppBadge' in navigator) {
+    navigator.clearAppBadge().catch(err => console.log("Erreur clear badge:", err));
+  }
+
   const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : './accueil.html';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      for (let client of clientList) {
+      for (let i = 0; i < clientList.length; i++) {
+        let client = clientList[i];
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.navigate(targetUrl);
           return client.focus();
