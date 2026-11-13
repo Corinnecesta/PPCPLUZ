@@ -440,7 +440,7 @@
 
     <!-- CONTENEUR CÔTE À CÔTE : Tchat Échanges en premier + Prochain entraînement -->
     <div class="top-widgets-grid">
-        <a href="echanges.html" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
+        <a href="echanges.html" onclick="localStorage.setItem('dernier_clic_echanges', Date.now())" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
             <div class="mini-chat-icon" aria-hidden="true">
                 💬
                 <span class="notification-badge" id="badgeEchanges">0</span>
@@ -448,7 +448,7 @@
             <div class="mini-chat-label">Échanges</div>
         </a>
 
-        <a href="entrainements.html" class="mini-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
+        <a href="entrainements.html" onclick="localStorage.setItem('dernier_clic_entrainements', Date.now())" class="mini-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
             <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                 <div class="mini-event-top" style="margin-bottom: 0;">
                     <div class="event-icon-box" aria-hidden="true">⏳</div>
@@ -476,7 +476,7 @@
 
     <nav class="menu-grid" aria-label="Navigation principale">
         <!-- Bouton Entraînements avec chistera et haltères -->
-        <a href="entrainements.html" class="menu-card active-primary">
+        <a href="entrainements.html" onclick="localStorage.setItem('dernier_clic_entrainements', Date.now())" class="menu-card active-primary">
             <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 35px; position: relative;">
                 <img src="chistera.png" alt="Chistera" style="height: 28px; width: auto; object-fit: contain; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
                 <span style="font-size: 1.3rem;">🏋️</span>
@@ -489,7 +489,7 @@
             <div class="menu-label">Joueurs</div>
         </a>
         <!-- Bouton Parties avec badge -->
-        <a href="match.html" class="menu-card" style="position: relative;">
+        <a href="match.html" onclick="localStorage.setItem('dernier_clic_matchs', Date.now())" class="menu-card" style="position: relative;">
             <div class="menu-icon-wrapper" aria-hidden="true" style="position: relative;">
                 🎯
                 <span class="notification-badge" id="badgeParties">0</span>
@@ -849,7 +849,7 @@
             console.log("Erreur badge échanges :", e);
         }
 
-        // 2. Badge Entraînements (nouveaux entraînements futurs non consultés)
+        // 2. Badge Entraînements (uniquement les nouveaux entraînements créés après la dernière visite)
         try {
             db.collection("entrainements").onSnapshot((snapshot) => {
                 const maintenant = new Date();
@@ -859,13 +859,13 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const rawDate = data.startDate || data.dateIso || data.date || data.start;
-                    const rawCreated = data.timestamp || data.createdAt || rawDate;
+                    const rawCreated = data.timestamp || data.createdAt;
 
-                    if (rawDate) {
+                    if (rawDate && rawCreated) {
                         const dateEvt = new Date(rawDate);
                         const creationTime = rawCreated.toDate ? rawCreated.toDate().getTime() : new Date(rawCreated).getTime();
 
-                        if (!isNaN(dateEvt) && dateEvt >= maintenant && creationTime > dernierVisiteEntrainements) {
+                        if (!isNaN(dateEvt) && dateEvt >= maintenant && !isNaN(creationTime) && creationTime > dernierVisiteEntrainements) {
                             countNouveaux++;
                         }
                     }
