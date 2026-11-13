@@ -320,7 +320,6 @@
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
 
         try {
-            // Vérifier si l'utilisateur a déjà accordé la permission par le passé
             if (Notification.permission === 'granted') {
                 const swRegistration = await navigator.serviceWorker.register('/PPCPLUZ/firebase-messaging-sw.js');
                 const messaging = firebase.messaging();
@@ -360,32 +359,26 @@
         const saisie = userInput.value.trim();
         const password = passwordInput.value;
 
-        // Transformation de l'identifiant en faux e-mail unique pour Firebase Auth
         const fauxEmail = saisie.includes('@') ? saisie : `${saisie.toLowerCase().replace(/\s+/g, '')}@cesta.app`;
 
         try {
-            // 1. Authentification Firebase Auth avec l'e-mail généré
             const userCredential = await auth.signInWithEmailAndPassword(fauxEmail, password);
             const user = userCredential.user;
 
-            // 2. Récupération du rôle dans la collection Firestore "users"
             const userDoc = await db.collection("users").doc(user.uid).get();
 
             if (userDoc.exists) {
                 const userData = userDoc.data();
                 const role = userData.role || 'joueur';
 
-                // 3. Sauvegarde dans le localStorage pour le site
                 localStorage.setItem('cesta_user_role', role);
                 localStorage.setItem('cesta_user_email', user.email);
                 localStorage.setItem('cesta_user_uid', user.uid);
                 localStorage.setItem('cesta_user_id', user.uid);
                 localStorage.setItem('cesta_user_name', userData.nom || saisie);
 
-                // 4. Synchronisation automatique et silencieuse du token FCM lié à cet UID
                 await synchroniserJetonFCM(user.uid, user.email);
 
-                // 5. Redirection vers l'accueil de l'application
                 window.location.href = "accueil.html";
             } else {
                 throw new Error("Aucun profil associé à cet utilisateur dans la base de données.");
