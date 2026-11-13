@@ -306,7 +306,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page[cite: 7]
     localStorage.setItem('dernier_clic_entrainements', Date.now());
 
     const htmlElement = document.documentElement;
@@ -368,23 +367,23 @@
         }
     }
 
-    // Récupération unifiée du nom complet de l'utilisateur connecté via joueurs-data.js ou localStorage
+    // Récupération robuste du nom complet utilisateur
     function getNomUtilisateurActuel() {
         let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
         let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
         
-        let nomFinal = userName || userEmail;
+        let nomFinal = userName || userEmail || "Thibault BASQUE";
         if (typeof joueursData !== 'undefined') {
             const jTrouve = joueursData.find(j => 
                 (j.email && userEmail && j.email.toLowerCase() === userEmail.toLowerCase()) ||
                 (j.email && userName && j.email.toLowerCase() === userName.toLowerCase()) ||
-                (userName && `${j.prenom} ${j.nom}`.toLowerCase() === userName.toLowerCase())
+                (userName && `${j.prenom} ${j.nom}`.toLowerCase().includes(userName.toLowerCase()))
             );
             if (jTrouve) {
                 nomFinal = `${jTrouve.prenom} ${jTrouve.nom}`;
             }
         }
-        return nomFinal || "Membre";
+        return nomFinal;
     }
 
     function estMonNom(cNom) {
@@ -392,20 +391,19 @@
         cNom = cNom.trim().toLowerCase();
         let userEmail = (localStorage.getItem('cesta_user_email') || "").trim().toLowerCase();
         let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim().toLowerCase();
-        let emailPrefix = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
         let monNomCanonique = getNomUtilisateurActuel().trim().toLowerCase();
 
         return cNom === monNomCanonique || 
-               (userName && cNom === userName) || 
-               (userEmail && cNom === userEmail) || 
-               (emailPrefix && cNom === emailPrefix);
+               cNom.includes(userName) || 
+               monNomCanonique.includes(cNom) ||
+               (userEmail && cNom === userEmail);
     }
 
-    // FONCTION DE RÉPONSE UNIFIÉE (MET À JOUR OU AJOUTE SANS DUPLIQUER)
+    // Fonction de réponse unifiée
     window.repondreEntrainement = async function(entrainementId, statutChoisi, motif = "") {
         let nomFinal = getNomUtilisateurActuel();
 
-        if (!nomFinal || nomFinal === "Membre" || nomFinal === "") {
+        if (!nomFinal || nomFinal === "Membre") {
             nomFinal = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
             if (!nomFinal || nomFinal.trim() === "") {
                 alert("Action annulée : nom requis.");
@@ -432,10 +430,10 @@
             const data = docSnap.data();
             let convoques = data.convoques || [];
 
-            // Nettoyage radical de toutes les anciennes variantes de l'utilisateur pour éviter les doublons
+            // Nettoyage des anciennes entrées correspondantes
             convoques = convoques.filter(c => !estMonNom(c.nom));
 
-            // Ajout ou mise à jour de la réponse propre sous le nom complet unifié
+            // Ajout de la réponse propre
             convoques.push({
                 nom: nomFinal,
                 statut: statutChoisi,
@@ -450,7 +448,7 @@
             chargerCalendrierFirebase();
 
         } catch (error) {
-            console.error("Erreur lors de la mise à jour de la convocation :", error);
+            console.error("Erreur mise à jour convocation :", error);
             alert("Erreur lors de l'enregistrement : " + error.message);
         }
     };
@@ -515,7 +513,6 @@
             });
 
             alert("Événement enregistré et notification envoyée !");
-            
             document.getElementById('eventTitleInput').value = "";
             document.getElementById('eventStartDateInput').value = "";
             document.getElementById('eventEndDateInput').value = "";
@@ -527,7 +524,7 @@
 
             chargerCalendrierFirebase();
         } catch (e) {
-            console.error("Erreur lors de l'enregistrement :", e);
+            console.error("Erreur enregistrement :", e);
             alert("Erreur lors de l'enregistrement dans Firebase.");
         }
     };
@@ -546,7 +543,7 @@
         if (typeStr === 'info' || typeStr === 'perso' || titleStr.includes('partie') || titleStr.includes('championnat')) {
             return 'info';
         }
-        if (typeStr.includes('physique') && (typeStr.includes('co' ) || typeStr.includes('collectif'))) {
+        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif'))) {
             return 'physique-co';
         }
         if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu')) {
@@ -628,16 +625,11 @@
         matchingEvents.sort((a, b) => {
             const dateA = a.startDate || a.date || "";
             const dateB = b.startDate || b.date || "";
-            if (dateA !== dateB) {
-                return dateB.localeCompare(dateA);
-            }
-            const heureA = a.heureDebut || "00:00";
-            const heureB = b.heureDebut || "00:00";
-            return heureB.localeCompare(heureA);
+            if (dateA !== dateB) return dateB.localeCompare(dateA);
+            return (b.heureDebut || "00:00").localeCompare(a.heureDebut || "00:00");
         });
 
         document.getElementById('selectedDateTitle').innerText = `SESSIONS DU ${parts[2]}/${parts[1]}/${parts[0]}`;
-
         renderCalendar();
 
         const previewBox = document.getElementById('matchPreviewBox');
@@ -653,10 +645,7 @@
                 const descTxt = ev.description ? `<div style="font-size: 0.73rem; color: var(--container-text); margin-top: 3px;">${ev.description}</div>` : '';
 
                 let convoquesHtml = "";
-                let actionsHtml = "";
-
                 if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
-                    // Dédoublonnage propre pour afficher chaque joueur une seule fois
                     let convoquesNettoyees = [];
                     let myEntry = null;
 
@@ -686,7 +675,6 @@
                     `;
 
                     convoquesNettoyees.forEach(c => {
-                        const isMe = estMonNom(c.nom);
                         const statut = c.statut ? c.statut.toLowerCase().trim() : "en_attente";
                         let statutBadge = `<span class="badge-attente">⏳ En attente</span>`;
 
@@ -707,6 +695,7 @@
                     convoquesHtml += `</div>`;
                 }
 
+                let actionsHtml = "";
                 if (!isInfo) {
                     const convoques = ev.convoques || [];
                     const monEntree = convoques.find(c => estMonNom(c.nom));
@@ -730,7 +719,7 @@
                                     <button class="btn-absent" onclick="afficherChampMotif('${ev.id}')">Absent</button>
                                 </div>
                                 <div id="motif-box-${ev.id}" class="motif-box">
-                                    <input type="text" id="input-motif-${ev.id}" class="coach-input" placeholder="Précisez le motif de l'absence..." style="margin-bottom:4px; font-size:0.7rem;">
+                                    <input type="text" id="input-motif-${ev.id}" class="coach-input" placeholder="Précisez le motif..." style="margin-bottom:4px; font-size:0.7rem;">
                                     <button class="btn-absent" onclick="validerAbsence('${ev.id}')" style="padding:6px; font-size:0.7rem; width:100%;">Valider l'absence</button>
                                 </div>
                             </div>
@@ -744,7 +733,7 @@
                                     <button class="btn-absent" onclick="afficherChampMotif('${ev.id}')">Absent</button>
                                 </div>
                                 <div id="motif-box-${ev.id}" class="motif-box">
-                                    <input type="text" id="input-motif-${ev.id}" class="coach-input" placeholder="Précisez le motif de l'absence (obligatoire)..." style="margin-bottom:6px; font-size:0.7rem;">
+                                    <input type="text" id="input-motif-${ev.id}" class="coach-input" placeholder="Précisez le motif (obligatoire)..." style="margin-bottom:6px; font-size:0.7rem;">
                                     <button class="btn-absent" onclick="validerAbsence('${ev.id}')" style="padding:6px; font-size:0.7rem; width:100%;">Valider l'absence</button>
                                 </div>
                             </div>
