@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark"> <!-- Mode sombre par défaut -->
+<html lang="fr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pôle Performance - Accueil</title>
 
-    <!-- Configuration PWA (Progressive Web App) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f4c5c">
     <meta name="mobile-web-app-capable" content="yes">
@@ -14,13 +13,11 @@
     <meta name="apple-mobile-web-app-title" content="Pôle Performance">
     <link rel="apple-touch-icon" href="pole.png">
 
-    <!-- Import de la police Plus Jakarta Sans depuis Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- VARIABLES DE COULEURS (Mode Sombre - Option 2 : Océan & Lagon) --- */
         :root {
             --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
             --container-text: #f8fafc;
@@ -33,7 +30,6 @@
             --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
         }
 
-        /* --- VARIABLES DE COULEURS (Mode Clair) --- */
         [data-theme="light"] {
             --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             --container-text: #0f172a;
@@ -46,486 +42,90 @@
             --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
         }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; 
-            background: var(--bg-gradient); 
-            background-attachment: fixed;
-            color: var(--container-text); 
-            padding: 10px; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s; 
-        }
-
-        .mobile-container { 
-            max-width: 420px; 
-            width: 100%; 
-            box-sizing: border-box; 
-            padding-bottom: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        } 
-        
-        /* En-tête configuré en grille 3 colonnes */
-        .top-header { 
-            display: grid; 
-            grid-template-columns: auto 1fr auto; 
-            align-items: center; 
-            gap: 10px;
-            margin-bottom: 0; 
-        }
+        html, body { margin: 0; padding: 0; width: 100%; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-gradient); background-attachment: fixed; color: var(--container-text); padding: 10px; display: flex; justify-content: center; min-height: 100vh; }
+        .mobile-container { max-width: 420px; width: 100%; box-sizing: border-box; padding-bottom: 20px; display: flex; flex-direction: column; gap: 10px; } 
+        .top-header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
         .logo-img { height: 50px; object-fit: contain; justify-self: start; }
-        
-        .header-center-action {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
         .header-actions { display: flex; gap: 8px; align-items: center; justify-self: end; }
-
-        .home-btn, .theme-toggle-btn, .profile-btn, .notif-trigger-btn { 
-            background: var(--btn-gradient); 
-            border: 1px solid var(--card-border); 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            text-decoration: none; 
-            color: var(--container-text); 
-            font-size: 0.95rem; 
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-        .home-btn:hover, .theme-toggle-btn:hover, .profile-btn:hover, .notif-trigger-btn:hover { 
-            border-color: var(--accent-color); 
-            background: var(--btn-hover-gradient);
-            transform: translateY(-2px);
-        }
-
-        .profile-img-avatar {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
+        .home-btn, .theme-toggle-btn, .profile-btn, .notif-trigger-btn { background: var(--btn-gradient); border: 1px solid var(--card-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; color: var(--container-text); font-size: 0.95rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .profile-img-avatar { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .separator { border: none; height: 1px; background-color: var(--card-border); margin: 2px 0; width: 100%; }
-
-        .full-width-block {
-            width: 100%;
-            box-sizing: border-box;
-            background: var(--card-bg);
-            border: 2px solid #17b890;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
-        }
-
-        .header-banner-card {
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-        }
-
-        .header-text-group {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            flex: 1;
-        }
-
-        .section-title {
-            font-size: 0.9rem;
-            color: var(--accent-color);
-            font-weight: 700;
-            line-height: 1.3;
-            margin: 0;
-        }
-
-        .hero-banner { 
-            height: auto; 
-            overflow: hidden;
-            display: block;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        .hero-img {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: contain;
-        }
-
-        /* --- DISPOSITION CÔTE À CÔTE (Échanges 1fr + Entraînement 2fr) --- */
-        .top-widgets-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 10px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .mini-event-card {
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-decoration: none;
-            color: var(--container-text);
-            transition: all 0.25s ease;
-            box-sizing: border-box;
-            height: 100%;
-        }
-        .mini-event-card:hover {
-            background: var(--card-hover-bg);
-            border-color: var(--accent-color);
-            transform: translateY(-2px);
-        }
-        .mini-event-top {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .event-icon-box {
-            background: linear-gradient(135deg, rgba(15, 76, 92, 0.4) 0%, rgba(23, 184, 144, 0.3) 100%);
-            border: 1px solid var(--accent-color);
-            width: 26px;
-            height: 26px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            flex-shrink: 0;
-        }
-        .event-label {
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--accent-color);
-            font-weight: 700;
-        }
-        .event-arrow {
-            font-size: 0.9rem;
-            color: var(--accent-color);
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        .event-details {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--container-text);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .mini-chat-card {
-            padding: 10px;
-            text-decoration: none;
-            color: var(--container-text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            gap: 4px;
-            transition: all 0.25s ease;
-            box-sizing: border-box;
-            position: relative;
-            height: 100%;
-        }
-        .mini-chat-card:hover {
-            background: var(--card-hover-bg);
-            border-color: var(--accent-color);
-            transform: translateY(-2px);
-        }
-        .mini-chat-icon {
-            font-size: 1.3rem;
-            position: relative;
-        }
-        .mini-chat-label {
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--accent-color);
-            font-weight: 700;
-        }
-
-        .skeleton-loader {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            color: transparent !important;
-            border-radius: 4px;
-            user-select: none;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .admin-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .admin-action-card {
-            background: var(--card-bg);
-            border: 2px solid #17b890;
-            border-radius: 16px;
-            padding: 12px 10px;
-            text-decoration: none;
-            color: var(--container-text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 6px;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
-            box-sizing: border-box;
-        }
-
-        .admin-action-card:hover {
-            background: var(--card-hover-bg);
-            border-color: var(--accent-color);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
-        }
-
-        .admin-action-icon {
-            background: rgba(0, 242, 254, 0.2);
-            border: 1px solid var(--accent-color);
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-
-        .admin-action-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--accent-color);
-            font-weight: 700;
-        }
-
-        .admin-action-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--container-text);
-            line-height: 1.2;
-        }
-
+        .full-width-block { width: 100%; box-sizing: border-box; background: var(--card-bg); border: 2px solid #17b890; border-radius: 16px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+        .header-banner-card { padding: 10px 14px; }
+        .section-title { font-size: 0.9rem; color: var(--accent-color); font-weight: 700; margin: 0; }
+        .hero-banner img { width: 100%; display: block; object-fit: contain; }
+        .top-widgets-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; }
+        .mini-chat-card, .mini-event-card { padding: 10px; text-decoration: none; color: var(--container-text); display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .admin-actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+        .admin-action-card { background: var(--card-bg); border: 2px solid #17b890; border-radius: 16px; padding: 12px 10px; text-decoration: none; color: var(--container-text); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        
-        .menu-card { 
-            background: var(--card-bg); 
-            border: 2px solid #17b890;
-            border-radius: 16px; 
-            padding: 16px 10px; 
-            text-decoration: none; 
-            color: var(--container-text); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            gap: 10px; 
-            transition: all 0.25s ease; 
-            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .menu-card:hover { 
-            background: var(--card-hover-bg); 
-            border-color: var(--accent-color);
-            transform: translateY(-3px); 
-            box-shadow: 0 6px 18px rgba(0, 242, 254, 0.25);
-        }
-        
-        .menu-card.active-primary { 
-            background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%); 
-            border: 2px solid #00f2fe;
-            color: #ffffff;
-            box-shadow: 0 6px 20px rgba(23, 184, 144, 0.4);
-        }
-        .menu-card.active-primary .menu-label, 
-        .menu-card.active-primary .menu-icon-wrapper { color: #ffffff; }
-
-        .menu-icon-wrapper { font-size: 1.8rem; position: relative; } 
-        .menu-label { font-weight: bold; font-size: 0.85rem; } 
-
-        .notification-badge {
-            position: absolute;
-            top: -6px;
-            right: -8px;
-            background-color: #ef4444;
-            color: white;
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 1px 5px;
-            border-radius: 10px;
-            border: 2px solid #0d1b2a;
-            animation: pulse-badge 2s infinite;
-            display: none;
-            z-index: 5;
-        }
-
-        .notification-badge.active {
-            display: block;
-        }
-
-        @keyframes pulse-badge {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
+        .menu-card { background: var(--card-bg); border: 2px solid #17b890; border-radius: 16px; padding: 16px 10px; text-decoration: none; color: var(--container-text); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; position: relative; }
+        .menu-card.active-primary { background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%); border: 2px solid #00f2fe; color: #ffffff; }
+        .notification-badge { position: absolute; top: -6px; right: -8px; background-color: #ef4444; color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; border: 2px solid #0d1b2a; display: none; z-index: 5; }
+        .notification-badge.active { display: block; }
     </style>
 </head>
 <body>
 
 <div class="mobile-container">
     <header class="top-header">
-        <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
-        
-        <div class="header-center-action" id="notifButtonContainer">
-            <button class="notif-trigger-btn" onclick="demanderPermissionNotification()" aria-label="Activer les notifications" title="Activer les notifications Push">🔔</button>
+        <img src="logoce.png" alt="Logo" class="logo-img">
+        <div id="notifButtonContainer">
+            <button class="notif-trigger-btn" onclick="demanderPermissionNotification()" title="Activer les notifications">🔔</button>
         </div>
-
         <div class="header-actions">
-            <a href="accueil.html" class="home-btn" aria-label="Retour à l'accueil" title="Retour Accueil">🏠</a>
-            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Changer le thème visuel" title="Changer de thème">🌙</button>
-            <a href="parametres.html" class="profile-btn" id="profileBtnContainer" aria-label="Accéder au compte" title="Mon Compte">
-                <span id="profileIconDefault">👤</span>
-            </a>
+            <a href="accueil.html" class="home-btn">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">🌙</button>
+            <a href="parametres.html" class="profile-btn" id="profileBtnContainer"><span>👤</span></a>
         </div>
     </header>
 
     <hr class="separator">
-
-    <div id="birthdayAlertContainer" aria-live="polite"></div>
+    <div id="birthdayAlertContainer"></div>
 
     <section class="header-banner-card full-width-block">
-        <div class="header-text-group">
-            <h1 class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</h1>
-        </div>
+        <h1 class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</h1>
     </section>
 
     <div class="hero-banner full-width-block">
-        <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
+        <img src="titre.png" alt="Illustration">
     </div>
 
-    <!-- CONTENEUR CÔTE À CÔTE : Tchat Échanges en premier + Prochain entraînement -->
     <div class="top-widgets-grid">
-        <a href="echanges.html" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
-            <div class="mini-chat-icon" aria-hidden="true">
-                💬
-                <span class="notification-badge" id="badgeEchanges">0</span>
-            </div>
-            <div class="mini-chat-label">Échanges</div>
+        <a href="echanges.html" class="mini-chat-card full-width-block">
+            <div style="font-size: 1.3rem; position: relative; text-align: center;">💬<span class="notification-badge" id="badgeEchanges">0</span></div>
+            <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--accent-color); font-weight: 700; text-align: center;">Échanges</div>
         </a>
-
-        <a href="entrainements.html" class="mini-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
-            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                <div class="mini-event-top" style="margin-bottom: 0;">
-                    <div class="event-icon-box" aria-hidden="true">⏳</div>
-                    <div class="event-label">Prochain entraînement</div>
-                </div>
-                <div class="event-arrow" aria-hidden="true">➔</div>
-            </div>
-            <div class="event-details skeleton-loader" id="nextTrainingDetails" style="margin-top: 4px;">Chargement...</div>
+        <a href="entrainements.html" class="mini-event-card full-width-block">
+            <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--accent-color); font-weight: 700;">Prochain entraînement</div>
+            <div style="font-size: 0.75rem; font-weight: 600;" id="nextTrainingDetails">Chargement...</div>
         </a>
     </div>
 
-    <nav class="admin-actions-grid admin-only" aria-label="Actions administrateur" style="display: none;">
-        <a href="ajouter_partie.html" class="admin-action-card">
-            <div class="admin-action-icon" aria-hidden="true">➕</div>
-            <div class="admin-action-label">Partie</div>
-            <div class="admin-action-title">Ajouter une partie</div>
-        </a>
-
-        <a href="ajouter_joueur.html" class="admin-action-card">
-            <div class="admin-action-icon" aria-hidden="true">👤</div>
-            <div class="admin-action-label">Joueur</div>
-            <div class="admin-action-title">Ajouter un joueur</div>
-        </a>
+    <nav class="admin-actions-grid admin-only" style="display: none;">
+        <a href="ajouter_partie.html" class="admin-action-card">➕ Ajouter une partie</a>
+        <a href="ajouter_joueur.html" class="admin-action-card">👤 Ajouter un joueur</a>
     </nav>
 
-    <nav class="menu-grid" aria-label="Navigation principale">
-        <!-- Bouton Entraînements avec badge -->
+    <nav class="menu-grid">
         <a href="entrainements.html" class="menu-card active-primary">
-            <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 35px; position: relative;">
-                <img src="chistera.png" alt="Chistera" style="height: 28px; width: auto; object-fit: contain; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));">
-                <span style="font-size: 1.3rem;">🏋️</span>
-                <span class="notification-badge" id="badgeEntrainements">0</span>
-            </div>
-            <div class="menu-label">Entraînements</div>
+            <div style="position: relative;">🏋️<span class="notification-badge" id="badgeEntrainements">0</span></div>
+            <div style="font-weight: bold; font-size: 0.85rem;">Entraînements</div>
         </a>
-        <a href="joueurs.html" class="menu-card">
-            <div class="menu-icon-wrapper" aria-hidden="true">👥</div>
-            <div class="menu-label">Joueurs</div>
+        <a href="joueurs.html" class="menu-card">👥<div style="font-weight: bold; font-size: 0.85rem;">Joueurs</div></a>
+        <a href="match.html" class="menu-card">
+            <div style="position: relative;">🎯<span class="notification-badge" id="badgeParties">0</span></div>
+            <div style="font-weight: bold; font-size: 0.85rem;">Parties</div>
         </a>
-        <!-- Bouton Parties avec badge -->
-        <a href="match.html" class="menu-card" style="position: relative;">
-            <div class="menu-icon-wrapper" aria-hidden="true" style="position: relative;">
-                🎯
-                <span class="notification-badge" id="badgeParties">0</span>
-            </div>
-            <div class="menu-label">Parties</div>
-        </a>
-        <a href="entraineurs.html" class="menu-card">
-            <div class="menu-icon-wrapper" aria-hidden="true">👨‍🏫</div>
-            <div class="menu-label">Entraîneurs</div>
-        </a>
-        <a href="comparaison.html" class="menu-card">
-            <div class="menu-icon-wrapper" aria-hidden="true">🏆</div>
-            <div class="menu-label">Classement</div>
-        </a>
-        <!-- Bouton Staff / Joueurs avec Téléphone + Mail -->
-        <a href="staff.html" class="menu-card">
-            <div class="menu-icon-wrapper" aria-hidden="true" style="display: flex; gap: 2px; justify-content: center; font-size: 1.4rem;">
-                <span>📞</span><span>✉️</span>
-            </div>
-            <div class="menu-label">Staff / Joueurs</div>
-        </a>
-        
-        <a href="analyses.html" class="menu-card" style="display: none;">
-            <div class="menu-icon-wrapper" aria-hidden="true">📊</div>
-            <div class="menu-label">Analyses</div>
-        </a>
-        <a href="video.html" class="menu-card" style="display: none;">
-            <div class="menu-icon-wrapper" aria-hidden="true">🎥</div>
-            <div class="menu-label">Vidéos</div>
-        </a>
+        <a href="entraineurs.html" class="menu-card">👨‍🏫<div style="font-weight: bold; font-size: 0.85rem;">Entraîneurs</div></a>
+        <a href="comparaison.html" class="menu-card">🏆<div style="font-weight: bold; font-size: 0.85rem;">Classement</div></a>
+        <a href="staff.html" class="menu-card">📞✉️<div style="font-weight: bold; font-size: 0.85rem;">Staff / Joueurs</div></a>
     </nav>
 </div>
 
 <script src="joueurs-data.js"></script>
 <script src="staffe-data.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -547,6 +147,7 @@
     }
     const db = firebase.firestore();
 
+    // Synchronisation FCM sécurisée et indépendante des badges
     async function synchroniserJetonFCM(silencieux = false) {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
 
@@ -556,16 +157,11 @@
 
             const messaging = firebase.messaging();
 
-            // Gestion de l'affichage en premier plan si l'application est ouverte
             messaging.onMessage((payload) => {
                 const data = payload.notification || payload.data || {};
-                const title = data.title || data.titre || "Pôle Performance";
-                const body = data.body || data.corps || "Nouvelle notification";
-                
-                swRegistration.showNotification(title, {
-                    body: body,
-                    icon: 'pole.png',
-                    vibrate: [200, 100, 200]
+                swRegistration.showNotification(data.title || data.titre || "Pôle Performance", {
+                    body: data.body || data.corps || "Nouvelle notification",
+                    icon: 'pole.png'
                 });
             });
             
@@ -586,322 +182,97 @@
                     }, { merge: true });
 
                     const notifContainer = document.getElementById('notifButtonContainer');
-                    if (notifContainer) {
-                        notifContainer.style.display = 'none';
-                    }
+                    if (notifContainer) notifContainer.style.display = 'none';
 
-                    if (!silencieux) {
-                        alert('Notifications activées et synchronisées avec succès !');
-                    }
+                    if (!silencieux) alert('Notifications activées avec succès !');
                 }
             }
         } catch (err) {
-            console.error('Erreur de synchronisation FCM :', err);
-            if (!silencieux) {
-                alert('Erreur d\'activation des notifications : ' + (err.message || JSON.stringify(err)));
-            }
+            console.error('Erreur FCM :', err);
         }
     }
 
     async function demanderPermissionNotification() {
-        if (!('Notification' in window)) {
-            alert("Les notifications Push ne sont pas supportées par ce navigateur.");
-            return;
-        }
-
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
+        if (await Notification.requestPermission() === 'granted') {
             await synchroniserJetonFCM(false);
         } else {
-            alert("L'autorisation de notification a été refusée.");
+            alert("Permission refusée.");
         }
     }
 
+    // Gestion du thème
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
-
-    const savedTheme = localStorage.getItem('cesta_theme');
-    if (savedTheme) {
-        htmlElement.setAttribute('data-theme', savedTheme);
-        updateButtonIcon(savedTheme);
-    }
+    const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
+    htmlElement.setAttribute('data-theme', savedTheme);
+    themeToggleBtn.innerHTML = savedTheme === 'light' ? '☀️' : '🌙';
 
     function toggleTheme() {
-        const currentTheme = htmlElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
+        const newTheme = htmlElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         htmlElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('cesta_theme', newTheme);
-        updateButtonIcon(newTheme);
-    }
-
-    function updateButtonIcon(theme) {
-        if (theme === 'light') {
-            themeToggleBtn.innerHTML = '☀️';
-            themeToggleBtn.setAttribute('aria-label', 'Activer le mode sombre');
-        } else {
-            themeToggleBtn.innerHTML = '🌙';
-            themeToggleBtn.setAttribute('aria-label', 'Activer le mode clair');
-        }
-    }
-
-    function chargerPhotoProfilLocale() {
-        const profileBtnContainer = document.getElementById('profileBtnContainer');
-        const userEmail = localStorage.getItem('cesta_user_email');
-
-        if (!userEmail) return;
-
-        let avatarUrl = null;
-
-        if (typeof joueursData !== 'undefined') {
-            const joueurTrouve = joueursData.find(j => j.email && j.email.toLowerCase() === userEmail.toLowerCase());
-            if (joueurTrouve && joueurTrouve.photo) {
-                avatarUrl = joueurTrouve.photo;
-            }
-        }
-
-        if (!avatarUrl && typeof staffData !== 'undefined') {
-            const staffTrouve = staffData.find(s => s.email && s.email.toLowerCase() === userEmail.toLowerCase());
-            if (staffTrouve && staffTrouve.photo) {
-                avatarUrl = staffTrouve.photo;
-            }
-        }
-
-        if (avatarUrl) {
-            profileBtnContainer.innerHTML = `<img src="${avatarUrl}" alt="Photo de profil" class="profile-img-avatar">`;
-        }
+        themeToggleBtn.innerHTML = newTheme === 'light' ? '☀️' : '🌙';
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        if ('clearAppBadge' in navigator) {
-            navigator.clearAppBadge().catch((err) => console.log("Erreur effacement badge:", err));
-        }
-
         if ("Notification" in window && Notification.permission === "granted") {
             synchroniserJetonFCM(true);
         }
 
-        const userRole = localStorage.getItem('cesta_user_role');
-        const adminElements = document.querySelectorAll('.admin-only');
-
-        if (userRole === 'admin') {
-            adminElements.forEach(el => {
-                el.style.display = 'grid';
-            });
-        } else {
-            adminElements.forEach(el => {
-                el.style.display = 'none';
-            });
+        if (localStorage.getItem('cesta_user_role') === 'admin') {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'grid');
         }
 
-        verifierAnniversaires();
-        chargerProchainEntrainement();
-        chargerPhotoProfilLocale();
         initialiserBadgesTempsReel();
     });
 
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user && "Notification" in window && Notification.permission === "granted") {
-            synchroniserJetonFCM(true);
-        }
-    });
-
-    function verifierAnniversaires() {
-        const aujourdHui = new Date();
-        const jourActuel = String(aujourdHui.getDate()).padStart(2, '0');
-        const moisActuel = String(aujourdHui.getMonth() + 1).padStart(2, '0');
-        const dateDuJourStr = `${jourActuel}/${moisActuel}`;
-
-        let anniversairesDuJour = [];
-
-        if (typeof joueursData !== 'undefined') {
-            joueursData.forEach(joueur => {
-                if (joueur.dateNaissance) {
-                    const dateNaisCourt = joueur.dateNaissance.substring(0, 5);
-                    if (dateNaisCourt === dateDuJourStr) {
-                        anniversairesDuJour.push({
-                            nomComplet: `${joueur.prenom} ${joueur.nom}`,
-                            type: "Joueur",
-                            id: joueur.id
-                        });
-                    }
-                }
-            });
-        }
-
-        if (typeof staffData !== 'undefined') {
-            staffData.forEach(membre => {
-                if (membre.dateNaissance) {
-                    const dateNaisCourt = membre.dateNaissance.substring(0, 5);
-                    if (dateNaisCourt === dateDuJourStr) {
-                        anniversairesDuJour.push({
-                            nomComplet: `${membre.prenom} ${membre.nom}`,
-                            type: "Staff"
-                        });
-                    }
-                }
-            });
-        }
-
-        const alertContainer = document.getElementById('birthdayAlertContainer');
-        if (anniversairesDuJour.length > 0) {
-            let htmlContent = '';
-            anniversairesDuJour.forEach(personne => {
-                htmlContent += `
-                    <div style="background: linear-gradient(135deg, rgba(23, 184, 144, 0.25), rgba(15, 76, 92, 0.45)); border: 2px solid var(--accent-color); border-radius: 16px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.25); margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.5rem;" aria-hidden="true">🎉</span>
-                            <div>
-                                <div style="font-weight: 800; font-size: 0.85rem; color: var(--container-text);">Joyeux Anniversaire !</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">C'est l'anniversaire de <strong>${personne.nomComplet}</strong> (${personne.type}) aujourd'hui ! 🎂</div>
-                            </div>
-                        </div>
-                        ${personne.id ? `<a href="joueur.html?id=${personne.id}" style="background: var(--btn-gradient); color: var(--container-text); padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-decoration: none; white-space: nowrap;">Voir profil</a>` : ''}
-                    </div>
-                `;
-            });
-            alertContainer.innerHTML = htmlContent;
-        }
-    }
-
-    function chargerProchainEntrainement() {
-        let trainingsData = null;
-        
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && (key.includes('trainings') || key.includes('entrainement') || key.includes('calendar'))) {
-                try {
-                    const parsed = JSON.parse(localStorage.getItem(key));
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        const hasDate = parsed.some(item => item.dateIso || item.date || item.start);
-                        if (hasDate) {
-                            trainingsData = parsed;
-                            break;
-                        }
-                    }
-                } catch(e) {}
-            }
-        }
-
-        const detailsContainer = document.getElementById('nextTrainingDetails');
-        detailsContainer.classList.remove('skeleton-loader');
-
-        if (!trainingsData || trainingsData.length === 0) {
-            detailsContainer.textContent = ""; 
-            return;
-        }
-
-        const maintenant = new Date();
-        let evenementsFuturs = trainingsData.map(item => {
-            const rawDate = item.dateIso || item.date || item.start || item.jour;
-            return {
-                ...item,
-                dateObj: new Date(rawDate)
-            };
-        }).filter(item => !isNaN(item.dateObj) && item.dateObj >= maintenant);
-
-        evenementsFuturs.sort((a, b) => a.dateObj - b.dateObj);
-
-        if (evenementsFuturs.length > 0) {
-            const prochain = evenementsFuturs[0];
-            const options = { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
-            let dateFormatee = prochain.dateObj.toLocaleDateString('fr-FR', options);
-            dateFormatee = dateFormatee.charAt(0).toUpperCase() + dateFormatee.slice(1);
-
-            const lieu = prochain.lieu || prochain.emplacement || "Fronton Jai Alai";
-            detailsContainer.textContent = `${dateFormatee} • ${lieu}`;
-        } else {
-            detailsContainer.textContent = ""; 
-        }
-    }
-
-    // --- GESTION DES BADGES DE NOTIFICATION EN TEMPS RÉEL ---
+    // Badges en temps réel isolés
     function initialiserBadgesTempsReel() {
-        const currentUser = localStorage.getItem('cesta_user_email') || "Membre";
+        const currentUser = localStorage.getItem('cesta_user_email') || "";
 
-        // 1. Badge Échanges (messages non lus)
         try {
             db.collection("echanges_messages").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
                 let nonLus = 0;
-                const dernierVisite = localStorage.getItem('dernier_clic_echanges') || 0;
-                
+                const dernierVisite = Number(localStorage.getItem('dernier_clic_echanges') || 0);
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (data.timestamp && new Date(data.timestamp).getTime() > Number(dernierVisite)) {
-                        if (data.author !== currentUser) {
-                            nonLus++;
-                        }
+                    if (data.timestamp && new Date(data.timestamp).getTime() > dernierVisite && data.author !== currentUser) {
+                        nonLus++;
                     }
                 });
-
                 const badge = document.getElementById('badgeEchanges');
-                if (badge) {
-                    if (nonLus > 0) {
-                        badge.textContent = nonLus;
-                        badge.classList.add('active');
-                    } else {
-                        badge.classList.remove('active');
-                    }
-                }
+                if (badge) badge.className = nonLus > 0 ? 'notification-badge active' : 'notification-badge';
+                if (badge) badge.textContent = nonLus;
             });
-        } catch (e) {
-            console.log("Erreur badge échanges :", e);
-        }
+        } catch(e) {}
 
-        // 2. Badge Entraînements (nombre d'entraînements futurs)
         try {
             db.collection("entrainements").onSnapshot((snapshot) => {
                 const maintenant = new Date();
                 let countFuturs = 0;
-
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const dateEvt = new Date(data.dateIso || data.date || data.start);
-                    if (!isNaN(dateEvt) && dateEvt >= maintenant) {
-                        countFuturs++;
-                    }
+                    if (new Date(data.dateIso || data.date || data.start) >= maintenant) countFuturs++;
                 });
-
                 const badge = document.getElementById('badgeEntrainements');
-                if (badge) {
-                    if (countFuturs > 0) {
-                        badge.textContent = countFuturs;
-                        badge.classList.add('active');
-                    } else {
-                        badge.classList.remove('active');
-                    }
-                }
+                if (badge) badge.className = countFuturs > 0 ? 'notification-badge active' : 'notification-badge';
+                if (badge) badge.textContent = countFuturs;
             });
-        } catch (e) {
-            console.log("Erreur badge entraînements :", e);
-        }
+        } catch(e) {}
 
-        // 3. Badge Parties (matchs récents non consultés)
         try {
             db.collection("matchs").onSnapshot((snapshot) => {
-                const dernierVisiteMatchs = localStorage.getItem('dernier_clic_matchs') || 0;
+                const dernierVisiteMatchs = Number(localStorage.getItem('dernier_clic_matchs') || 0);
                 let nouveauxMatchs = 0;
-
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    if (data.createdAt && new Date(data.createdAt).getTime() > Number(dernierVisiteMatchs)) {
-                        nouveauxMatchs++;
-                    }
+                    if (data.createdAt && new Type(data.createdAt).getTime() > dernierVisiteMatchs) nouveauxMatchs++;
                 });
-
                 const badge = document.getElementById('badgeParties');
-                if (badge) {
-                    if (nouveauxMatchs > 0) {
-                        badge.textContent = nouveauxMatchs;
-                        badge.classList.add('active');
-                    } else {
-                        badge.classList.remove('active');
-                    }
-                }
+                if (badge) badge.className = nouveauxMatchs > 0 ? 'notification-badge active' : 'notification-badge';
+                if (badge) badge.textContent = nouveauxMatchs;
             });
-        } catch (e) {
-            console.log("Erreur badge parties :", e);
-        }
+        } catch(e) {}
     }
 </script>
 
