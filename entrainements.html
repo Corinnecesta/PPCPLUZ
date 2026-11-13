@@ -174,6 +174,40 @@
         .badge-absent { color: #fb7185; font-weight: bold; }
         .badge-attente { color: var(--text-muted); }
 
+        /* BOUTONS DE PRÉSENCE */
+        .presence-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+        .btn-present {
+            flex: 1;
+            background: rgba(52, 211, 153, 0.2);
+            border: 1px solid #34d399;
+            color: #34d399;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-present:hover { background: rgba(52, 211, 153, 0.35); }
+        
+        .btn-absent {
+            flex: 1;
+            background: rgba(251, 113, 133, 0.2);
+            border: 1px solid #fb7185;
+            color: #fb7185;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-absent:hover { background: rgba(251, 113, 133, 0.35); }
+
         .program-btn { 
             background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%); 
             border: 2px solid #06b6d4; 
@@ -283,7 +317,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -298,7 +332,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page
+    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page[cite: 7]
     localStorage.setItem('dernier_clic_entrainements', Date.now());
 
     const htmlElement = document.documentElement;
@@ -331,6 +365,7 @@
         } else {
             if (adminSection) adminSection.style.display = 'none';
         }
+        chargerCalendrierFirebase();
     });
 
     window.toggleEventForm = function() {
@@ -359,6 +394,79 @@
         }
     }
 
+    // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC MOTIF OBLIGATOIRE SI ABSENT
+    window.repondreEntrainement = async function(entrainementId, statutChoisi) {
+        let currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email');
+        
+        if (!currentUser || currentUser === "Membre") {
+            currentUser = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
+            if (!currentUser || currentUser.trim() === "") {
+                alert("Action annulée : nom requis.");
+                return;
+            }
+            currentUser = currentUser.trim();
+            localStorage.setItem('cesta_username', currentUser);
+        }
+
+        if (!entrainementId) {
+            alert("Erreur : ID de l'événement manquant.");
+            return;
+        }
+
+        let motifAbsence = "";
+        if (statutChoisi === 'absent') {
+            while (true) {
+                motifAbsence = prompt("Veuillez indiquer le motif de votre absence (obligatoire) :");
+                if (motifAbsence === null) {
+                    return; // Annulation
+                }
+                if (motifAbsence.trim() !== "") {
+                    motifAbsence = motifAbsence.trim();
+                    break;
+                }
+                alert("Le motif est obligatoire pour signaler une absence.");
+            }
+        }
+
+        try {
+            const docRef = doc(db, "entrainements", entrainementId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                alert("Entraînement introuvable dans la base de données.");
+                return;
+            }
+
+            const data = docSnap.data();
+            let convoques = data.convoques || [];
+
+            // Nettoyage de toutes les anciennes entrées de cet utilisateur pour éviter les doublons
+            convoques = convoques.filter(c => {
+                const nomEnregistre = (c.nom || "").trim().toLowerCase();
+                const utilisateurActuel = currentUser.trim().toLowerCase();
+                return nomEnregistre !== utilisateurActuel;
+            });
+
+            // Ajout de la nouvelle réponse unique
+            convoques.push({
+                nom: currentUser,
+                statut: statutChoisi,
+                motif: motifAbsence
+            });
+
+            await updateDoc(docRef, {
+                convoques: convoques
+            });
+
+            alert("Votre réponse a bien été enregistrée !");
+            chargerCalendrierFirebase();
+
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la convocation :", error);
+            alert("Erreur lors de l'enregistrement : " + error.message);
+        }
+    };
+
     window.ajouterEvenementAdmin = async function() {
         const titre = document.getElementById('eventTitleInput').value.trim();
         const startDate = document.getElementById('eventStartDateInput').value;
@@ -374,7 +482,6 @@
         }
 
         try {
-            // 1. Sauvegarde Firestore
             await addDoc(collection(db, "entrainements"), {
                 type: "info",
                 titre: titre,
@@ -388,7 +495,6 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Écriture du signal de log pour la Cloud Function Firebase FCM
             await addDoc(collection(db, "notifications_log"), {
                 titre: `📅 Nouvel événement : ${titre}`,
                 corps: `Prévu le ${startDate} (${lieu || "St Jean de Luz"})`,
@@ -568,6 +674,17 @@
                     convoquesHtml += `</div>`;
                 }
 
+                // Boutons de présence affichés UNIQUEMENT pour les entraînements (exclut les infos/championnats avec contour rouge)
+                let presenceButtonsHtml = "";
+                if (!isInfo) {
+                    presenceButtonsHtml = `
+                        <div class="presence-actions">
+                            <button class="btn-present" onclick="repondreEntrainement('${ev.id}', 'present')">✅ Je serai présent</button>
+                            <button class="btn-absent" onclick="repondreEntrainement('${ev.id}', 'absent')">❌ Absent</button>
+                        </div>
+                    `;
+                }
+
                 if (isInfo) {
                     htmlText += `
                         <div class="card-item card-info">
@@ -584,6 +701,7 @@
                             ${descTxt}
                             <div class="item-sub">${infoBasTxt}</div>
                             ${convoquesHtml}
+                            ${presenceButtonsHtml}
                         </div>
                     `;
                 }
