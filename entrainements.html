@@ -185,10 +185,10 @@
             background: rgba(52, 211, 153, 0.2);
             border: 1px solid #34d399;
             color: #34d399;
-            padding: 6px;
+            padding: 8px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -199,10 +199,10 @@
             background: rgba(251, 113, 133, 0.2);
             border: 1px solid #fb7185;
             color: #fb7185;
-            padding: 6px;
+            padding: 8px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -396,17 +396,30 @@
 
     // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC MOTIF OBLIGATOIRE SI ABSENT
     window.repondreEntrainement = async function(entrainementId, statutChoisi) {
-        const currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email') || "Membre";
+        // Récupération sécurisée du nom de l'utilisateur connecté
+        let currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email');
         
-        if (!entrainementId) return;
+        if (!currentUser || currentUser === "Membre") {
+            currentUser = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
+            if (!currentUser || currentUser.trim() === "") {
+                alert("Action annulée : nom requis.");
+                return;
+            }
+            currentUser = currentUser.trim();
+            localStorage.setItem('cesta_username', currentUser);
+        }
+
+        if (!entrainementId) {
+            alert("Erreur : ID de l'événement manquant.");
+            return;
+        }
 
         let motifAbsence = "";
         if (statutChoisi === 'absent') {
-            // Boucle tant qu'aucun motif valide n'est saisi ou si l'utilisateur annule
             while (true) {
                 motifAbsence = prompt("Veuillez indiquer le motif de votre absence (obligatoire) :");
                 if (motifAbsence === null) {
-                    return; // Annulation de l'action par l'utilisateur
+                    return; // Annulation
                 }
                 if (motifAbsence.trim() !== "") {
                     motifAbsence = motifAbsence.trim();
@@ -421,7 +434,7 @@
             const docSnap = await getDoc(docRef);
 
             if (!docSnap.exists()) {
-                alert("Entraînement introuvable.");
+                alert("Entraînement introuvable dans la base de données.");
                 return;
             }
 
@@ -435,7 +448,7 @@
                 return nomEnregistre !== utilisateurActuel;
             });
 
-            // Ajout propre de la réponse unique
+            // Ajout de la nouvelle réponse unique
             convoques.push({
                 nom: currentUser,
                 statut: statutChoisi,
@@ -451,7 +464,7 @@
 
         } catch (error) {
             console.error("Erreur lors de la mise à jour de la convocation :", error);
-            alert("Erreur lors de l'enregistrement de votre réponse.");
+            alert("Erreur lors de l'enregistrement : " + error.message);
         }
     };
 
@@ -522,7 +535,7 @@
         if (typeStr === 'info' || typeStr === 'perso' || titleStr.includes('partie') || titleStr.includes('championnat')) {
             return 'info';
         }
-        if (typeStr.includes('physique') && (typeStr.includes('co') || typeStr.includes('collectif'))) {
+        if (typeStr.includes('physique') && (typeStr.includes('co' ) || typeStr.includes('collectif'))) {
             return 'physique-co';
         }
         if (typeStr.includes('physique') || titleStr.includes('physique') || titleStr.includes('muscu')) {
@@ -662,7 +675,7 @@
                     convoquesHtml += `</div>`;
                 }
 
-                // Boutons d'action pour répondre directement depuis la page
+                // Boutons d'action robustes avec transmission de l'ID Firebase de l'événement
                 let presenceButtonsHtml = `
                     <div class="presence-actions">
                         <button class="btn-present" onclick="repondreEntrainement('${ev.id}', 'present')">✅ Je serai présent</button>
