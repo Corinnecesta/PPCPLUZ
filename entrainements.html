@@ -332,7 +332,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page[cite: 7]
+    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page
     localStorage.setItem('dernier_clic_entrainements', Date.now());
 
     const htmlElement = document.documentElement;
@@ -394,12 +394,11 @@
         }
     }
 
-    // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC NETTOYAGE LARGE ET MOTIF OBLIGATOIRE
+    // FONCTION DE RÉPONSE ANTI-DOUBLON AVEC NETTOYAGE LARGE DES EMAILS/NOMS ET MOTIF OBLIGATOIRE
     window.repondreEntrainement = async function(entrainementId, statutChoisi) {
-        let userEmail = localStorage.getItem('cesta_user_email') || "";
-        let userName = localStorage.getItem('cesta_username'] || localStorage.getItem('cesta_user_name') || "";
+        let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
+        let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
         
-        // Résolution automatique du vrai nom complet via joueursData si disponible
         let nomFinal = userName || userEmail;
         if (typeof joueursData !== 'undefined') {
             const jTrouve = joueursData.find(j => 
@@ -453,15 +452,15 @@
             const data = docSnap.data();
             let convoques = data.convoques || [];
 
-            // Nettoyage radical : on supprime toutes les anciennes entrées correspondantes au nom, pseudo ou e-mail
+            // Nettoyage radical : on supprime les doublons qu'ils soient sous format nom ou e-mail
             convoques = convoques.filter(c => {
                 const cNom = (c.nom || "").trim().toLowerCase();
                 return cNom !== nomFinal.toLowerCase() && 
-                       cNom !== userEmail.toLowerCase() && 
-                       cNom !== userName.toLowerCase();
+                       (userEmail === "" || cNom !== userEmail.toLowerCase()) && 
+                       (userName === "" || cNom !== userName.toLowerCase());
             });
 
-            // Ajout propre de la réponse unique sous le format de nom complet unifié
+            // Ajout propre de la réponse unique
             convoques.push({
                 nom: nomFinal,
                 statut: statutChoisi,
@@ -496,6 +495,7 @@
         }
 
         try {
+            // 1. Sauvegarde Firestore
             await addDoc(collection(db, "entrainements"), {
                 type: "info",
                 titre: titre,
@@ -509,6 +509,7 @@
                 createdAt: new Date().toISOString()
             });
 
+            // 2. Écriture du signal de log pour la Cloud Function Firebase FCM
             await addDoc(collection(db, "notifications_log"), {
                 titre: `📅 Nouvel événement : ${titre}`,
                 corps: `Prévu le ${startDate} (${lieu || "St Jean de Luz"})`,
@@ -688,7 +689,7 @@
                     convoquesHtml += `</div>`;
                 }
 
-                // Boutons de présence affichés UNIQUEMENT pour les entraînements (exclut les infos/championnats)
+                // Boutons de présence affichés UNIQUEMENT pour les entraînements (exclut les infos/championnats à contour rouge)
                 let presenceButtonsHtml = "";
                 if (!isInfo) {
                     presenceButtonsHtml = `
