@@ -849,27 +849,32 @@
             console.log("Erreur badge échanges :", e);
         }
 
-        // 2. Badge Entraînements (nombre d'entraînements futurs)
+        // 2. Badge Entraînements (nouveaux entraînements futurs non consultés)
         try {
             db.collection("entrainements").onSnapshot((snapshot) => {
                 const maintenant = new Date();
-                let countFuturs = 0;
+                const dernierVisiteEntrainements = Number(localStorage.getItem('dernier_clic_entrainements') || 0);
+                let countNouveaux = 0;
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const rawDate = data.startDate || data.dateIso || data.date || data.start;
+                    const rawCreated = data.timestamp || data.createdAt || rawDate;
+
                     if (rawDate) {
                         const dateEvt = new Date(rawDate);
-                        if (!isNaN(dateEvt) && dateEvt >= maintenant) {
-                            countFuturs++;
+                        const creationTime = rawCreated.toDate ? rawCreated.toDate().getTime() : new Date(rawCreated).getTime();
+
+                        if (!isNaN(dateEvt) && dateEvt >= maintenant && creationTime > dernierVisiteEntrainements) {
+                            countNouveaux++;
                         }
                     }
                 });
 
                 const badge = document.getElementById('badgeEntrainements');
                 if (badge) {
-                    if (countFuturs > 0) {
-                        badge.textContent = countFuturs;
+                    if (countNouveaux > 0) {
+                        badge.textContent = countNouveaux;
                         badge.classList.add('active');
                     } else {
                         badge.classList.remove('active');
