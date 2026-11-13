@@ -174,40 +174,6 @@
         .badge-absent { color: #fb7185; font-weight: bold; }
         .badge-attente { color: var(--text-muted); }
 
-        /* BOUTONS DE PRÉSENCE */
-        .presence-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 8px;
-        }
-        .btn-present {
-            flex: 1;
-            background: rgba(52, 211, 153, 0.2);
-            border: 1px solid #34d399;
-            color: #34d399;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-present:hover { background: rgba(52, 211, 153, 0.35); }
-        
-        .btn-absent {
-            flex: 1;
-            background: rgba(251, 113, 133, 0.2);
-            border: 1px solid #fb7185;
-            color: #fb7185;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-absent:hover { background: rgba(251, 113, 133, 0.35); }
-
         .program-btn { 
             background: linear-gradient(90deg, #047857 0%, #0d9488 45%, #14b8a6 100%); 
             border: 2px solid #06b6d4; 
@@ -394,7 +360,7 @@
         }
     }
 
-    // Récupération unifiée du nom de l'utilisateur connecté
+    // Récupération unifiée du nom complet de l'utilisateur connecté via joueurs-data.js
     function getNomUtilisateurActuel() {
         let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
         let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
@@ -427,12 +393,9 @@
                (emailPrefix && cNom === emailPrefix);
     }
 
-    // FONCTION DE RÉPONSE MISE À JOUR (MET À JOUR L'ENTRÉE EXISTANTE AU LIEU DE DUPLIQUER)
+    // FONCTION DE RÉPONSE : NETTOIE ET MET À JOUR L'ENTRÉE SANS JAMAIS DUPLIQUER
     window.repondreEntrainement = async function(entrainementId, statutChoisi) {
         let nomFinal = getNomUtilisateurActuel();
-        let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
-        let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
-        let emailPrefix = userEmail.includes('@') ? userEmail.split('@')[0].toLowerCase() : userEmail.toLowerCase();
 
         if (!nomFinal || nomFinal === "Membre" || nomFinal === "") {
             nomFinal = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
@@ -475,23 +438,15 @@
             const data = docSnap.data();
             let convoques = data.convoques || [];
 
-            // Recherche si l'utilisateur existe déjà dans la liste (par nom, email ou pseudo abrégé type "tbasque")
-            let indexTrouve = convoques.findIndex(c => estMonNom(c.nom));
+            // Nettoyage radical en base : supprime TOUTES les anciennes variantes (tbasque, e-mail, etc.)
+            convoques = convoques.filter(c => !estMonNom(c.nom));
 
-            if (indexTrouve !== -1) {
-                // Mise à jour de l'entrée existante sans créer de doublon
-                convoques[indexTrouve].nom = nomFinal;
-                convoques[indexTrouve].statut = statutChoisi;
-                convoques[indexTrouve].motif = motifAbsence;
-            } else {
-                // Nettoyage de sécurité des anciennes entrées et ajout
-                convoques = convoques.filter(c => !estMonNom(c.nom));
-                convoques.push({
-                    nom: nomFinal,
-                    statut: statutChoisi,
-                    motif: motifAbsence
-                });
-            }
+            // Ajout de la réponse propre et unifiée sous le vrai nom complet
+            convoques.push({
+                nom: nomFinal,
+                statut: statutChoisi,
+                motif: motifAbsence
+            });
 
             await updateDoc(docRef, {
                 convoques: convoques
@@ -688,22 +643,42 @@
                 const descTxt = ev.description ? `<div style="font-size: 0.8rem; font-weight: bold; color: var(--container-text); margin-top: 4px; margin-bottom: 4px;">${ev.description}</div>` : '';
 
                 let convoquesHtml = "";
-                let userEstConvoque = false;
-
                 if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
+                    // Dédoublonnage et normalisation visuelle (fusionne tbasque et Thibault BASQUE en un seul)
+                    let convoquesNettoyees = [];
+                    let myEntry = null;
+
+                    ev.convoques.forEach(c => {
+                        if (estMonNom(c.nom)) {
+                            if (!myEntry || (c.statut && c.statut !== 'en_attente')) {
+                                myEntry = {
+                                    nom: getNomUtilisateurActuel(),
+                                    statut: c.statut || 'en_attente',
+                                    motif: c.motif || ''
+                                };
+                            }
+                        } else {
+                            if (!convoquesNettoyees.some(existing => existing.nom.toLowerCase() === (c.nom || "").trim().toLowerCase())) {
+                                convoquesNettoyees.push(c);
+                            }
+                        }
+                    });
+
+                    if (myEntry) {
+                        convoquesNettoyees.unshift(myEntry);
+                    }
+
                     convoquesHtml += `
                         <div class="convoques-box">
                             <div class="convoques-title">👥 Convocations & Statuts :</div>
                     `;
-                    ev.convoques.forEach(c => {
-                        const isMe = estMonNom(c.nom);
-                        if (isMe) userEstConvoque = true;
 
+                    convoquesNettoyees.forEach(c => {
+                        const isMe = estMonNom(c.nom);
                         const statut = c.statut ? c.statut.toLowerCase().trim() : "en_attente";
                         let statutBadge = "";
 
                         if (isMe && !isInfo) {
-                            // Si c'est l'utilisateur connecté, affichage des boutons d'action directement en face de son nom
                             let badgeActuel = `<span class="badge-attente">⏳ En attente</span>`;
                             if (statut === 'present') badgeActuel = `<span class="badge-present">✅ Présent</span>`;
                             else if (statut === 'absent') {
@@ -712,7 +687,7 @@
                             }
 
                             statutBadge = `
-                                <div style="display: flex; align-items: center; gap: 5px;">
+                                <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
                                     ${badgeActuel}
                                     <button onclick="repondreEntrainement('${ev.id}', 'present')" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; color: #34d399; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer;">Présent</button>
                                     <button onclick="repondreEntrainement('${ev.id}', 'absent')" style="background: rgba(251,113,133,0.2); border: 1px solid #fb7185; color: #fb7185; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer;">Absent</button>
@@ -738,17 +713,6 @@
                     convoquesHtml += `</div>`;
                 }
 
-                // Boutons de présence en bas si l'utilisateur n'est pas encore dans la liste des convoqués
-                let presenceButtonsHtml = "";
-                if (!isInfo && !userEstConvoque) {
-                    presenceButtonsHtml = `
-                        <div class="presence-actions">
-                            <button class="btn-present" onclick="repondreEntrainement('${ev.id}', 'present')">✅ Je serai présent</button>
-                            <button class="btn-absent" onclick="repondreEntrainement('${ev.id}', 'absent')">❌ Absent</button>
-                        </div>
-                    `;
-                }
-
                 if (isInfo) {
                     htmlText += `
                         <div class="card-item card-info">
@@ -765,7 +729,6 @@
                             ${descTxt}
                             <div class="item-sub">${infoBasTxt}</div>
                             ${convoquesHtml}
-                            ${presenceButtonsHtml}
                         </div>
                     `;
                 }
