@@ -12,7 +12,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Interception universelle des messages en arrière-plan (compatible data-only et notification)
+// Interception des notifications en arrière-plan ou écran verrouillé
 self.addEventListener('push', function(event) {
   if (!event.data) return;
 
@@ -20,18 +20,17 @@ self.addEventListener('push', function(event) {
   try {
     data = event.data.json();
   } catch (e) {
-    data = { notification: { title: "Cesta Punta", body: event.data.text() } };
+    data = { data: { titre: "Pôle Performance", corps: event.data.text() } };
   }
 
-  // Récupère les données qu'elles viennent de "data" (Cloud Function) ou "notification"
-  const notificationPayload = data.notification || data.data || {};
-  
-  const title = notificationPayload.title || notificationPayload.titre || "Cesta Punta";
+  const payload = data.notification || data.data || {};
+  const title = payload.title || payload.titre || "Pôle Performance";
   const options = {
-    body: notificationPayload.body || notificationPayload.corps || "Nouvel événement enregistré",
-    icon: '/pole.png',
-    badge: '/pole.png',
-    data: { url: notificationPayload.url || './accueil.html' }
+    body: payload.body || payload.corps || "Nouvelle notification",
+    icon: 'pole.png',
+    badge: 'pole.png',
+    vibrate: [200, 100, 200],
+    data: { url: payload.url || './accueil.html' }
   };
 
   event.waitUntil(
@@ -39,15 +38,13 @@ self.addEventListener('push', function(event) {
   );
 });
 
-// Gestion du clic sur la notification pour rediriger l'utilisateur
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : './accueil.html';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      for (var i = 0; i < clientList.length; i++) {
-        var client = clientList[i];
+      for (let client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.navigate(targetUrl);
           return client.focus();
