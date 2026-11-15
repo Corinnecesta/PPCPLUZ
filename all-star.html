@@ -257,6 +257,9 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Efface le point rouge de notification pour cette compétition dès l'ouverture
+        localStorage.setItem('dernier_clic_comp_All Stars', Date.now());
+
         const userRole = localStorage.getItem('cesta_user_role');
         const restrictedElements = document.querySelectorAll('.admin-entraineur-only');
         if (userRole === 'joueur' || !userRole) {
@@ -475,7 +478,6 @@
             let teamsHTML = "";
 
             if (match.equipes && Array.isArray(match.equipes) && match.equipes.length > 0) {
-                // Trouver le score maximum numérique parmi les équipes de la Quiniela pour désigner le gagnant
                 let maxScore = -1;
                 match.equipes.forEach(eq => {
                     let num = parseInt(eq.score);
