@@ -31,7 +31,12 @@
         .match-title { font-weight: bold; font-size: 0.9rem; color: var(--accent-color); }
         
         .badges-group { display: flex; gap: 6px; align-items: center; }
-        .match-sets-badge { font-size: 0.72rem; color: var(--accent-color); background: rgba(0, 242, 254, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.2); font-weight: 600; }
+        
+        /* Styles pour les badges Victoire / Défaite dynamiques */
+        .match-sets-badge { font-size: 0.72rem; padding: 3px 8px; border-radius: 8px; font-weight: 600; border: 1px solid; }
+        .badge-win { color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.3); }
+        .badge-loss { color: #f87171; background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3); }
+        .badge-neutral { color: var(--accent-color); background: rgba(0, 242, 254, 0.1); border-color: rgba(0, 242, 254, 0.2); }
         
         /* Style simple pour le texte du genre */
         .gender-text { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
@@ -238,6 +243,8 @@
             let s1 = formaterScore(match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : match.equipe1Score);
             let s2 = formaterScore(match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : match.equipe2Score);
             let c1 = "score-neutral", c2 = "score-neutral";
+            let badgeTexte = match.resultat || match.nombreManches || "Partie";
+            let badgeClass = "badge-neutral";
 
             if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
                 let calcTotal = (str) => {
@@ -247,8 +254,17 @@
                 let t1 = calcTotal(s1);
                 let t2 = calcTotal(s2);
 
-                if (t1 > t2) { c1 = "score-win"; c2 = "score-loss"; }
-                else if (t2 > t1) { c1 = "score-loss"; c2 = "score-win"; }
+                if (t1 > t2) { 
+                    c1 = "score-win"; 
+                    c2 = "score-loss"; 
+                    badgeTexte = "Victoire";
+                    badgeClass = "badge-win";
+                } else if (t2 > t1) { 
+                    c1 = "score-loss"; 
+                    c2 = "score-win"; 
+                    badgeTexte = "Défaite";
+                    badgeClass = "badge-loss";
+                }
             }
 
             let teamsHTML = `
@@ -278,7 +294,7 @@
                     <span class="match-title">${match.titre || COMPETITION_CIBLE}</span>
                     <div class="badges-group">
                         ${genderTextHTML}
-                        <span class="match-sets-badge">${match.resultat || match.nombreManches || 'Partie rapide'}</span>
+                        <span class="match-sets-badge ${badgeClass}">${badgeTexte}</span>
                     </div>
                 </div>
                 <div class="match-teams">
