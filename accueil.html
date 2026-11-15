@@ -547,6 +547,34 @@
     }
     const db = firebase.firestore();
 
+    // --- EFFACEMENT DE LA PASTILLE DE L'ICÔNE DU TÉLÉPHONE ---
+    async function effacerBadgeApplication() {
+        if ('clearAppBadge' in navigator) {
+            try {
+                await navigator.clearAppBadge();
+            } catch (e) {
+                console.error("Erreur effacement badge :", e);
+            }
+        }
+
+        // Remet le compteur IndexedDB à 0 pour le Service Worker
+        try {
+            const req = indexedDB.open('BadgeStore', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('badge');
+            req.onsuccess = () => {
+                const badgeDb = req.result;
+                const tx = badgeDb.transaction('badge', 'readwrite');
+                tx.objectStore('badge').put(0, 'count');
+            };
+        } catch (e) {}
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            effacerBadgeApplication();
+        }
+    });
+
     async function synchroniserJetonFCM(silencieux = false) {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
 
@@ -673,9 +701,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        if ('clearAppBadge' in navigator) {
-            navigator.clearAppBadge().catch((err) => console.log("Erreur effacement badge:", err));
-        }
+        effacerBadgeApplication();
 
         if ("Notification" in window && Notification.permission === "granted") {
             synchroniserJetonFCM(true);
@@ -853,7 +879,6 @@
         try {
             db.collection("entrainements").onSnapshot((snapshot) => {
                 const maintenant = new Date();
-                // Si la clé n'existe pas encore (ex: après reconnexion), on l'initialise à maintenant
                 if (!localStorage.getItem('dernier_clic_entrainements')) {
                     localStorage.setItem('dernier_clic_entrainements', Date.now());
                 }
