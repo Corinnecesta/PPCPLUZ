@@ -144,7 +144,7 @@
         .match-preview-box { background: rgba(15, 76, 92, 0.3); border: 1px solid var(--accent-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 0.78rem; display: none; }
         .match-preview-box.active { display: block; }
 
-        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .card-item { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .card-item.card-info { border-color: #ef4444; }
 
         .item-title { font-weight: bold; font-size: 0.85rem; color: var(--container-text); margin-bottom: 2px; }
@@ -166,7 +166,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.7rem;
-            padding: 2px 0;
+            padding: 5px 0;
             color: var(--container-text);
             border-bottom: 1px solid rgba(255,255,255,0.03);
         }
@@ -283,7 +283,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -298,8 +298,28 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Remise à zéro immédiate du badge dynamique d'entraînements sur l'accueil au chargement de la page
-    localStorage.setItem('dernier_clic_entrainements', Date.now());
+    // --- EFFACEMENT DE LA PASTILLE SUR L'ICÔNE DU TÉLÉPHONE ET MAJ DU CLIC ---
+    async function effacerBadgeEntrainements() {
+        localStorage.setItem('dernier_clic_entrainements', Date.now());
+
+        if ('clearAppBadge' in navigator) {
+            try {
+                await navigator.clearAppBadge();
+            } catch (e) {
+                console.error("Erreur effacement badge :", e);
+            }
+        }
+
+        try {
+            const req = indexedDB.open('BadgeStore', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('badge');
+            req.onsuccess = () => {
+                const badgeDb = req.result;
+                const tx = badgeDb.transaction('badge', 'readwrite');
+                tx.objectStore('badge').put(0, 'count');
+            };
+        } catch (e) {}
+    }
 
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -323,6 +343,8 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        effacerBadgeEntrainements();
+
         const role = localStorage.getItem('cesta_user_role');
         const adminSection = document.getElementById('adminActionSection');
         
@@ -331,6 +353,7 @@
         } else {
             if (adminSection) adminSection.style.display = 'none';
         }
+        chargerCalendrierFirebase();
     });
 
     window.toggleEventForm = function() {
@@ -359,6 +382,106 @@
         }
     }
 
+    function getNomUtilisateurActuel() {
+        let userEmail = (localStorage.getItem('cesta_user_email') || "").trim();
+        let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim();
+        
+        let nomFinal = userName || userEmail;
+        if (typeof joueursData !== 'undefined') {
+            const jTrouve = joueursData.find(j => 
+                (j.email && userEmail && j.email.toLowerCase() === userEmail.toLowerCase()) ||
+                (j.email && userName && j.email.toLowerCase() === userName.toLowerCase()) ||
+                (userName && `${j.prenom} ${j.nom}`.toLowerCase() === userName.toLowerCase())
+            );
+            if (jTrouve) {
+                nomFinal = `${jTrouve.prenom} ${jTrouve.nom}`;
+            }
+        }
+        return nomFinal;
+    }
+
+    function estMonNom(cNom) {
+        if (!cNom) return false;
+        cNom = cNom.trim().toLowerCase();
+        let userEmail = (localStorage.getItem('cesta_user_email') || "").trim().toLowerCase();
+        let userName = (localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_name') || "").trim().toLowerCase();
+        let emailPrefix = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
+        let monNomCanonique = getNomUtilisateurActuel().trim().toLowerCase();
+
+        return cNom === monNomCanonique || 
+               (userName && cNom === userName) || 
+               (userEmail && cNom === userEmail) || 
+               (emailPrefix && cNom === emailPrefix);
+    }
+
+    // FONCTION DE RÉPONSE : GÈRE LA PRÉSENCE OU L'ABSENCE AVEC MOTIF OBLIGATOIRE SANS DUPLIQUER
+    window.repondreEntrainement = async function(entrainementId, statutChoisi) {
+        let nomFinal = getNomUtilisateurActuel();
+
+        if (!nomFinal || nomFinal === "Membre" || nomFinal === "") {
+            nomFinal = prompt("Veuillez entrer votre Prénom et Nom pour enregistrer votre réponse :");
+            if (!nomFinal || nomFinal.trim() === "") {
+                alert("Action annulée : nom requis.");
+                return;
+            }
+            nomFinal = nomFinal.trim();
+        }
+
+        if (!entrainementId) {
+            alert("Erreur : ID de l'événement manquant.");
+            return;
+        }
+
+        let motifAbsence = "";
+        if (statutChoisi === 'absent') {
+            while (true) {
+                motifAbsence = prompt("Veuillez indiquer le motif de votre absence (obligatoire) :");
+                if (motifAbsence === null) {
+                    return; // Annulation
+                }
+                if (motifAbsence.trim() !== "") {
+                    motifAbsence = motifAbsence.trim();
+                    break;
+                }
+                alert("Le motif est obligatoire pour signaler une absence.");
+            }
+        }
+
+        try {
+            const docRef = doc(db, "entrainements", entrainementId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                alert("Entraînement introuvable dans la base de données.");
+                return;
+            }
+
+            const data = docSnap.data();
+            let convoques = data.convoques || [];
+
+            // Nettoyage radical en base : supprime TOUTES les anciennes variantes
+            convoques = convoques.filter(c => !estMonNom(c.nom));
+
+            // Ajout de la réponse propre et unifiée sous le vrai nom complet
+            convoques.push({
+                nom: nomFinal,
+                statut: statutChoisi,
+                motif: motifAbsence
+            });
+
+            await updateDoc(docRef, {
+                convoques: convoques
+            });
+
+            alert("Votre réponse a bien été enregistrée !");
+            chargerCalendrierFirebase();
+
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la convocation :", error);
+            alert("Erreur lors de l'enregistrement : " + error.message);
+        }
+    };
+
     window.ajouterEvenementAdmin = async function() {
         const titre = document.getElementById('eventTitleInput').value.trim();
         const startDate = document.getElementById('eventStartDateInput').value;
@@ -374,7 +497,6 @@
         }
 
         try {
-            // 1. Sauvegarde Firestore
             await addDoc(collection(db, "entrainements"), {
                 type: "info",
                 titre: titre,
@@ -388,7 +510,6 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Écriture du signal de log pour la Cloud Function Firebase FCM
             await addDoc(collection(db, "notifications_log"), {
                 titre: `📅 Nouvel événement : ${titre}`,
                 corps: `Prévu le ${startDate} (${lieu || "St Jean de Luz"})`,
@@ -415,9 +536,13 @@
     };
 
     function estDansLaPlage(dateStr, event) {
-        const start = event.startDate || event.date;
-        const end = event.endDate || start;
-        if (!start) return false;
+        const rawStart = event.startDate || event.date || "";
+        const rawEnd = event.endDate || rawStart;
+        if (!rawStart) return false;
+        
+        const start = String(rawStart).substring(0, 10);
+        const end = String(rawEnd).substring(0, 10);
+        
         return dateStr >= start && dateStr <= end;
     }
 
@@ -544,18 +669,62 @@
 
                 let convoquesHtml = "";
                 if (ev.convoques && Array.isArray(ev.convoques) && ev.convoques.length > 0) {
+                    let convoquesNettoyees = [];
+                    let myEntry = null;
+
+                    ev.convoques.forEach(c => {
+                        if (estMonNom(c.nom)) {
+                            if (!myEntry || (c.statut && c.statut !== 'en_attente')) {
+                                myEntry = {
+                                    nom: getNomUtilisateurActuel(),
+                                    statut: c.statut || 'en_attente',
+                                    motif: c.motif || ''
+                                };
+                            }
+                        } else {
+                            if (!convoquesNettoyees.some(existing => existing.nom.toLowerCase() === (c.nom || "").trim().toLowerCase())) {
+                                convoquesNettoyees.push(c);
+                            }
+                        }
+                    });
+
+                    if (myEntry) {
+                        convoquesNettoyees.unshift(myEntry);
+                    }
+
                     convoquesHtml += `
                         <div class="convoques-box">
                             <div class="convoques-title">👥 Convocations & Statuts :</div>
                     `;
-                    ev.convoques.forEach(c => {
+
+                    convoquesNettoyees.forEach(c => {
+                        const isMe = estMonNom(c.nom);
                         const statut = c.statut ? c.statut.toLowerCase().trim() : "en_attente";
-                        let statutBadge = `<span class="badge-attente">⏳ En attente</span>`;
-                        if (statut === 'present') {
-                            statutBadge = `<span class="badge-present">✅ Présent</span>`;
-                        } else if (statut === 'absent') {
-                            const motifTxt = c.motif ? ` (${c.motif})` : '';
-                            statutBadge = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                        let statutBadge = "";
+
+                        if (isMe && !isInfo) {
+                            let badgeActuel = `<span class="badge-attente">⏳ En attente</span>`;
+                            if (statut === 'present') badgeActuel = `<span class="badge-present">✅ Présent</span>`;
+                            else if (statut === 'absent') {
+                                const motifTxt = c.motif ? ` (${c.motif})` : '';
+                                badgeActuel = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                            }
+
+                            statutBadge = `
+                                <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
+                                    ${badgeActuel}
+                                    <button onclick="repondreEntrainement('${ev.id}', 'present')" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; color: #34d399; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer;">Présent</button>
+                                    <button onclick="repondreEntrainement('${ev.id}', 'absent')" style="background: rgba(251,113,133,0.2); border: 1px solid #fb7185; color: #fb7185; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer;">Absent</button>
+                                </div>
+                            `;
+                        } else {
+                            statutBadge = `<span class="badge-attente">⏳ En attente</span>`;
+                            if (statut === 'present') {
+                                statutBadge = `<span class="badge-present">✅ Présent</span>`;
+                            } else if (statut === 'absent') {
+                                const motifTxt = c.motif ? ` (${c.motif})` : '';
+                                statutBadge = `<span class="badge-absent">❌ Absent${motifTxt}</span>`;
+                            }
                         }
 
                         convoquesHtml += `
