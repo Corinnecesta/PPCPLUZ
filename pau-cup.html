@@ -27,8 +27,13 @@
         .match-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 15px; text-decoration: none; color: var(--container-text); display: block; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
         .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .match-title { font-weight: bold; font-size: 0.9rem; color: var(--accent-color); }
-        .match-sets-badge { font-size: 0.72rem; color: #34d399; background: rgba(52, 211, 153, 0.1); padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600; }
+        .match-sets-badge { font-size: 0.72rem; padding: 3px 8px; border-radius: 8px; font-weight: 600; border: 1px solid; }
         
+        /* Styles pour les badges Victoire / Défaite */
+        .badge-win { color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.3); }
+        .badge-loss { color: #f87171; background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3); }
+        .badge-neutral { color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.3); }
+
         .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; margin-bottom: 10px; }
         .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
         .team-score { font-weight: 800; font-size: 0.95rem; }
@@ -194,6 +199,7 @@
             let s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : (match.equipe2Score || '-');
             let c1 = "score-neutral", c2 = "score-neutral";
             let badgeTexte = match.resultat || match.nombreManches || "Partie";
+            let badgeClass = "badge-neutral";
 
             if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
                 let t1 = String(s1).split('/').reduce((a,b)=>a+parseInt(b||0),0);
@@ -202,10 +208,12 @@
                     c1 = "score-win"; 
                     c2 = "score-loss"; 
                     badgeTexte = "Victoire";
+                    badgeClass = "badge-win";
                 } else if (t2 > t1) { 
                     c1 = "score-loss"; 
                     c2 = "score-win"; 
-                    badgeTexte = "Victoire";
+                    badgeTexte = "Défaite";
+                    badgeClass = "badge-loss";
                 }
             }
 
@@ -234,7 +242,7 @@
             card.innerHTML = `
                 <div class="match-header">
                     <span class="match-title">${match.titre || 'Partie de poule'}</span>
-                    <span class="match-sets-badge">${badgeTexte}</span>
+                    <span class="match-sets-badge ${badgeClass}">${badgeTexte}</span>
                 </div>
                 <div class="match-teams">
                     ${teamsHTML}
