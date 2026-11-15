@@ -216,8 +216,28 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-    // Remise à zéro immédiate du badge dynamique de parties sur l'accueil
-    localStorage.setItem('dernier_clic_matchs', Date.now());
+    // --- EFFACEMENT DE LA PASTILLE SUR L'ICÔNE DU TÉLÉPHONE ET MAJ DU CLIC ---
+    async function effacerBadgeMatchs() {
+        localStorage.setItem('dernier_clic_matchs', Date.now());
+
+        if ('clearAppBadge' in navigator) {
+            try {
+                await navigator.clearAppBadge();
+            } catch (e) {
+                console.error("Erreur effacement badge :", e);
+            }
+        }
+
+        try {
+            const req = indexedDB.open('BadgeStore', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('badge');
+            req.onsuccess = () => {
+                const badgeDb = req.result;
+                const tx = badgeDb.transaction('badge', 'readwrite');
+                tx.objectStore('badge').put(0, 'count');
+            };
+        } catch (e) {}
+    }
 
     // Gestion du thème
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
@@ -230,8 +250,10 @@
         document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
     }
 
-    // Gestion des rôles pour l'affichage du bouton d'ajout rapide
+    // Gestion des rôles et effacement du badge au chargement
     document.addEventListener("DOMContentLoaded", () => {
+        effacerBadgeMatchs();
+
         const userRole = localStorage.getItem('cesta_user_role');
         const restrictedElements = document.querySelectorAll('.admin-entraineur-only');
         if (userRole === 'joueur' || !userRole) {
