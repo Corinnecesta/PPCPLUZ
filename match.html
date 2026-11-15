@@ -28,6 +28,20 @@
         .comp-count-badge { font-size: 0.75rem; background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(52, 211, 153, 0.3); font-weight: 600; }
         .comp-arrow { color: var(--accent-color); font-size: 1rem; }
 
+        /* Style pour la pastille de non-lu sur une compétition spécifique */
+        .unread-dot {
+            width: 9px;
+            height: 9px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            display: none;
+            box-shadow: 0 0 8px #ef4444;
+            margin-left: 6px;
+        }
+        .unread-dot.active {
+            display: inline-block;
+        }
+
         /* Styles pour le bouton d'ajout rapide et le formulaire */
         .action-add-btn {
             background: linear-gradient(135deg, #0f4c5c 0%, #17b890 100%);
@@ -164,48 +178,92 @@
     <div class="section-title">Sélectionnez une Compétition</div>
 
     <div class="comp-grid">
-        <a href="winter-series.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-winter-series">-</span><span>🏆 Winter Series</span></div>
+        <a href="winter-series.html" class="comp-card" onclick="marquerClicCompetition('Winter Series')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-winter-series">-</span>
+                <span>🏆 Winter Series</span>
+                <span class="unread-dot" id="dot-Winter Series"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="gant-dor.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-gant-dor">-</span><span>🏆 Gant d'Or de Biarritz</span></div>
+        <a href="gant-dor.html" class="comp-card" onclick="marquerClicCompetition('Gant d\'Or de Biarritz')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-gant-dor">-</span>
+                <span>🏆 Gant d'Or de Biarritz</span>
+                <span class="unread-dot" id="dot-Gant d'Or de Biarritz"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="pau-cup.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-pau-cup">-</span><span>🏆 Cesta Pau Cup</span></div>
+        <a href="pau-cup.html" class="comp-card" onclick="marquerClicCompetition('Cesta Pau Cup')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-pau-cup">-</span>
+                <span>🏆 Cesta Pau Cup</span>
+                <span class="unread-dot" id="dot-Cesta Pau Cup"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="internationaux.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-internationaux">-</span><span>🏆 Internationaux de St Jean de Luz</span></div>
+        <a href="internationaux.html" class="comp-card" onclick="marquerClicCompetition('Internationaux de St Jean de Luz')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-internationaux">-</span>
+                <span>🏆 Internationaux de St Jean de Luz</span>
+                <span class="unread-dot" id="dot-Internationaux de St Jean de Luz"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="jai-alai.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-jai-alai">-</span><span>🏆 Jai Alai League</span></div>
+        <a href="jai-alai.html" class="comp-card" onclick="marquerClicCompetition('Jai Alai League')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-jai-alai">-</span>
+                <span>🏆 Jai Alai League</span>
+                <span class="unread-dot" id="dot-Jai Alai League"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="championnat.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-championnat">-</span><span>🏆 Championnat de France</span></div>
+        <a href="championnat.html" class="comp-card" onclick="marquerClicCompetition('Championnat de France')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-championnat">-</span>
+                <span>🏆 Championnat de France</span>
+                <span class="unread-dot" id="dot-Championnat de France"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="championnatpb.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-championnatpb">-</span><span>🏆 Championnat du Pays Basque</span></div>
+        <a href="championnatpb.html" class="comp-card" onclick="marquerClicCompetition('Championnat du Pays Basque')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-championnatpb">-</span>
+                <span>🏆 Championnat du Pays Basque</span>
+                <span class="unread-dot" id="dot-Championnat du Pays Basque"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="all-star.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-all-star">-</span><span>🏆 All Stars Quinielas</span></div>
+        <a href="all-star.html" class="comp-card" onclick="marquerClicCompetition('All Stars')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-all-star">-</span>
+                <span>🏆 All Stars Quinielas</span>
+                <span class="unread-dot" id="dot-All Stars"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="summer-league.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-summer-league">-</span><span>🏆 Summer League</span></div>
+        <a href="summer-league.html" class="comp-card" onclick="marquerClicCompetition('Summer League')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-summer-league">-</span>
+                <span>🏆 Summer League</span>
+                <span class="unread-dot" id="dot-Summer League"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="pole.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-pole">-</span><span>🏆 Pôle</span></div>
+        <a href="pole.html" class="comp-card" onclick="marquerClicCompetition('Pôle')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-pole">-</span>
+                <span>🏆 Pôle</span>
+                <span class="unread-dot" id="dot-Pôle"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
-        <a href="mondial.html" class="comp-card">
-            <div class="comp-left"><span class="comp-count-badge" id="count-mondial">-</span><span>🏆 Mondial</span></div>
+        <a href="mondial.html" class="comp-card" onclick="marquerClicCompetition('Mondial')">
+            <div class="comp-left">
+                <span class="comp-count-badge" id="count-mondial">-</span>
+                <span>🏆 Mondial</span>
+                <span class="unread-dot" id="dot-Mondial"></span>
+            </div>
             <span class="comp-arrow">➔</span>
         </a>
     </div>
@@ -216,7 +274,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-    // --- EFFACEMENT DE LA PASTILLE SUR L'ICÔNE DU TÉLÉPHONE ET MAJ DU CLIC ---
+    // Enregistre le moment du clic sur une compétition spécifique
+    window.marquerClicCompetition = function(nomCompetition) {
+        localStorage.setItem('dernier_clic_comp_' + nomCompetition, Date.now());
+    };
+
+    // --- EFFACEMENT DE LA PASTILLE SUR L'ICÔNE DU TÉLÉPHONE ET MAJ DU CLIC GLOBAL ---
     async function effacerBadgeMatchs() {
         localStorage.setItem('dernier_clic_matchs', Date.now());
 
@@ -262,7 +325,7 @@
             restrictedElements.forEach(el => el.style.display = 'flex');
         }
 
-        // Charger le comptage des parties au chargement
+        // Charger le comptage des parties et les pastilles par compétition
         chargerCompteursMatchs();
     });
 
@@ -287,24 +350,29 @@
     }
     const db = firebase.firestore();
 
-    // Fonction pour compter les parties par compétition (dans "matchs" et "parties_rapides")
+    // Fonction pour compter les parties et afficher les pastilles par compétition
     async function chargerCompteursMatchs() {
         const competitionsMap = {
-            "Winter Series": "count-winter-series",
-            "Gant d'Or de Biarritz": "count-gant-dor",
-            "Cesta Pau Cup": "count-pau-cup",
-            "Internationaux de St Jean de Luz": "count-internationaux",
-            "Jai Alai League": "count-jai-alai",
-            "Championnat de France": "count-championnat",
-            "Championnat du Pays Basque": "count-championnatpb",
-            "All Stars": "count-all-star",
-            "Summer League": "count-summer-league",
-            "Pôle": "count-pole",
-            "Mondial": "count-mondial"
+            "Winter Series": { countId: "count-winter-series", dotId: "dot-Winter Series" },
+            "Gant d'Or de Biarritz": { countId: "count-gant-dor", dotId: "dot-Gant d'Or de Biarritz" },
+            "Cesta Pau Cup": { countId: "count-pau-cup", dotId: "dot-Cesta Pau Cup" },
+            "Internationaux de St Jean de Luz": { countId: "count-internationaux", dotId: "dot-Internationaux de St Jean de Luz" },
+            "Jai Alai League": { countId: "count-jai-alai", dotId: "dot-Jai Alai League" },
+            "Championnat de France": { countId: "count-championnat", dotId: "dot-Championnat de France" },
+            "Championnat du Pays Basque": { countId: "count-championnatpb", dotId: "dot-Championnat du Pays Basque" },
+            "All Stars": { countId: "count-all-star", dotId: "dot-All Stars" },
+            "Summer League": { countId: "count-summer-league", dotId: "dot-Summer League" },
+            "Pôle": { countId: "count-pole", dotId: "dot-Pôle" },
+            "Mondial": { countId: "count-mondial", dotId: "dot-Mondial" }
         };
 
         let compteurs = {};
-        Object.keys(competitionsMap).forEach(comp => { compteurs[comp] = 0; });
+        let dernieresDatesComp = {};
+
+        Object.keys(competitionsMap).forEach(comp => { 
+            compteurs[comp] = 0; 
+            dernieresDatesComp[comp] = 0;
+        });
 
         try {
             const snapshotMatchs = await db.collection("matchs").get();
@@ -312,6 +380,12 @@
                 const data = doc.data();
                 if (data.competition && compteurs[data.competition] !== undefined) {
                     compteurs[data.competition]++;
+                    if (data.timestamp) {
+                        const timeVal = data.timestamp.toMillis ? data.timestamp.toMillis() : new Date(data.timestamp).getTime();
+                        if (timeVal > dernieresDatesComp[data.competition]) {
+                            dernieresDatesComp[data.competition] = timeVal;
+                        }
+                    }
                 }
             });
 
@@ -320,13 +394,29 @@
                 const data = doc.data();
                 if (data.competition && compteurs[data.competition] !== undefined) {
                     compteurs[data.competition]++;
+                    if (data.timestamp) {
+                        const timeVal = data.timestamp.toMillis ? data.timestamp.toMillis() : new Date(data.timestamp).getTime();
+                        if (timeVal > dernieresDatesComp[data.competition]) {
+                            dernieresDatesComp[data.competition] = timeVal;
+                        }
+                    }
                 }
             });
 
-            for (let [comp, badgeId] of Object.entries(competitionsMap)) {
-                const badgeEl = document.getElementById(badgeId);
+            for (let [comp, config] of Object.entries(competitionsMap)) {
+                const badgeEl = document.getElementById(config.countId);
                 if (badgeEl) {
                     badgeEl.textContent = compteurs[comp];
+                }
+
+                const dotEl = document.getElementById(config.dotId);
+                if (dotEl) {
+                    const dernierClic = parseInt(localStorage.getItem('dernier_clic_comp_' + comp) || '0');
+                    if (dernieresDatesComp[comp] > dernierClic) {
+                        dotEl.classList.add('active');
+                    } else {
+                        dotEl.classList.remove('active');
+                    }
                 }
             }
         } catch (error) {
