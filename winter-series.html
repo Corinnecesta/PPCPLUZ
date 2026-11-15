@@ -128,6 +128,9 @@
         document.getElementById('themeToggleBtn').innerHTML = (t === 'light') ? '☀️' : '🌙';
     }
 
+    // Marquer la compétition comme lue dès l'ouverture de la page
+    localStorage.setItem('dernier_clic_comp_' + COMPETITION_CIBLE, Date.now());
+
     let tousLesMatchsFiltres = [];
 
     async function chargerMatchs() {
@@ -206,14 +209,25 @@
             let badgeClass = "badge-neutral";
 
             if (s1 !== "-" && s2 !== "-" && s1 !== "" && s2 !== "") {
-                let t1 = s1.split('/').reduce((a,b)=>a+parseInt(b||0),0);
-                let t2 = s2.split('/').reduce((a,b)=>a+parseInt(b||0),0);
-                if (t1 > t2) { 
+                let sets1 = String(s1).split('/');
+                let sets2 = String(s2).split('/');
+                
+                let victoires1 = 0;
+                let victoires2 = 0;
+
+                for(let i = 0; i < Math.max(sets1.length, sets2.length); i++) {
+                    let pts1 = parseInt(sets1[i]) || 0;
+                    let pts2 = parseInt(sets2[i]) || 0;
+                    if(pts1 > pts2) victoires1++;
+                    else if(pts2 > pts1) victoires2++;
+                }
+
+                if (victoires1 > victoires2 || (victoires1 === victoires2 && sets1.length > 0 && parseInt(sets1[0] || 0) > parseInt(sets2[0] || 0))) { 
                     c1 = "score-win"; 
                     c2 = "score-loss"; 
                     badgeTexte = "Victoire";
                     badgeClass = "badge-win";
-                } else if (t2 > t1) { 
+                } else if (victoires2 > victoires1 || (victoires1 === victoires2 && sets1.length > 0 && parseInt(sets2[0] || 0) > parseInt(sets1[0] || 0))) { 
                     c1 = "score-loss"; 
                     c2 = "score-win"; 
                     badgeTexte = "Défaite";
