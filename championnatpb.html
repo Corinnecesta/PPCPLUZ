@@ -35,8 +35,8 @@
         .badge-neutral { color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.3); }
 
         .match-teams { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; margin-bottom: 10px; }
-        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-        .team-score { font-weight: 800; font-size: 0.95rem; }
+        .team-row { display: flex; justify-content: space-between; align-items: center; font-weight: 500; gap: 10px; }
+        .team-score { font-weight: 800; font-size: 0.95rem; white-space: nowrap; }
         .score-win { color: #34d399; }   
         .score-loss { color: #f87171; }  
         .score-neutral { color: var(--text-muted); } 
@@ -149,14 +149,70 @@
             const snapshotRapides = await getDocs(qRapides);
             snapshotRapides.forEach((docSnap) => {
                 const data = docSnap.data();
+                
+                let eq1 = data.joueurs || (data.lieu ? `Lieu : ${data.lieu}` : "Partie Rapide");
+                let eq2 = "";
+                let sc1 = data.score || "-";
+                let sc2 = "-";
+
+                // 1. Découpage des équipes sur " vs " ou " / " (ex: "Libois - Ourthe / Bonnin - Montamat")
+                if (data.joueurs) {
+                    if (data.joueurs.toLowerCase().includes(" vs ")) {
+                        const parts = data.joueurs.split(/ vs /i);
+                        eq1 = parts[0].trim();
+                        eq2 = parts[1].trim();
+                    } else if (data.joueurs.includes("/")) {
+                        const parts = data.joueurs.split("/");
+                        eq1 = parts[0].trim();
+                        eq2 = parts.slice(1).join(" / ").trim();
+                    }
+                }
+
+                // 2. Découpage et reformattage des scores :
+                // Si saisi par manche "15-15 / 12-6" -> transforme en score Équipe 1 ("15/12") et Équipe 2 ("15/6")
+                if (data.score) {
+                    if (data.score.toLowerCase().includes(" vs ")) {
+                        const scoreParts = data.score.split(/ vs /i);
+                        sc1 = scoreParts[0].trim();
+                        sc2 = scoreParts[1].trim();
+                    } else if (data.score.includes("/")) {
+                        const sets = data.score.split("/");
+                        let arr1 = [], arr2 = [];
+                        let formatParManche = true;
+
+                        sets.forEach(s => {
+                            if (s.includes("-")) {
+                                const p = s.split("-");
+                                arr1.push(p[0].trim());
+                                arr2.push(p[1].trim());
+                            } else {
+                                formatParManche = false;
+                            }
+                        });
+
+                        if (formatParManche && arr1.length > 0) {
+                            sc1 = arr1.join("/");
+                            sc2 = arr2.join("/");
+                        } else {
+                            sc1 = sets[0].trim();
+                            sc2 = sets.slice(1).join("/").trim();
+                        }
+                    } else if (data.score.includes("-")) {
+                        const p = data.score.split("-");
+                        sc1 = p[0].trim();
+                        sc2 = p[1].trim();
+                    }
+                }
+
                 tousLesMatchsFiltres.push({
                     id: docSnap.id,
                     type: "rapide",
-                    titre: data.competition,
-                    equipe1: data.lieu ? `Lieu : ${data.lieu}` : "Partie Rapide",
-                    equipe2: data.heure ? `Heure : ${data.heure}` : "",
-                    scoreEquipe1: "",
-                    scoreEquipe2: "",
+                    titre: data.titre || data.competition,
+                    equipe1: eq1,
+                    equipe2: eq2,
+                    scoreEquipe1: sc1,
+                    scoreEquipe2: sc2,
+                    heure: data.heure || "",
                     date: data.date || "",
                     lieu: data.lieu || "",
                     lienVideo: data.videoUrl || ""
@@ -246,11 +302,17 @@
                 <div class="team-row"><span><strong>${match.equipe1 || 'Équipe 1'}</strong></span><span class="team-score ${c1}">${s1}</span></div>
                 <div class="team-row"><span><strong>${match.equipe2 || 'Équipe 2'}</strong></span><span class="team-score ${c2}">${s2}</span></div>
             `;
-            if (s1 === "" && s2 === "" || s1 === "-" && s2 === "-") {
+            
+            if ((s1 === "" && s2 === "") || (s1 === "-" && s2 === "-")) {
                 teamsHTML = `
                     <div class="team-row"><span><strong>${match.equipe1 || ''}</strong></span></div>
-                    <div class="team-row" style="font-size: 0.8rem; color: var(--text-muted);"><span>${match.equipe2 || ''}</span></div>
+                    ${match.equipe2 ? `<div class="team-row"><span><strong>${match.equipe2}</strong></span></div>` : ''}
                 `;
+            }
+
+            let lieuHeureText = `📍 ${match.lieu || ''}`;
+            if (match.heure) {
+                lieuHeureText += ` • 🕒 ${match.heure}`;
             }
 
             card.innerHTML = `
@@ -262,7 +324,7 @@
                     ${teamsHTML}
                 </div>
                 <div class="match-footer-info">
-                    <span>📍 ${match.lieu || ''}</span>
+                    <span>${lieuHeureText}</span>
                     <span>📅 ${match.date || ''}</span>
                 </div>
                 ${(videoBtnHTML || statsBtnHTML) ? `<div class="action-buttons">${statsBtnHTML}${videoBtnHTML}</div>` : ""}
