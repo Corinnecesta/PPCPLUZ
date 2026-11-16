@@ -291,100 +291,112 @@
         firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    const currentUser = localStorage.getItem('cesta_username') || localStorage.getItem('cesta_user_email') || "Membre";
     const messagesContainer = document.getElementById('chatMessages');
-
     let lastLoadedCount = 0;
 
     // Réinitialisation des notifications et du compteur de nouveaux messages dès l'accès à la page
     function markMessagesAsRead() {
         localStorage.setItem('cesta_new_message', 'false');
-        localStorage.setItem('dernier_clic_echanges', Date.now()); // Remet à zéro le badge dynamique sur l'accueil
+        localStorage.setItem('dernier_clic_echanges', Date.now());
         if (navigator.clearAppBadge) {
             navigator.clearAppBadge().catch(err => console.log(err));
         }
     }
 
-    // Exécution immédiate au chargement de la page
     markMessagesAsRead();
 
-    // Écoute des messages Firestore en temps réel
-    db.collection("echanges_messages")
-      .orderBy("timestamp", "asc")
-      .onSnapshot((snapshot) => {
-          messagesContainer.innerHTML = "";
-          let docsArray = [];
-          snapshot.forEach((doc) => {
-              docsArray.push(doc.data());
-          });
+    // Fonction principale initialisée une fois l'état d'authentification vérifié
+    function initialiserTchat() {
+        // Priorité à l'email Firebase Auth connecté, puis au localStorage, puis "Membre" par défaut
+        const firebaseUser = auth.currentUser;
+        const currentUser = (firebaseUser && firebaseUser.email) || 
+                            localStorage.getItem('cesta_user_name') || 
+                            localStorage.getItem('cesta_username') || 
+                            localStorage.getItem('cesta_user_email') || 
+                            "Membre";
 
-          // Si un nouveau message arrive de la part d'un autre membre
-          if (docsArray.length > lastLoadedCount && lastLoadedCount > 0) {
-              const latest = docsArray[docsArray.length - 1];
-              if (latest && latest.author !== currentUser) {
-                  // Active le voyant rouge sur la page d'accueil (bloc Échanges)
-                  localStorage.setItem('cesta_new_message', 'true');
+        // Écoute des messages Firestore en temps réel
+        db.collection("echanges_messages")
+          .orderBy("timestamp", "asc")
+          .onSnapshot((snapshot) => {
+              messagesContainer.innerHTML = "";
+              let docsArray = [];
+              snapshot.forEach((doc) => {
+                  docsArray.push(doc.data());
+              });
 
-                  // Active la pastille rouge sur l'icône de l'application (écran d'accueil du smartphone)
-                  if (navigator.setAppBadge) {
-                      navigator.setAppBadge(1).catch(err => console.log(err));
+              // Si un nouveau message arrive de la part d'un autre membre
+              if (docsArray.length > lastLoadedCount && lastLoadedCount > 0) {
+                  const latest = docsArray[docsArray.length - 1];
+                  if (latest && latest.author !== currentUser) {
+                      localStorage.setItem('cesta_new_message', 'true');
+                      if (navigator.setAppBadge) {
+                          navigator.setAppBadge(1).catch(err => console.log(err));
+                      }
                   }
               }
-          }
-          lastLoadedCount = docsArray.length;
+              lastLoadedCount = docsArray.length;
 
-          docsArray.forEach((data) => {
-              const isMe = (data.author === currentUser);
-              
-              const messageDiv = document.createElement('div');
-              messageDiv.className = `message ${isMe ? 'sent' : 'received'}`;
-              
-              let timeStr = "";
-              if (data.timestamp) {
-                  const date = data.timestamp.toDate();
-                  timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-              }
+              docsArray.forEach((data) => {
+                  const isMe = (data.author === currentUser);
+                  
+                  const messageDiv = document.createElement('div');
+                  messageDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+                  
+                  let timeStr = "";
+                  if (data.timestamp) {
+                      const date = data.timestamp.toDate();
+                      timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  }
 
-              messageDiv.innerHTML = `
-                  <div class="message-author">${escapeHtml(data.author)}</div>
-                  <div>${escapeHtml(data.text)}</div>
-                  <div class="message-time">${timeStr}</div>
-              `;
-              
-              messagesContainer.appendChild(messageDiv);
+                  messageDiv.innerHTML = `
+                      <div class="message-author">${escapeHtml(data.author)}</div>
+                      <div>${escapeHtml(data.text)}</div>
+                      <div class="message-time">${timeStr}</div>
+                  `;
+                  
+                  messagesContainer.appendChild(messageDiv);
+              });
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
           });
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      });
 
-    async function sendMessage() {
-        const input = document.getElementById('messageInput');
-        const text = input.value.trim();
+        // Fonction d'envoi de message rattachée à l'utilisateur courant
+        window.sendMessage = async function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
 
-        if (text === "") return;
+            if (text === "") return;
 
-        input.value = "";
-        markMessagesAsRead();
+            input.value = "";
+            markMessagesAsRead();
 
-        try {
-            // 1. Sauvegarde du message dans le tchat
-            await db.collection("echanges_messages").add({
-                text: text,
-                author: currentUser,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            try {
+                // 1. Sauvegarde du message dans le tchat
+                await db.collection("echanges_messages").add({
+                    text: text,
+                    author: currentUser,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-            // 2. Enregistrement dans notifications_log pour déclencher la Cloud Function Firebase
-            await db.collection("notifications_log").add({
-                titre: `💬 ${currentUser} sur Échanges`,
-                corps: text,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+                // 2. Enregistrement dans notifications_log pour déclencher la Cloud Function Firebase
+                await db.collection("notifications_log").add({
+                    titre: `💬 ${currentUser} sur Échanges`,
+                    corps: text,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-        } catch (error) {
-            console.error("Erreur lors de l'envoi du message : ", error);
-        }
+            } catch (error) {
+                console.error("Erreur lors de l'envoi du message : ", error);
+            }
+        };
     }
+
+    // Écouteur d'état Firebase Auth
+    auth.onAuthStateChanged((user) => {
+        initialiserTchat();
+    });
 
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
