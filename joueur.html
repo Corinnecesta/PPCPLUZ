@@ -184,7 +184,7 @@
         <div class="tab-btn" id="tabEntrainementBtn" onclick="switchTab('entrainement', this)">Entraînement</div>
         <a href="#" id="statLink" class="tab-btn">Statistiques</a>
         <a href="#" id="playlistLink" class="tab-btn" onclick="verifierAccesPlaylistFirebase(event)">Playlist</a>
-        <a href="#" id="aiaFullLink" class="tab-btn full-width aia-grid-btn" target="_blank">
+        <a href="https://multisports-front.azurewebsites.net/cesta-punta/players" id="aiaFullLink" class="tab-btn full-width aia-grid-btn" target="_blank">
             <img src="aia.jpeg" alt="Logo AIA" class="aia-logo-icon" onerror="this.style.display='none'"> 
             Statistiques Détaillées & Vidéos (AIA) ↗
         </a>
@@ -902,11 +902,6 @@
                     id: playerId, prenom: "Joueur", nom: "Inconnu", club: "N/C", dateNaissance: "N/C", taille: "N/C", poids: "N/C", specialite: "N/C", photo: "logoce.png"
                 };
             }
-
-            // --- LIAISON VERS LE PROFIL AIA ---
-            const defaultAiaUrl = "https://multisports-front.azurewebsites.net/cesta-punta/player/3151c381-cefc-4fb8-ae76-eba888006bf8/shots";
-            const aiaUrl = joueur.lienAia || defaultAiaUrl;
-            document.getElementById('aiaFullLink').href = aiaUrl;
 
             // Lien interne vers vos stats locales
             document.getElementById('statLink').href = `statjoueur.html?id=${joueur.id}`;
