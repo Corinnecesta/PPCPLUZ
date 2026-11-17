@@ -33,10 +33,34 @@
 
         .badge { background: var(--card-hover-bg); border: 1px solid var(--card-border); color: var(--accent-color); padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
 
-        .tabs-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
+        .tabs-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
         .tab-btn { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 10px; padding: 10px 8px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.1); text-decoration: none; display: flex; align-items: center; justify-content: center; }
         .tab-btn.full-width { grid-column: span 2; }
         .tab-btn.active { background: var(--btn-gradient); border-color: var(--accent-color); color: var(--container-text); font-weight: bold; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
+
+        /* Style spécifique pour intégrer le bouton AIA proprement dans la grille avec son logo aia.jpeg agrandi */
+        .aia-grid-btn {
+            background: rgba(0, 242, 254, 0.12) !important;
+            border: 2px solid var(--accent-color) !important;
+            color: var(--accent-color) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .aia-grid-btn:hover {
+            background: var(--accent-color) !important;
+            color: #0a192f !important;
+        }
+        .aia-logo-icon {
+            height: 32px;
+            width: auto;
+            max-width: 65px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: #ffffff;
+            padding: 2px;
+        }
 
         .sub-tabs-container { display: none; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 12px; }
         .sub-tabs-container.active { display: grid; }
@@ -153,13 +177,21 @@
         <div style="text-align: center; color: var(--text-muted); padding: 20px;">Chargement du profil...</div>
     </div>
 
+    <!-- Grille de navigation avec le logo aia.jpeg agrandi et sans icône statistique -->
     <div class="tabs-nav" id="tabsNavContainer">
         <div class="tab-btn full-width active" id="tabGeneralBtn" onclick="switchTab('stats', this)">Général</div>
         <div class="tab-btn" id="tabCalendrierBtn" onclick="switchTab('calendrier', this)">Calendrier & Mes Convocations</div>
         <div class="tab-btn" id="tabEntrainementBtn" onclick="switchTab('entrainement', this)">Entraînement</div>
         <a href="#" id="statLink" class="tab-btn">Statistiques</a>
         <a href="#" id="playlistLink" class="tab-btn" onclick="verifierAccesPlaylistFirebase(event)">Playlist</a>
+        <a href="#" id="aiaFullLink" class="tab-btn full-width aia-grid-btn" target="_blank">
+            <img src="aia.jpeg" alt="Logo AIA" class="aia-logo-icon" onerror="this.style.display='none'"> 
+            Statistiques Détaillées & Vidéos (AIA) ↗
+        </a>
     </div>
+
+    <!-- Trait de séparation avec l'espacement d'origine -->
+    <hr class="separator" style="margin-bottom: 12px;">
 
     <div class="sub-tabs-container" id="subTabsEntrainement">
         <div class="sub-tab-btn active" onclick="switchSubEntrainement('prepa', this)">Prépa physique</div>
@@ -424,7 +456,6 @@
         }
     }
 
-    // --- AJOUT D'UN ÉVÉNEMENT PERSONNEL (SANS APPEL FCM BLOQUANT) ---
     window.ajouterEvenementPersonnel = async function(event) {
         event.preventDefault();
         
@@ -452,7 +483,6 @@
         try {
             const auteurNom = joueur ? `${joueur.prenom} ${joueur.nom}` : (playerId || "Membre");
 
-            // 1. Enregistrement de l'événement dans Firestore[cite: 4]
             await addDoc(collection(db, "entrainements"), {
                 titre: titre,
                 startDate: startDate,
@@ -466,7 +496,6 @@
                 createdAt: new Date().toISOString()
             });
 
-            // 2. Enregistrement du log de notification pour les applications en écoute
             await addDoc(collection(db, "notifications_log"), {
                 titre: "📌 Nouvel événement / Agenda",
                 corps: `${auteurNom} a ajouté : ${titre} (${startDate})`,
@@ -874,6 +903,12 @@
                 };
             }
 
+            // --- LIAISON VERS LE PROFIL AIA ---
+            const defaultAiaUrl = "https://multisports-front.azurewebsites.net/cesta-punta/player/3151c381-cefc-4fb8-ae76-eba888006bf8/shots";
+            const aiaUrl = joueur.lienAia || defaultAiaUrl;
+            document.getElementById('aiaFullLink').href = aiaUrl;
+
+            // Lien interne vers vos stats locales
             document.getElementById('statLink').href = `statjoueur.html?id=${joueur.id}`;
 
             const btnGeneral = document.getElementById('tabGeneralBtn');
@@ -885,9 +920,6 @@
             if (btnCalendrier) btnCalendrier.style.display = 'flex';
             if (btnEntrainement) btnEntrainement.style.display = 'flex';
             if (btnPlaylist) btnPlaylist.style.display = 'flex';
-            
-            const statLink = document.getElementById('statLink');
-            if (statLink) statLink.classList.remove('full-width');
 
             let matchsCloud = [];
             const matchsSnap = await getDocs(collection(db, "matchs"));
