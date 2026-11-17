@@ -171,25 +171,63 @@
             object-fit: contain;
         }
 
-        /* --- DISPOSITION CÔTE À CÔTE (Échanges 1fr + Entraînement 2fr) --- */
+        /* --- DISPOSITION SUR UNE SEULE LIGNE (Échanges, AIA, Prochain Entraînement) --- */
         .top-widgets-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr; /* Par défaut (joueurs) : 2 colonnes égales (Échanges + Entraînement) */
+            gap: 8px;
             width: 100%;
             box-sizing: border-box;
         }
 
+        /* Lorsque le bloc AIA est visible (admin / entraîneurs) : 3 colonnes égales sur la même ligne */
+        .top-widgets-grid.has-aia {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .mini-aia-card {
+            padding: 10px 6px;
+            text-decoration: none;
+            color: var(--container-text);
+            display: none; /* Masqué par défaut, affiché uniquement pour admin et entraîneurs */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 4px;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+            height: 100%;
+            border-color: var(--accent-color) !important;
+        }
+        .mini-aia-card:hover {
+            background: var(--card-hover-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0, 242, 254, 0.3);
+        }
+        .mini-aia-logo {
+            height: 32px;
+            width: 100%;
+            max-width: 65px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 2px 4px;
+        }
+
         .mini-event-card {
-            padding: 10px 12px;
+            padding: 10px 8px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+            text-align: center;
             text-decoration: none;
             color: var(--container-text);
             transition: all 0.25s ease;
             box-sizing: border-box;
             height: 100%;
+            min-width: 0;
         }
         .mini-event-card:hover {
             background: var(--card-hover-bg);
@@ -199,44 +237,45 @@
         .mini-event-top {
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
         }
         .event-icon-box {
             background: linear-gradient(135deg, rgba(15, 76, 92, 0.4) 0%, rgba(23, 184, 144, 0.3) 100%);
             border: 1px solid var(--accent-color);
-            width: 26px;
-            height: 26px;
-            border-radius: 6px;
+            width: 22px;
+            height: 22px;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             flex-shrink: 0;
         }
         .event-label {
-            font-size: 0.68rem;
+            font-size: 0.58rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             color: var(--accent-color);
             font-weight: 700;
-        }
-        .event-arrow {
-            font-size: 0.9rem;
-            color: var(--accent-color);
-            font-weight: bold;
-            flex-shrink: 0;
+            line-height: 1.1;
+            text-align: left;
         }
         .event-details {
-            font-size: 0.75rem;
+            font-size: 0.68rem;
             font-weight: 600;
             color: var(--container-text);
+            text-align: center;
+            width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 4px;
         }
 
         .mini-chat-card {
-            padding: 10px;
+            padding: 10px 8px;
             text-decoration: none;
             color: var(--container-text);
             display: flex;
@@ -256,15 +295,16 @@
             transform: translateY(-2px);
         }
         .mini-chat-icon {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             position: relative;
         }
         .mini-chat-label {
-            font-size: 0.68rem;
+            font-size: 0.58rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             color: var(--accent-color);
             font-weight: 700;
+            white-space: nowrap;
         }
 
         .skeleton-loader {
@@ -438,8 +478,8 @@
         <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
-    <!-- CONTENEUR CÔTE À CÔTE : Tchat Échanges en premier + Prochain entraînement -->
-    <div class="top-widgets-grid">
+    <!-- CONTENEUR SUR UNE SEULE LIGNE : Échanges + AIA (Admin/Entraîneurs) + Prochain entraînement -->
+    <div class="top-widgets-grid" id="topWidgetsGrid">
         <a href="echanges.html" onclick="localStorage.setItem('dernier_clic_echanges', Date.now())" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
             <div class="mini-chat-icon" aria-hidden="true">
                 💬
@@ -448,13 +488,15 @@
             <div class="mini-chat-label">Échanges</div>
         </a>
 
+        <!-- BLOC AIA : Uniquement visible par l'admin et les entraîneurs sur la même ligne -->
+        <a href="https://multisports-front.azurewebsites.net/cesta-punta/players" target="_blank" id="aiaAccessCard" class="mini-aia-card full-width-block admin-entraineur-only" aria-label="Accéder à la plateforme AIA">
+            <img src="aia.jpeg" alt="Logo AIA" class="mini-aia-logo" onerror="this.style.display='none'">
+        </a>
+
         <a href="entrainements.html" onclick="localStorage.setItem('dernier_clic_entrainements', Date.now())" class="mini-event-card full-width-block" aria-label="Consulter les détails du prochain entraînement" id="nextTrainingCard">
-            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                <div class="mini-event-top" style="margin-bottom: 0;">
-                    <div class="event-icon-box" aria-hidden="true">⏳</div>
-                    <div class="event-label">Prochain entraînement</div>
-                </div>
-                <div class="event-arrow" aria-hidden="true">➔</div>
+            <div class="mini-event-top" style="margin-bottom: 0;">
+                <div class="event-icon-box" aria-hidden="true">⏳</div>
+                <div class="event-label">PROCHAIN<br>ENTRAÎNEMENT</div>
             </div>
             <div class="event-details skeleton-loader" id="nextTrainingDetails" style="margin-top: 4px;">Chargement...</div>
         </a>
@@ -557,7 +599,6 @@
             }
         }
 
-        // Remet le compteur IndexedDB à 0 pour le Service Worker
         try {
             const req = indexedDB.open('BadgeStore', 1);
             req.onupgradeneeded = () => req.result.createObjectStore('badge');
@@ -584,7 +625,6 @@
 
             const messaging = firebase.messaging();
 
-            // Gestion de l'affichage en premier plan si l'application est ouverte
             messaging.onMessage((payload) => {
                 const data = payload.notification || payload.data || {};
                 const title = data.title || data.titre || "Pôle Performance";
@@ -700,6 +740,39 @@
         }
     }
 
+    // --- GESTION DE L'AFFICHAGE SELON LE RÔLE (ADMIN / ENTRAÎNEURS) ---
+    function appliquerDroitsAcces() {
+        const userRole = (localStorage.getItem('cesta_user_role') || '').toLowerCase();
+        const userEmail = (localStorage.getItem('cesta_user_email') || '').toLowerCase();
+        
+        let isStaffMember = false;
+        if (userEmail && typeof staffData !== 'undefined') {
+            isStaffMember = staffData.some(s => s.email && s.email.toLowerCase() === userEmail);
+        }
+
+        const isAdmin = (userRole === 'admin');
+        const isEntraineurOrAdmin = (userRole === 'admin' || userRole === 'entraineur' || userRole === 'coach' || isStaffMember);
+
+        // 1. Actions strictement Admin
+        const adminElements = document.querySelectorAll('.admin-only');
+        adminElements.forEach(el => {
+            el.style.display = isAdmin ? 'grid' : 'none';
+        });
+
+        // 2. Bloc AIA (Uniquement Admin et Entraîneurs)
+        const aiaCard = document.getElementById('aiaAccessCard');
+        const topGrid = document.getElementById('topWidgetsGrid');
+        if (aiaCard && topGrid) {
+            if (isEntraineurOrAdmin) {
+                aiaCard.style.display = 'flex';
+                topGrid.classList.add('has-aia');
+            } else {
+                aiaCard.style.display = 'none';
+                topGrid.classList.remove('has-aia');
+            }
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         effacerBadgeApplication();
 
@@ -707,28 +780,25 @@
             synchroniserJetonFCM(true);
         }
 
-        const userRole = localStorage.getItem('cesta_user_role');
-        const adminElements = document.querySelectorAll('.admin-only');
-
-        if (userRole === 'admin') {
-            adminElements.forEach(el => {
-                el.style.display = 'grid';
-            });
-        } else {
-            adminElements.forEach(el => {
-                el.style.display = 'none';
-            });
-        }
-
+        appliquerDroitsAcces();
         verifierAnniversaires();
         chargerProchainEntrainement();
         chargerPhotoProfilLocale();
         initialiserBadgesTempsReel();
     });
 
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user && "Notification" in window && Notification.permission === "granted") {
-            synchroniserJetonFCM(true);
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                synchroniserJetonFCM(true);
+            }
+            try {
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if (userDoc.exists && userDoc.data().role) {
+                    localStorage.setItem('cesta_user_role', userDoc.data().role);
+                    appliquerDroitsAcces();
+                }
+            } catch (e) {}
         }
     });
 
@@ -830,11 +900,11 @@
 
         if (evenementsFuturs.length > 0) {
             const prochain = evenementsFuturs[0];
-            const options = { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
+            const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
             let dateFormatee = prochain.dateObj.toLocaleDateString('fr-FR', options);
             dateFormatee = dateFormatee.charAt(0).toUpperCase() + dateFormatee.slice(1);
 
-            const lieu = prochain.lieu || prochain.emplacement || "Fronton Jai Alai";
+            const lieu = prochain.lieu || prochain.emplacement || "Fronton";
             detailsContainer.textContent = `${dateFormatee} • ${lieu}`;
         } else {
             detailsContainer.textContent = ""; 
@@ -875,7 +945,7 @@
             console.log("Erreur badge échanges :", e);
         }
 
-        // 2. Badge Entraînements (uniquement les nouveaux entraînements créés après la dernière visite)
+        // 2. Badge Entraînements
         try {
             db.collection("entrainements").onSnapshot((snapshot) => {
                 const maintenant = new Date();
@@ -914,7 +984,7 @@
             console.log("Erreur badge entraînements :", e);
         }
 
-        // 3. Badge Parties (matchs et parties rapides récents non consultés)
+        // 3. Badge Parties
         try {
             db.collection("matchs").onSnapshot((snapshot) => {
                 verifierNouveauxMatchs(snapshot);
