@@ -638,7 +638,12 @@
             const moyRec = nbMatchs > 0 ? (sumRecTot / nbMatchs).toFixed(1) : "0.0";
             const pctRecPos = sumRecTot > 0 ? Math.round((sumRecPos / sumRecTot) * 100) : 0;
 
-            let note100 = nbMatchs > 0 ? Math.min(100, Math.max(40, Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15))) : 0;
+            // Calcul de la note brute de base
+            let noteBrute = nbMatchs > 0 ? Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15) : 0;
+            
+            // Bonus spécifique appliqué uniquement aux arrières (+8 points)
+            const bonusArriere = !estAvant ? 8 : 0;
+            let note100 = nbMatchs > 0 ? Math.min(100, Math.max(40, noteBrute + bonusArriere)) : 0;
 
             card.querySelector('.note-100').innerHTML = `${note100}<span>/100</span>`;
             card.querySelector('.nb-matchs').textContent = nbMatchs;
@@ -781,7 +786,6 @@
         });
 
         (window.joueursFirebaseCharges || []).forEach(jFb => {
-            // Ignorer aussi les joueurs retraités de Firebase si besoin
             if (jFb.statut === "retraite" || jFb.retraite === true) return;
 
             const nomComplet = `${jFb.prenom || ''} ${jFb.nom || ''}`.trim();
@@ -808,7 +812,10 @@
                     totalPtsGagnesMax += m.stats.ptsGagnesTotaux;
                 });
                 const pctGagnes = totalPtsGagnesMax > 0 ? Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100) : 0;
-                const noteVal = nbMatchs > 0 ? Math.min(100, Math.max(40, Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15))) : 0;
+                
+                let noteBruteFb = nbMatchs > 0 ? Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15) : 0;
+                const bonusArriereFb = !estAvantFb ? 8 : 0;
+                const noteVal = nbMatchs > 0 ? Math.min(100, Math.max(40, noteBruteFb + bonusArriereFb)) : 0;
                 
                 parsedCards.push({
                     id: jFb.id,
