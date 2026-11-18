@@ -13,7 +13,48 @@
     <style>
         .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px; }
         .profile-card { background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 18px 15px; text-align: center; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); transition: all 0.3s; }
-        .profile-photo { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; object-position: center; display: block; margin: 0 auto 10px auto; border: 2px solid var(--accent-color); background: rgba(0,0,0,0.2); }
+        
+        /* Style de la photo cliquable */
+        .profile-photo { 
+            width: 85px; 
+            height: 85px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            object-position: center; 
+            display: block; 
+            margin: 0 auto 10px auto; 
+            border: 2px solid var(--accent-color); 
+            background: rgba(0,0,0,0.2); 
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .profile-photo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modale plein écran pour agrandir la photo */
+        #photoModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        #modalImage {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 16px;
+            border: 3px solid var(--accent-color);
+            box-shadow: 0 8px 32px rgba(0, 242, 254, 0.3);
+            object-fit: contain;
+        }
+
         .profile-name { font-size: 1.15rem; font-weight: 800; margin-bottom: 2px; color: var(--container-text); }
         .profile-club { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
         
@@ -38,7 +79,6 @@
         .tab-btn.full-width { grid-column: span 2; }
         .tab-btn.active { background: var(--btn-gradient); border-color: var(--accent-color); color: var(--container-text); font-weight: bold; box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2); }
 
-        /* Style spécifique pour intégrer le bouton AIA proprement dans la grille avec son logo aia.jpeg agrandi */
         .aia-grid-btn {
             background: rgba(0, 242, 254, 0.12) !important;
             border: 2px solid var(--accent-color) !important;
@@ -177,7 +217,6 @@
         <div style="text-align: center; color: var(--text-muted); padding: 20px;">Chargement du profil...</div>
     </div>
 
-    <!-- Grille de navigation avec le logo aia.jpeg agrandi et sans icône statistique -->
     <div class="tabs-nav" id="tabsNavContainer">
         <div class="tab-btn full-width active" id="tabGeneralBtn" onclick="switchTab('stats', this)">Général</div>
         <div class="tab-btn" id="tabCalendrierBtn" onclick="switchTab('calendrier', this)">Calendrier & Mes Convocations</div>
@@ -190,7 +229,6 @@
         </a>
     </div>
 
-    <!-- Trait de séparation avec l'espacement d'origine -->
     <hr class="separator" style="margin-bottom: 12px;">
 
     <div class="sub-tabs-container" id="subTabsEntrainement">
@@ -316,6 +354,11 @@
     </div>
 </div>
 
+<!-- Modale d'agrandissement de la photo -->
+<div id="photoModal" onclick="fermerModalPhoto()">
+    <img id="modalImage" src="" alt="Photo agrandie du joueur">
+</div>
+
 <script src="joueurs-data.js"></script>
 
 <script type="module">
@@ -370,6 +413,23 @@
 
     function updateButtonIcon(theme) {
         themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
+    }
+
+    // Fonctions pour la modale photo
+    window.ouvrirModalPhoto = function(urlPhoto) {
+        const modal = document.getElementById('photoModal');
+        const modalImg = document.getElementById('modalImage');
+        if (modal && modalImg) {
+            modalImg.src = urlPhoto;
+            modal.style.display = 'flex';
+        }
+    }
+
+    window.fermerModalPhoto = function() {
+        const modal = document.getElementById('photoModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 
     window.switchTab = function(tabName, element) {
@@ -903,7 +963,6 @@
                 };
             }
 
-            // Lien interne vers vos stats locales
             document.getElementById('statLink').href = `statjoueur.html?id=${joueur.id}`;
 
             const btnGeneral = document.getElementById('tabGeneralBtn');
@@ -964,9 +1023,10 @@
             
             const tauxVictoire = totalMatches > 0 ? Math.round((victoires / totalMatches) * 100) : 0;
 
+            const photoUrl = joueur.photo || 'logoce.png';
             document.getElementById('playerProfileContainer').innerHTML = `
                 <div class="profile-card">
-                    <img src="${joueur.photo || 'logoce.png'}" alt="${joueur.nom}" class="profile-photo" onerror="this.src='logoce.png'">
+                    <img src="${photoUrl}" alt="${joueur.nom}" class="profile-photo" onerror="this.src='logoce.png'" onclick="ouvrirModalPhoto('${photoUrl}')" title="Cliquer pour agrandir la photo">
                     <div class="profile-name">${joueur.prenom || ''} ${joueur.nom || ''}</div>
                     <div class="profile-club">${joueur.club || ''}</div>
                     <div class="profile-details-grid">
