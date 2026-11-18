@@ -11,7 +11,7 @@ const joueursData = [
         dateNaissance: "20/06/1996",
         taille: "1m80",
         poids: "76 kg",
-        photo: "basque.png"
+        photo: "basquenoel.png"
     },
     {
         id: "oyhenard",
@@ -24,7 +24,7 @@ const joueursData = [
         dateNaissance: "13/01/1999",
         taille: "1m88",
         poids: "86 kg",
-        photo: "oyhenard.png"
+        photo: "oyhenardnoel.png"
     },
     {
         id: "laborde",
@@ -37,7 +37,7 @@ const joueursData = [
         dateNaissance: "01/08/1998",
         taille: "1m89",
         poids: "84 kg",
-        photo: "laborde.png"
+        photo: "labordenoel.png"
     },
     {
         id: "caparrus",
@@ -50,7 +50,7 @@ const joueursData = [
         dateNaissance: "21/06/2005",
         taille: "1m90",
         poids: "80 kg",
-        photo: "caparrus.png"
+        photo: "caparrusnoel.png"
     },
     {
         id: "laduche",
@@ -63,7 +63,7 @@ const joueursData = [
         dateNaissance: "15/03/1994",
         taille: "1m83",
         poids: "84 kg",
-        photo: "laduche.png"
+        photo: "laduchenoel.png"
     },
     {
         id: "libois",
@@ -76,7 +76,7 @@ const joueursData = [
         dateNaissance: "27/08/2003",
         taille: "1m86",
         poids: "75 kg",
-        photo: "libois.png"
+        photo: "liboisnoel.png"
     },
     {
         id: "garcia",
@@ -89,7 +89,7 @@ const joueursData = [
         dateNaissance: "08/08/2001",
         taille: "1m87",
         poids: "80 kg",
-        photo: "garcia.png"
+        photo: "garcianoel.png"
     },
     {
         id: "bonnin",
@@ -102,7 +102,7 @@ const joueursData = [
         dateNaissance: "01/04/2004",
         taille: "1m77",
         poids: "70 kg",
-        photo: "bonnin.png"
+        photo: "bonninnoel.png"
     }
   
 
