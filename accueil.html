@@ -99,24 +99,6 @@
             100% { transform: translateY(105vh) translateX(-10px) rotate(360deg); }
         }
 
-        /* --- DÉCORATIONS DE NOËL AGRANDIES ET JOYEUSES --- */
-        .santa-above-title {
-            text-align: center;
-            font-size: 2.3rem; /* Plus grand */
-            line-height: 1;
-            margin-bottom: -6px;
-            z-index: 5;
-            user-select: none;
-            pointer-events: none;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45));
-            animation: bounce-gentle 2.5s ease-in-out infinite;
-        }
-
-        @keyframes bounce-gentle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-
         .menu-group-wrapper {
             position: relative;
             width: 100%;
@@ -563,18 +545,15 @@
 
     <div id="birthdayAlertContainer" aria-live="polite"></div>
 
-    <!-- Père Noël joyeux et plus grand au-dessus du titre -->
-    <div>
-        <div class="santa-above-title" aria-hidden="true">🎅✨</div>
-        <section class="header-banner-card full-width-block">
-            <div class="header-text-group">
-                <h1 class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</h1>
-            </div>
-        </section>
-    </div>
+    <!-- Titre principal de la page -->
+    <section class="header-banner-card full-width-block">
+        <div class="header-text-group">
+            <h1 class="section-title">Pôle performance de cesta punta, Saint-Jean-de-Luz</h1>
+        </div>
+    </section>
 
     <div class="hero-banner full-width-block">
-        <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
+        <img src="titrenoel.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
     <!-- CONTENEUR SUR UNE SEULE LIGNE : Échanges + AIA (Admin/Entraîneurs) + Prochain entraînement -->
