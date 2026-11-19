@@ -8,7 +8,7 @@ const staffData = [
         dateNaissance: "15/06/1975", // Remplacez par la vraie date si besoin
         telephone: "06 11 03 77 56",
         email: "frederic.cadet@sjdl.fr",
-        photo: "fred.jpeg"
+        photo: "frednoel.jpeg"
     },
     {
         id: "staff-2",
@@ -18,7 +18,7 @@ const staffData = [
         dateNaissance: "10/03/1980",
         telephone: "06 81 74 88 69",
         email: "fifi.etcheberry@icloud.com",
-        photo: "fifi.jpg"
+        photo: "fifinoel.jpg"
     },
     {
         id: "staff-3",
@@ -28,7 +28,7 @@ const staffData = [
         dateNaissance: "22/07/1978",
         telephone: "06 08 98 49 19",
         email: "bitxi@msn.com",
-        photo: "irastorza.png"
+        photo: "irastorzanoel.png"
     },
     {
         id: "staff-4",
@@ -38,7 +38,7 @@ const staffData = [
         dateNaissance: "05/11/1982",
         telephone: "06 81 73 99 19",
         email: "lohitzun23@gmail.com",
-        photo: "dany.jpeg"
+        photo: "danynoel.jpeg"
     },
     {
         id: "staff-5",
@@ -68,7 +68,7 @@ const staffData = [
         dateNaissance: "30/12/1986",
         telephone: "06 50 23 81 37",
         email: "deborah.energetique@gmail.com",
-        photo: "deborah.png"
+        photo: "deborahnoel.png"
     },
     {
         id: "staff-8",
@@ -78,7 +78,7 @@ const staffData = [
         dateNaissance: "23/09/1983", // Par exemple, mettez la date du jour si vous voulez tester l'anniversaire !
         telephone: "06 58 24 20 59",
         email: "koko.elissalde@gmail.com",
-        photo: "corinne.png"
+        photo: "corinnenoel.png"
     },
     {
         id: "staff-9",
@@ -88,7 +88,7 @@ const staffData = [
         dateNaissance: "23/09/1983", // Par exemple, mettez la date du jour si vous voulez tester l'anniversaire !
         telephone: "06 74 80 11 17",
         email: "Tambour5759@gmail.com",
-        photo: "jon.png"
+        photo: "jonnoel.png"
     }
 
 ];
