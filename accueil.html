@@ -917,16 +917,46 @@
     }
 
     function normaliserRole(role) {
+        if (Array.isArray(role)) {
+            return role.map(r => normaliserRole(r)).filter(Boolean).join(',');
+        }
+        if (role && typeof role === 'object') {
+            return normaliserRole(role.role || role.name || role.type || '');
+        }
         return String(role || '')
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[\s_-]+/g, '')
+            .replace(/\+/g, 'plus')
+            .replace(/[^a-z0-9,]+/g, '')
             .trim();
     }
 
+    function extraireRoleStocke() {
+        const clesPotentielles = ['cesta_user_role', 'user_role', 'role', 'cesta_role'];
+        for (const cle of clesPotentielles) {
+            const val = localStorage.getItem(cle);
+            if (val) return val;
+        }
+        try {
+            const userJson = localStorage.getItem('cesta_user') || localStorage.getItem('user');
+            if (userJson) {
+                const parsed = JSON.parse(userJson);
+                if (parsed && (parsed.role || parsed.roles || parsed.type)) {
+                    return parsed.role || parsed.roles || parsed.type;
+                }
+            }
+        } catch (e) {}
+        return '';
+    }
+
+    function aRoleCible(roleBrut, cibles) {
+        const tokens = normaliserRole(roleBrut).split(',').filter(Boolean);
+        return tokens.some(tok => cibles.includes(tok));
+    }
+
     function appliquerDroitsAcces() {
-        const roleNormalise = normaliserRole(localStorage.getItem('cesta_user_role') || '');
+        const roleBrut = extraireRoleStocke();
         const userEmail = (localStorage.getItem('cesta_user_email') || '').toLowerCase();
         
         let isStaffMember = false;
@@ -934,9 +964,10 @@
             isStaffMember = staffData.some(s => s.email && s.email.toLowerCase() === userEmail);
         }
 
-        const isAdmin = (roleNormalise === 'admin' || roleNormalise === 'administrateur');
-        const isEntraineurPlus = (roleNormalise === 'entraineurplus');
-        const isEntraineurOrAdmin = (isAdmin || isEntraineurPlus || roleNormalise === 'entraineur' || roleNormalise === 'coach' || isStaffMember);
+        const isAdmin = aRoleCible(roleBrut, ['admin', 'administrateur', 'superadmin']);
+        const isEntraineurPlus = aRoleCible(roleBrut, ['entraineurplus', 'coachplus', 'superentraineur', 'entraineur2', 'entraineuravance']);
+        const isEntraineur = aRoleCible(roleBrut, ['entraineur', 'coach', 'staff']);
+        const isEntraineurOrAdmin = (isAdmin || isEntraineurPlus || isEntraineur || isStaffMember);
 
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => {
@@ -983,8 +1014,12 @@
             }
             try {
                 const userDoc = await db.collection("users").doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().role) {
-                    localStorage.setItem('cesta_user_role', userDoc.data().role);
+                if (userDoc.exists) {
+                    const data = userDoc.data() || {};
+                    const roleFirestore = data.role || data.roles || data.type || data.statut;
+                    if (roleFirestore) {
+                        localStorage.setItem('cesta_user_role', typeof roleFirestore === 'string' ? roleFirestore : JSON.stringify(roleFirestore));
+                    }
                     appliquerDroitsAcces();
                 }
             } catch (e) {}
