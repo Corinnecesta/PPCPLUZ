@@ -63,7 +63,29 @@
             width: 100%;
             gap: 6px;
         }
+        .player-name-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
         .player-name { font-weight: bold; font-size: 1.1rem; color: var(--container-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-source-tag {
+            font-size: 0.58rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            background: rgba(23, 184, 144, 0.14);
+        }
+        .player-source-tag.autre {
+            border-color: var(--text-muted);
+            color: var(--text-muted);
+            background: rgba(148, 163, 184, 0.12);
+        }
         .player-club { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
         
         /* Ligne du bas (Poste + Note alignés horizontalement) */
@@ -80,6 +102,108 @@
         .note-badge { font-size: 2.2rem; font-weight: 800; color: var(--accent-color); line-height: 1; flex-shrink: 0; text-align: right; }
         .note-badge span { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; }
 
+        /* Onglets Totales / Par partie + sélection par compétition */
+        .parties-tabs-box {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 14px;
+            padding: 10px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 10px rgba(23, 184, 144, 0.12);
+        }
+
+        .parties-tabs-switch {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .partie-tab-btn {
+            padding: 8px 10px;
+            border-radius: 9px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--container-text);
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .partie-tab-btn:hover {
+            border-color: var(--accent-color);
+        }
+
+        .partie-tab-btn.active {
+            background: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 8px rgba(23, 184, 144, 0.35);
+        }
+
+        .par-partie-controls {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .control-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .control-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+
+        .control-select {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 9px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.28);
+            color: var(--container-text);
+            font-size: 0.74rem;
+            font-weight: 600;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .control-select:focus {
+            border-color: var(--accent-color);
+        }
+
+        .partie-context-banner {
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.18);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .partie-context-title {
+            font-weight: 700;
+            color: var(--container-text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .chart-box {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
@@ -89,38 +213,259 @@
             box-shadow: 0 4px 10px rgba(23, 184, 144, 0.15);
         }
 
-        .card-container {
+        .bilan-box {
+            padding: 12px 14px;
+        }
+
+        .eff-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 440px) {
+            .eff-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .eff-stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 6px;
+        }
+
+        .eff-stat-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .eff-stat-value {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            line-height: 1.2;
+        }
+
+        .perf-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 440px) {
+            .perf-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .perf-stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 6px;
+        }
+
+        .perf-stat-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .perf-stat-value {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            line-height: 1.2;
+        }
+
+        .bilan-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 440px) {
+            .bilan-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bilan-stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 6px 5px;
+        }
+
+        .bilan-stat-label {
+            font-size: 0.58rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .bilan-stat-value {
+            font-size: 0.98rem;
+            font-weight: 800;
+            line-height: 1.15;
+        }
+
+        .bilan-chart-wrapper {
+            position: relative;
+            height: 115px;
+        }
+
+        .bilan-parties {
+            color: var(--accent-color);
+        }
+
+        .bilan-victoires {
+            color: #34d399;
+        }
+
+        .bilan-defaites {
+            color: #f87171;
+        }
+
+        .buts-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 440px) {
+            .buts-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .buts-stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 6px;
+        }
+
+        .buts-stat-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .buts-stat-value {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--container-text);
+            line-height: 1.2;
+        }
+
+        .buts-stat-pct {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .pn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 460px) {
+            .pn-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pn-card {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
             border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 14px;
+            padding: 14px;
             box-shadow: 0 4px 10px rgba(23, 184, 144, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .form-timeline {
+        .pn-card-header {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--container-text);
+            text-transform: uppercase;
+            gap: 6px;
+        }
+
+        .pn-card-summary {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            white-space: nowrap;
+        }
+
+        .pn-values {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 0;
+            text-align: center;
         }
 
-        .form-badge {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.8rem;
-            color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        .pn-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 6px;
         }
-        .badge-win { background-color: #34d399; }
-        .badge-loss { background-color: #f87171; }
-        .badge-none { background-color: var(--text-muted); }
+
+        .pn-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .pn-num {
+            font-size: 0.95rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .pn-sub-pct {
+            font-size: 0.72rem;
+            font-weight: 700;
+            opacity: 0.92;
+        }
+
+        .pn-pos {
+            color: #34d399;
+        }
+
+        .pn-neg {
+            color: #f87171;
+        }
 
         .back-link {
             display: inline-flex;
@@ -148,14 +493,17 @@
 
     <hr class="separator">
 
-    <a href="comparaison.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour à la comparaison</a>
+    <a href="cartes.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour aux cartes</a>
 
     <div class="section-title">Profil et Analyses</div>
 
     <div class="player-profile-card">
         <div id="player-photo-container"></div>
         <div class="player-details-vertical">
-            <div id="player-name" class="player-name">Chargement...</div>
+            <div class="player-name-row">
+                <div id="player-name" class="player-name">Chargement...</div>
+                <span id="player-source-badge" class="player-source-tag" style="display: none;">Pôle</span>
+            </div>
             <div id="player-club" class="player-club">...</div>
             <div class="player-bottom-row">
                 <div id="player-poste" class="player-poste">...</div>
@@ -164,40 +512,132 @@
         </div>
     </div>
 
-    <!-- Forme Récente -->
-    <div class="section-title"><i class="fa-solid fa-fire mr-1"></i> Forme Récente (Derniers Matchs)</div>
-    <div class="card-container">
-        <div id="form-timeline" class="form-timeline">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Aucun match récent</span>
+    <!-- Onglets : Totales (cumul toutes parties) / Par partie (choix par compétition) -->
+    <div class="parties-tabs-box">
+        <div class="parties-tabs-switch">
+            <button type="button" id="tab-totales" class="partie-tab-btn active">
+                <i class="fa-solid fa-layer-group"></i> Totales
+            </button>
+            <button type="button" id="tab-par-partie" class="partie-tab-btn">
+                <i class="fa-solid fa-trophy"></i> Par partie
+            </button>
+        </div>
+
+        <div id="par-partie-controls" class="par-partie-controls" style="display: none;">
+            <div class="control-field">
+                <label for="select-competition" class="control-label">Compétition</label>
+                <select id="select-competition" class="control-select"></select>
+            </div>
+            <div class="control-field">
+                <label for="select-partie" class="control-label">Partie</label>
+                <select id="select-partie" class="control-select"></select>
+            </div>
+        </div>
+
+        <div class="partie-context-banner">
+            <span id="partie-context-title" class="partie-context-title">Cumul total : toutes les parties</span>
+            <span id="partie-context-meta">Total cumulé</span>
         </div>
     </div>
 
-    <!-- Indicateurs Clés & Efficacité -->
-    <div class="section-title"><i class="fa-solid fa-gauge-high mr-1"></i> Indicateurs Clés & Efficacité (%)</div>
-    <div class="chart-box">
-        <canvas id="efficaciteChart"></canvas>
+    <!-- Bilan Global des Parties (en premier) -->
+    <div class="section-title"><i class="fa-solid fa-chart-column mr-1"></i> Bilan Global des Parties</div>
+    <div class="chart-box bilan-box">
+        <div class="bilan-stats-grid">
+            <div class="bilan-stat-box">
+                <div class="bilan-stat-label">Parties</div>
+                <div id="bilan-parties-val" class="bilan-stat-value bilan-parties">0</div>
+            </div>
+            <div class="bilan-stat-box">
+                <div class="bilan-stat-label">Victoires</div>
+                <div id="bilan-victoires-val" class="bilan-stat-value bilan-victoires">0</div>
+            </div>
+            <div class="bilan-stat-box">
+                <div class="bilan-stat-label">Défaites</div>
+                <div id="bilan-defaites-val" class="bilan-stat-value bilan-defaites">0</div>
+            </div>
+        </div>
+        <div class="bilan-chart-wrapper">
+            <canvas id="barChart"></canvas>
+        </div>
     </div>
 
-    <!-- Analyse des Buts (Masqué si le joueur est Arrière) -->
+    <!-- Bloc Réceptions et Frappes Positives / Négatives -->
+    <div id="rec-frappes-section">
+        <div class="section-title"><i class="fa-solid fa-scale-balanced mr-1"></i> Réceptions &amp; Frappes (+ / -)</div>
+        <div class="pn-grid">
+            <div class="pn-card">
+                <div class="pn-card-header">
+                    <span><i class="fa-solid fa-hand mr-1"></i> Réceptions</span>
+                    <span id="rec-summary-badge" class="pn-card-summary">0 (0%)</span>
+                </div>
+                <div class="pn-values">
+                    <div class="pn-box">
+                        <div class="pn-label">Positives (+)</div>
+                        <div id="rec-pos-val" class="pn-num pn-pos">0 <span class="pn-sub-pct">(0%)</span></div>
+                    </div>
+                    <div class="pn-box">
+                        <div class="pn-label">Négatives (-)</div>
+                        <div id="rec-neg-val" class="pn-num pn-neg">0 <span class="pn-sub-pct">(0%)</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pn-card">
+                <div class="pn-card-header">
+                    <span><i class="fa-solid fa-bolt mr-1"></i> Frappes</span>
+                    <span id="frappes-summary-badge" class="pn-card-summary">0 (0%)</span>
+                </div>
+                <div class="pn-values">
+                    <div class="pn-box">
+                        <div class="pn-label">Positives (+)</div>
+                        <div id="frappes-pos-val" class="pn-num pn-pos">0 <span class="pn-sub-pct">(0%)</span></div>
+                    </div>
+                    <div class="pn-box">
+                        <div class="pn-label">Négatives (-)</div>
+                        <div id="frappes-neg-val" class="pn-num pn-neg">0 <span class="pn-sub-pct">(0%)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analyse des Buts (Masqué si le joueur est Arrière, placé après Réceptions & Frappes) -->
     <div id="buts-section">
         <div class="section-title"><i class="fa-solid fa-crosshairs mr-1"></i> Analyse des Buts</div>
-        <div class="chart-box" style="padding: 10px 16px;">
+        <div class="chart-box" style="padding: 12px 16px;">
+            <div class="buts-stats-grid">
+                <div class="buts-stat-box">
+                    <div class="buts-stat-label">Buts Total</div>
+                    <div id="buts-total-val" class="buts-stat-value">0</div>
+                </div>
+                <div class="buts-stat-box">
+                    <div class="buts-stat-label">Sur Avant</div>
+                    <div id="buts-avant-val" class="buts-stat-value">0 <span id="buts-avant-pct" class="buts-stat-pct">(0%)</span></div>
+                </div>
+                <div class="buts-stat-box">
+                    <div class="buts-stat-label">Sur Arrière</div>
+                    <div id="buts-arriere-val" class="buts-stat-value">0 <span id="buts-arriere-pct" class="buts-stat-pct">(0%)</span></div>
+                </div>
+            </div>
             <div style="position: relative; height: 120px;">
                 <canvas id="butsChart"></canvas>
             </div>
         </div>
     </div>
 
+    <!-- Indicateurs Clés & Efficacité -->
+    <div class="section-title"><i class="fa-solid fa-gauge-high mr-1"></i> Indicateurs Clés &amp; Efficacité (%)</div>
+    <div class="chart-box">
+        <div id="eff-stats-grid" class="eff-stats-grid"></div>
+        <canvas id="efficaciteChart"></canvas>
+    </div>
+
     <!-- Performance Globale (%) -->
     <div class="section-title"><i class="fa-solid fa-chart-bar mr-1"></i> Performance Globale (%)</div>
     <div class="chart-box">
+        <div id="perf-stats-grid" class="perf-stats-grid"></div>
         <canvas id="horizontalBarChart"></canvas>
-    </div>
-
-    <!-- Bilan Global des Matchs -->
-    <div class="section-title"><i class="fa-solid fa-chart-column mr-1"></i> Bilan Global des Matchs</div>
-    <div class="chart-box">
-        <canvas id="barChart"></canvas>
     </div>
 </div>
 
@@ -223,6 +663,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     window.matchsCloudCharges = [];
+    window.joueursFirebaseCharges = [];
+    window.tousLesJoueursFusionnes = [];
+
+    let joueurActif = null;
+    let matchsJoueurActifs = [];
+    let modeOnglet = 'totales'; // 'totales' | 'par-partie'
+    let competitionSelectionnee = '';
+    let partieSelectionneeId = '';
+    const chartsInstances = {};
 
     // Gestion du Thème Clair/Sombre
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
@@ -237,6 +686,9 @@
         htmlElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('cesta_theme', newTheme);
         updateButtonIcon(newTheme);
+        if (joueurActif) {
+            rendreVueStats();
+        }
     }
 
     function updateButtonIcon(theme) {
@@ -247,15 +699,89 @@
         }
     }
 
+    function normaliserNom(str) {
+        return String(str || '')
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, '')
+            .trim();
+    }
+
+    function construireListeJoueurs() {
+        const fusion = [];
+        const nomsVus = new Set();
+
+        const joueursLocauxRaw = localStorage.getItem('joueurs_locaux') || localStorage.getItem('joueurs') || '[]';
+        let idsLocaux = [];
+        try {
+            const parsed = JSON.parse(joueursLocauxRaw);
+            idsLocaux = Array.isArray(parsed)
+                ? parsed.map(item => String(typeof item === 'object' ? (item.id || item.firebaseId || item.docId) : item))
+                : [];
+        } catch (e) {
+            idsLocaux = [];
+        }
+
+        // 1. Joueurs du Pôle (depuis joueursData)
+        if (typeof joueursData !== 'undefined' && Array.isArray(joueursData)) {
+            joueursData.forEach((joueur, index) => {
+                if (joueur.statut === "retraite" || joueur.retraite === true) return;
+
+                const joueurId = joueur.id || joueur.firebaseId || joueur.docId || `pole_${index}`;
+                const nomComplet = `${joueur.prenom || ''} ${joueur.nom || ''}`.trim();
+                const cleNorm = normaliserNom(nomComplet);
+
+                const estPoleExplicite = joueur.estPole === true || joueur.pole === true || String(joueur.groupe || '').toLowerCase().includes('pole');
+                const estEnLocal = idsLocaux.includes(String(joueurId)) || localStorage.getItem(`joueur_${joueurId}`) !== null;
+                const estDuPole = estPoleExplicite || estEnLocal || idsLocaux.length === 0 || (joueur.club && String(joueur.club).toLowerCase().includes('pôle'));
+
+                fusion.push({
+                    ...joueur,
+                    id: joueurId,
+                    estDuPole: Boolean(estDuPole)
+                });
+
+                if (cleNorm) nomsVus.add(cleNorm);
+            });
+        }
+
+        // 2. Autres joueurs (depuis la collection Firebase "joueurs")
+        (window.joueursFirebaseCharges || []).forEach((jFb, index) => {
+            if (jFb.statut === "retraite" || jFb.retraite === true) return;
+
+            const nomComplet = `${jFb.prenom || ''} ${jFb.nom || ''}`.trim();
+            const cleNorm = normaliserNom(nomComplet);
+
+            const doublonExact = cleNorm && nomsVus.has(cleNorm);
+            const doublonId = fusion.some(item => String(item.id) === String(jFb.id));
+
+            if (!doublonExact && !doublonId) {
+                const estPoleFb = jFb.estPole === true || jFb.pole === true || String(jFb.groupe || '').toLowerCase().includes('pole');
+                fusion.push({
+                    ...jFb,
+                    id: jFb.id || `fb_${index}`,
+                    club: jFb.club || (estPoleFb ? 'Pôle Performance' : 'Autre Club'),
+                    estDuPole: Boolean(estPoleFb)
+                });
+                if (cleNorm) nomsVus.add(cleNorm);
+            }
+        });
+
+        window.tousLesJoueursFusionnes = fusion;
+        return fusion;
+    }
+
     async function initialiserPageDetails() {
         try {
             const querySnapshot = await getDocs(collection(db, "matchs"));
+            window.matchsCloudCharges = [];
             querySnapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 window.matchsCloudCharges.push({
                     id: docSnap.id,
                     isCloud: true,
-                    competition: data.competition || data.titre || "Match Cloud",
+                    competition: data.competition || data.titre || "Compétition non précisée",
                     date: data.date || "",
                     equipe1: data.equipe1 || "",
                     equipe2: data.equipe2 || "",
@@ -264,6 +790,20 @@
                     joueurId: data.joueurId || null,
                     statsParJoueur: data.statsParJoueur || null,
                     stats: data.stats || data
+                });
+            });
+
+            const joueursSnap = await getDocs(collection(db, "joueurs"));
+            window.joueursFirebaseCharges = [];
+            joueursSnap.forEach((docSnap) => {
+                const jData = docSnap.data();
+                window.joueursFirebaseCharges.push({
+                    id: docSnap.id,
+                    prenom: jData.prenom || "",
+                    nom: jData.nom || "",
+                    club: jData.club || "",
+                    poste: jData.poste || jData.specialite || "Joueur",
+                    ...jData
                 });
             });
         } catch (error) {
@@ -306,18 +846,35 @@
         return 0;
     }
 
+    function formaterLibellePartie(match, index, resultat) {
+        const equipes = [match.equipe1, match.equipe2].filter(Boolean).join(' vs ');
+        const dateCourt = match.date ? String(match.date).slice(0, 10) : '';
+        const resTag = resultat === 'V' ? ' • V' : (resultat === 'D' ? ' • D' : '');
+        const base = equipes || `Partie ${index + 1}`;
+        return {
+            optionTexte: `${base}${dateCourt ? ` (${dateCourt})` : ''}${resTag}`,
+            banniereTexte: `${match.competition || 'Compétition'}${equipes ? ` — ${equipes}` : ''}${dateCourt ? ` • ${dateCourt}` : ''}`
+        };
+    }
+
     function obtenirMatchsEnrichisPourJoueur(jId, jObj) {
         const listeMatchs = window.matchsCloudCharges || [];
-        const currentIdStr = String(jId).trim().toLowerCase();
+        const idsCandidats = [
+            jId,
+            jObj.id,
+            jObj.firebaseId,
+            jObj.docId
+        ].filter(Boolean).map(v => String(v).trim().toLowerCase());
+
         const nomJoueur = (jObj.nom || "").trim().toLowerCase();
         const prenomJoueur = (jObj.prenom || "").trim().toLowerCase();
 
-        const matchsTraites = listeMatchs.map(match => {
+        const matchsTraites = listeMatchs.map((match, idx) => {
             let sourceBrute = {};
             if (match.statsParJoueur) {
                 let foundKey = Object.keys(match.statsParJoueur).find(k => {
                     const keyLower = String(k).trim().toLowerCase();
-                    return keyLower === currentIdStr || keyLower === nomJoueur || keyLower === prenomJoueur;
+                    return idsCandidats.includes(keyLower) || keyLower === nomJoueur || keyLower === prenomJoueur;
                 });
                 if (foundKey) sourceBrute = match.statsParJoueur[foundKey];
             }
@@ -327,8 +884,8 @@
 
             const e1 = (match.equipe1 || "").toLowerCase();
             const e2 = (match.equipe2 || "").toLowerCase();
-            const estConcerne = (match.statsParJoueur && Object.keys(match.statsParJoueur).some(k => String(k).toLowerCase() === currentIdStr || String(k).toLowerCase() === nomJoueur)) ||
-                                (match.joueurId && String(match.joueurId).toLowerCase() === currentIdStr) ||
+            const estConcerne = (match.statsParJoueur && Object.keys(match.statsParJoueur).some(k => idsCandidats.includes(String(k).toLowerCase()) || String(k).toLowerCase() === nomJoueur)) ||
+                                (match.joueurId && idsCandidats.includes(String(match.joueurId).toLowerCase())) ||
                                 (nomJoueur && (e1.includes(nomJoueur) || e2.includes(nomJoueur))) ||
                                 (prenomJoueur && (e1.includes(prenomJoueur) || e2.includes(prenomJoueur)));
 
@@ -347,7 +904,51 @@
                 resultat = (vainqueur === eqJoueur) ? 'V' : 'D';
             }
 
+            const recPos = Number(sourceBrute.airePositif || 0)
+                + Number(sourceBrute.botePositif || 0)
+                + Number(sourceBrute.boteCorridoPositif || 0)
+                + Number(sourceBrute.boteProntoPositif || 0)
+                + Number(sourceBrute.erebotePositif || 0)
+                + Number(sourceBrute.pumpaPositif || 0);
+
+            const recNeg = Number(sourceBrute.aireNegatif || 0)
+                + Number(sourceBrute.boteNegatif || 0)
+                + Number(sourceBrute.boteCorridoNegatif || 0)
+                + Number(sourceBrute.boteProntoNegatif || 0)
+                + Number(sourceBrute.ereboteNegatif || 0)
+                + Number(sourceBrute.pumpaNegatif || 0);
+
+            const typesFrappesKeys = [
+                ['frappesClassiquesPos', 'frappesClassiquesNeg'],
+                ['frappesAttaquePos', 'frappesAttaqueNeg'],
+                ['picadaPos', 'picadaNeg'],
+                ['dejadaPos', 'dejadaNeg'],
+                ['txikTxakPos', 'txikTxakNeg'],
+                ['txulaPos', 'txulaNeg'],
+                ['cortadaPos', 'cortadaNeg'],
+                ['gaucheGauchePos', 'gaucheGaucheNeg'],
+                ['gaucheDroitePos', 'gaucheDroiteNeg'],
+                ['deuxMursPos', 'deuxMursNeg']
+            ];
+
+            let frappesPos = 0;
+            let frappesNeg = 0;
+            typesFrappesKeys.forEach(([pKey, nKey]) => {
+                frappesPos += Number(sourceBrute[pKey] || 0);
+                frappesNeg += Number(sourceBrute[nKey] || 0);
+            });
+
+            const frappesClassiques = Number(sourceBrute.frappesClassiquesPos || 0) + Number(sourceBrute.frappesClassiquesNeg || 0);
+            const frappesAttaque = Number(sourceBrute.frappesAttaquePos || 0) + Number(sourceBrute.frappesAttaqueNeg || 0);
+
+            const competitionNom = String(match.competition || match.titre || "Compétition non précisée").trim();
+            const libelles = formaterLibellePartie(match, idx, resultat);
+
             return {
+                partieId: String(match.id || `partie_${idx}`),
+                competition: competitionNom,
+                optionTexte: libelles.optionTexte,
+                banniereTexte: libelles.banniereTexte,
                 resultat,
                 stats: {
                     pelotesJouees: Number(sourceBrute.pelotesJouees || sourceBrute.pelotes || 0),
@@ -359,10 +960,12 @@
                     butsTotal: Number(sourceBrute.butsTotal || sourceBrute.buts || 0),
                     butsSurArriere: Number(sourceBrute.butsSurArriere || sourceBrute.butsArriere || sourceBrute.arriere || 0),
                     butsSurAvant: Number(sourceBrute.butsSurAvant || sourceBrute.butsAvant || sourceBrute.avant || 0),
-                    airePositif: Number(sourceBrute.airePositif || 0),
-                    aireNegatif: Number(sourceBrute.aireNegatif || 0),
-                    botePositif: Number(sourceBrute.botePositif || 0),
-                    boteNegatif: Number(sourceBrute.boteNegatif || 0)
+                    recPositif: recPos,
+                    recNegatif: recNeg,
+                    frappesPositif: frappesPos,
+                    frappesNegatif: frappesNeg,
+                    frappesClassiques: frappesClassiques,
+                    frappesAttaque: frappesAttaque
                 }
             };
         }).filter(Boolean);
@@ -370,77 +973,143 @@
         return matchsTraites;
     }
 
-    function chargerEtAfficherStatsJoueur() {
-        if (typeof joueursData === 'undefined') {
-            document.getElementById('player-name').textContent = "Erreur : joueursData introuvable";
+    function recreerGraphique(cle, canvasId, config) {
+        if (chartsInstances[cle]) {
+            chartsInstances[cle].destroy();
+        }
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        chartsInstances[cle] = new Chart(ctx, config);
+    }
+
+    function synchroniserSelecteursParPartie() {
+        const selectComp = document.getElementById('select-competition');
+        const selectPartie = document.getElementById('select-partie');
+        if (!selectComp || !selectPartie) return;
+
+        const competitions = Array.from(new Set(matchsJoueurActifs.map(m => m.competition))).sort((a, b) => a.localeCompare(b, 'fr'));
+
+        if (!competitions.length) {
+            selectComp.innerHTML = `<option value="">Aucune compétition disponible</option>`;
+            selectPartie.innerHTML = `<option value="">Aucune partie disponible</option>`;
+            competitionSelectionnee = '';
+            partieSelectionneeId = '';
             return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const joueurId = urlParams.get('id');
-
-        if (!joueurId) {
-            document.getElementById('player-name').textContent = "Aucun ID fourni dans l'URL";
-            return;
+        if (!competitionSelectionnee || !competitions.includes(competitionSelectionnee)) {
+            competitionSelectionnee = competitions[0];
         }
 
-        const joueur = joueursData.find(j => 
-            String(j.id || j.firebaseId || j.docId).trim().toLowerCase() === String(joueurId).trim().toLowerCase()
-        );
+        selectComp.innerHTML = competitions.map(comp => {
+            const nbDansComp = matchsJoueurActifs.filter(m => m.competition === comp).length;
+            const selected = comp === competitionSelectionnee ? 'selected' : '';
+            return `<option value="${comp.replace(/"/g, '&quot;')}" ${selected}>${comp} (${nbDansComp})</option>`;
+        }).join('');
 
-        if (!joueur) {
-            document.getElementById('player-name').textContent = `Joueur introuvable (${joueurId})`;
-            return;
+        const partiesDeLaComp = matchsJoueurActifs.filter(m => m.competition === competitionSelectionnee);
+        if (!partieSelectionneeId || !partiesDeLaComp.some(m => m.partieId === partieSelectionneeId)) {
+            partieSelectionneeId = partiesDeLaComp[0] ? partiesDeLaComp[0].partieId : '';
         }
 
-        // Affichage des informations de profil
-        document.getElementById('player-name').textContent = `${joueur.prenom} ${joueur.nom}`;
-        document.getElementById('player-club').textContent = joueur.club || 'Indépendant';
-        document.getElementById('player-poste').textContent = joueur.poste || joueur.specialite || 'Joueur';
+        selectPartie.innerHTML = partiesDeLaComp.map((p, i) => {
+            const selected = p.partieId === partieSelectionneeId ? 'selected' : '';
+            return `<option value="${p.partieId.replace(/"/g, '&quot;')}" ${selected}>#${i + 1} • ${p.optionTexte}</option>`;
+        }).join('');
+    }
 
-        const initiales = `${joueur.prenom ? joueur.prenom.charAt(0) : ''}${joueur.nom ? joueur.nom.charAt(0) : ''}`;
-        const photoContainer = document.getElementById('player-photo-container');
-        if (joueur.photo) {
-            photoContainer.innerHTML = `<img src="${joueur.photo}" alt="${joueur.nom}" class="player-photo" onerror="this.onerror=null; this.src='logoce.png';">`;
+    function initialiserEvenementsOnglets() {
+        const tabTotales = document.getElementById('tab-totales');
+        const tabParPartie = document.getElementById('tab-par-partie');
+        const controlsBox = document.getElementById('par-partie-controls');
+        const selectComp = document.getElementById('select-competition');
+        const selectPartie = document.getElementById('select-partie');
+
+        tabTotales.addEventListener('click', () => {
+            modeOnglet = 'totales';
+            tabTotales.classList.add('active');
+            tabParPartie.classList.remove('active');
+            controlsBox.style.display = 'none';
+            rendreVueStats();
+        });
+
+        tabParPartie.addEventListener('click', () => {
+            modeOnglet = 'par-partie';
+            tabParPartie.classList.add('active');
+            tabTotales.classList.remove('active');
+            controlsBox.style.display = 'grid';
+            synchroniserSelecteursParPartie();
+            rendreVueStats();
+        });
+
+        selectComp.addEventListener('change', (e) => {
+            competitionSelectionnee = e.target.value;
+            partieSelectionneeId = '';
+            synchroniserSelecteursParPartie();
+            rendreVueStats();
+        });
+
+        selectPartie.addEventListener('change', (e) => {
+            partieSelectionneeId = e.target.value;
+            rendreVueStats();
+        });
+    }
+
+    initialiserEvenementsOnglets();
+
+    function rendreVueStats() {
+        if (!joueurActif) return;
+
+        const estTotales = modeOnglet === 'totales';
+        let matchsSelection = [];
+        let partieChoisie = null;
+
+        if (estTotales) {
+            matchsSelection = matchsJoueurActifs;
         } else {
-            photoContainer.innerHTML = `<div class="player-photo">${initiales}</div>`;
+            partieChoisie = matchsJoueurActifs.find(m => m.partieId === partieSelectionneeId) || null;
+            matchsSelection = partieChoisie ? [partieChoisie] : [];
         }
 
-        // Gestion de l'affichage ou du masquage de la section des buts selon le poste
-        const posteJoueur = (joueur.poste || joueur.specialite || "").trim().toLowerCase();
+        const contextTitleEl = document.getElementById('partie-context-title');
+        const contextMetaEl = document.getElementById('partie-context-meta');
+        if (contextTitleEl && contextMetaEl) {
+            if (estTotales) {
+                contextTitleEl.textContent = `Cumul total : ${matchsJoueurActifs.length} partie${matchsJoueurActifs.length > 1 ? 's' : ''}`;
+                contextMetaEl.textContent = 'Total cumulé';
+            } else if (partieChoisie) {
+                const resTexte = partieChoisie.resultat === 'V' ? 'Victoire' : (partieChoisie.resultat === 'D' ? 'Défaite' : 'Match');
+                contextTitleEl.textContent = partieChoisie.banniereTexte;
+                contextMetaEl.textContent = `Partie • ${resTexte}`;
+            } else {
+                contextTitleEl.textContent = 'Aucune partie disponible';
+                contextMetaEl.textContent = '';
+            }
+        }
+
+        const posteJoueur = (joueurActif.poste || joueurActif.specialite || "").trim().toLowerCase();
         const estArriere = posteJoueur.includes('arrière') || posteJoueur.includes('arriere');
         const butsSection = document.getElementById('buts-section');
         if (butsSection) {
             butsSection.style.display = estArriere ? 'none' : 'block';
         }
 
-        // Récupération des matchs enrichis
-        const matchsJoueur = obtenirMatchsEnrichisPourJoueur(joueurId, joueur);
-        const nbMatchs = matchsJoueur.length;
-        const nbVictoires = matchsJoueur.filter(m => m.resultat === 'V').length;
-        const nbDefaites = matchsJoueur.filter(m => m.resultat === 'D').length;
+        const nbParties = matchsSelection.length;
+        const nbVictoires = matchsSelection.filter(m => m.resultat === 'V').length;
+        const nbDefaites = matchsSelection.filter(m => m.resultat === 'D').length;
 
-        // Timeline de forme récente
-        const timelineContainer = document.getElementById('form-timeline');
-        if (matchsJoueur.length > 0) {
-            const derniersMatchs = matchsJoueur.map(m => m.resultat).slice(-5).reverse();
-            timelineContainer.innerHTML = derniersMatchs.map(res => {
-                if (res === 'V') return `<div class="form-badge badge-win" title="Victoire">V</div>`;
-                if (res === 'D') return `<div class="form-badge badge-loss" title="Défaite">D</div>`;
-                return `<div class="form-badge badge-none" title="Neutre">-</div>`;
-            }).join('');
-        } else {
-            timelineContainer.innerHTML = `<span style="font-size: 0.75rem; color: var(--text-muted);">Aucun match enregistré</span>`;
-        }
+        document.getElementById('bilan-parties-val').textContent = nbParties;
+        document.getElementById('bilan-victoires-val').textContent = nbVictoires;
+        document.getElementById('bilan-defaites-val').textContent = nbDefaites;
 
         let totalPelotesJouees = 0, totalPelotesMax = 0;
         let totalPtsGagnes = 0, totalPtsGagnesMax = 0;
         let totalPtsPerdus = 0, totalPtsPerdusMax = 0;
         let totalButs = 0, butsArriere = 0, butsAvant = 0;
-        let totalAirePos = 0, totalAireNeg = 0;
-        let totalBotePos = 0, totalBoteNeg = 0;
+        let totalRecPos = 0, totalRecNeg = 0;
+        let totalFrappesPos = 0, totalFrappesNeg = 0;
+        let totalFrappesClassiques = 0, totalFrappesAttaque = 0;
 
-        matchsJoueur.forEach(m => {
+        matchsSelection.forEach(m => {
             const s = m.stats;
             totalPelotesJouees += s.pelotesJouees;
             totalPelotesMax += s.pelotesTotales;
@@ -451,35 +1120,128 @@
             totalButs += s.butsTotal;
             butsArriere += s.butsSurArriere;
             butsAvant += s.butsSurAvant;
-            totalAirePos += s.airePositif;
-            totalAireNeg += s.aireNegatif;
-            totalBotePos += s.botePositif;
-            totalBoteNeg += s.boteNegatif;
+            totalRecPos += s.recPositif;
+            totalRecNeg += s.recNegatif;
+            totalFrappesPos += s.frappesPositif;
+            totalFrappesNeg += s.frappesNegatif;
+            totalFrappesClassiques += s.frappesClassiques;
+            totalFrappesAttaque += s.frappesAttaque;
         });
+
+        const totalRec = totalRecPos + totalRecNeg;
+        const pctRecPos = totalRec > 0 ? Math.round((totalRecPos / totalRec) * 100) : 0;
+        const pctRecNeg = totalRec > 0 ? Math.round((totalRecNeg / totalRec) * 100) : 0;
+        const valRecTotal = Math.round(totalRec);
+        const valRecPos = Math.round(totalRecPos);
+        const valRecNeg = Math.round(totalRecNeg);
+
+        const totalFrappes = totalFrappesPos + totalFrappesNeg;
+        const pctFrappesPos = totalFrappes > 0 ? Math.round((totalFrappesPos / totalFrappes) * 100) : 0;
+        const pctFrappesNeg = totalFrappes > 0 ? Math.round((totalFrappesNeg / totalFrappes) * 100) : 0;
+        const valFrappesTotal = Math.round(totalFrappes);
+        const valFrappesPos = Math.round(totalFrappesPos);
+        const valFrappesNeg = Math.round(totalFrappesNeg);
+
+        document.getElementById('rec-summary-badge').textContent = `${valRecTotal} (${pctRecPos}%)`;
+        document.getElementById('rec-pos-val').innerHTML = `${valRecPos} <span class="pn-sub-pct">(${pctRecPos}%)</span>`;
+        document.getElementById('rec-neg-val').innerHTML = `${valRecNeg} <span class="pn-sub-pct">(${pctRecNeg}%)</span>`;
+
+        document.getElementById('frappes-summary-badge').textContent = `${valFrappesTotal} (${pctFrappesPos}%)`;
+        document.getElementById('frappes-pos-val').innerHTML = `${valFrappesPos} <span class="pn-sub-pct">(${pctFrappesPos}%)</span>`;
+        document.getElementById('frappes-neg-val').innerHTML = `${valFrappesNeg} <span class="pn-sub-pct">(${pctFrappesNeg}%)</span>`;
 
         const pctPelotes = totalPelotesMax > 0 ? Math.round((totalPelotesJouees / totalPelotesMax) * 100) : 0;
         const pctGagnes = totalPtsGagnesMax > 0 ? Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100) : 0;
         const pctPerdus = totalPtsPerdusMax > 0 ? Math.round((totalPtsPerdus / totalPtsPerdusMax) * 100) : 0;
-        const pctVictoires = nbMatchs > 0 ? Math.round((nbVictoires / nbMatchs) * 100) : 0;
 
-        const moyButs = nbMatchs > 0 ? (totalButs / nbMatchs).toFixed(1) : (joueur.butsMoy || joueur.buts || 0);
-        const pctArriere = totalButs > 0 ? Math.round((butsArriere / totalButs) * 100) : (joueur.butsArr || 0);
-        const pctAvant = totalButs > 0 ? Math.round((butsAvant / totalButs) * 100) : (joueur.butsAv || 0);
+        const butsTotCalcule = totalButs > 0 ? totalButs : (butsAvant + butsArriere);
+        const valButs = nbParties > 0
+            ? Math.round(butsTotCalcule)
+            : Math.round(Number(joueurActif.butsMoy || joueurActif.buts || 0));
+        const valButsAvant = Math.round(butsAvant);
+        const valButsArriere = Math.round(butsArriere);
+        const pctArriere = butsTotCalcule > 0 ? Math.round((butsArriere / butsTotCalcule) * 100) : Math.round(Number(joueurActif.butsArr || 0));
+        const pctAvant = butsTotCalcule > 0 ? Math.round((butsAvant / butsTotCalcule) * 100) : Math.round(Number(joueurActif.butsAv || 0));
 
-        const totalRec = (totalAirePos + totalBotePos) + (totalAireNeg + totalBoteNeg);
-        const pctRecPos = totalRec > 0 ? Math.round(((totalAirePos + totalBotePos) / totalRec) * 100) : 0;
+        document.getElementById('buts-total-val').textContent = `${valButs}`;
+        document.getElementById('buts-avant-val').innerHTML = `${valButsAvant} <span id="buts-avant-pct" class="buts-stat-pct">(${pctAvant}%)</span>`;
+        document.getElementById('buts-arriere-val').innerHTML = `${valButsArriere} <span id="buts-arriere-pct" class="buts-stat-pct">(${pctArriere}%)</span>`;
 
-        // Calcul de la note sur 100 (identique à la page comparaison)
-        let note100 = nbMatchs > 0 ? Math.min(100, Math.max(40, Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15))) : 0;
+        let noteBrute = nbParties > 0 ? Math.round((nbVictoires / nbParties) * 60 + pctGagnes * 0.4 + 15) : 0;
+        const bonusArriere = estArriere ? 8 : 0;
+        let note100 = nbParties > 0 ? Math.min(100, Math.max(40, noteBrute + bonusArriere)) : 0;
         document.querySelector('.note-100').innerHTML = `${note100}<span>/100</span>`;
 
-        // Variables de design graphiques
+        const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
         const accentColor = '#17b890';
-        const textColor = savedTheme === 'dark' ? '#ffffff' : '#333333';
-        const gridColor = savedTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+        const textColor = currentTheme === 'dark' ? '#ffffff' : '#333333';
+        const gridColor = currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
 
-        // 1. Indicateurs Clés & Efficacité
-        new Chart(document.getElementById('efficaciteChart').getContext('2d'), {
+        // 1. Bilan Global des Parties
+        recreerGraphique('barChart', 'barChart', {
+            type: 'bar',
+            data: {
+                labels: ['Parties', 'Victoires', 'Défaites'],
+                datasets: [{ data: [nbParties, nbVictoires, nbDefaites], backgroundColor: [accentColor, '#34d399', '#f87171'], borderRadius: 5, maxBarThickness: 28 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, precision: 0 } }
+                }
+            }
+        });
+
+        // 2. Analyse des Buts
+        if (!estArriere) {
+            recreerGraphique('butsChart', 'butsChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Buts Total', 'Buts Arrière', 'Buts Avant'],
+                    datasets: [{ 
+                        data: [valButs, valButsArriere, valButsAvant], 
+                        backgroundColor: ['#a855f7', '#60a5fa', '#f87171'], 
+                        borderRadius: 4,
+                        maxBarThickness: 16
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, precision: 0 } },
+                        y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
+                    }
+                }
+            });
+        } else if (chartsInstances.butsChart) {
+            chartsInstances.butsChart.destroy();
+            delete chartsInstances.butsChart;
+        }
+
+        // 3. Indicateurs Clés & Efficacité
+        const valPelotes = Math.round(totalPelotesJouees);
+        const valPtsGagnes = Math.round(totalPtsGagnes);
+
+        const itemsEff = [
+            { label: 'Pelotes', val: valPelotes, pct: pctPelotes },
+            { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes },
+            { label: 'Recouvrements Pos', val: valRecPos, pct: pctRecPos }
+        ];
+
+        document.getElementById('eff-stats-grid').innerHTML = itemsEff.map(item => `
+            <div class="eff-stat-box">
+                <div class="eff-stat-label">${item.label}</div>
+                <div class="eff-stat-value">${item.val}</div>
+            </div>
+        `).join('');
+
+        recreerGraphique('efficaciteChart', 'efficaciteChart', {
             type: 'bar',
             data: {
                 labels: ['Pelotes (%)', 'Pts Gagnés (%)', 'Recouvrements Pos (%)'],
@@ -495,76 +1257,109 @@
             }
         });
 
-        // 2. Analyse des Buts (Uniquement si non arrière)
+        // 4. Performance Globale
+        const valPtsPerdus = Math.round(totalPtsPerdus);
+        const diffClassAtt = totalFrappesClassiques - totalFrappesAttaque;
+        const valDiffClassAtt = Math.round(diffClassAtt);
+        const totalClassAtt = totalFrappesClassiques + totalFrappesAttaque;
+        const pctDiffClassAtt = totalClassAtt > 0 ? Math.min(100, Math.round((Math.abs(diffClassAtt) / totalClassAtt) * 100)) : 0;
+
+        const itemsPerf = [
+            { label: 'Pelotes', val: valPelotes, pct: pctPelotes, color: accentColor },
+            { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes, color: '#34d399' },
+            { label: 'Pts Perdus', val: valPtsPerdus, pct: pctPerdus, color: '#f87171' },
+            { label: 'Réception +', val: valRecPos, pct: pctRecPos, color: '#fbbf24' },
+            { label: 'Réception -', val: valRecNeg, pct: pctRecNeg, color: '#f97316' },
+            { label: 'Frappes +', val: valFrappesPos, pct: pctFrappesPos, color: '#38bdf8' },
+            { label: 'Frappes -', val: valFrappesNeg, pct: pctFrappesNeg, color: '#fb7185' },
+            { label: 'Classiques - Attaque', val: valDiffClassAtt, pct: pctDiffClassAtt, color: '#818cf8' }
+        ];
+
         if (!estArriere) {
-            new Chart(document.getElementById('butsChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Buts Total (Moy)', 'Buts Arrière (%)', 'Buts Avant (%)'],
-                    datasets: [{ 
-                        data: [Number(moyButs), Number(pctArriere), Number(pctAvant)], 
-                        backgroundColor: ['#a855f7', '#60a5fa', '#f87171'], 
-                        borderRadius: 4,
-                        maxBarThickness: 16
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } }, max: 100 },
-                        y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
-                    }
-                }
-            });
+            itemsPerf.push({ label: 'Buts', val: valButs, pct: Math.min(100, valButs), color: '#a855f7' });
         }
 
-        // 3. Performance Globale (%)
-        let labelsPerf = ['Pelotes (%)', 'Pts Gagnés (%)', 'Pts Perdus (%)', 'Frappes/Recouv (%)', 'Buts Moy', 'Victoires (%)'];
-        let dataPerf = [pctPelotes, pctGagnes, pctPerdus, pctRecPos, Number(moyButs), pctVictoires];
-        let colorsPerf = [accentColor, '#34d399', '#f87171', '#fbbf24', '#a855f7', '#3b82f6'];
+        document.getElementById('perf-stats-grid').innerHTML = itemsPerf.map(item => `
+            <div class="perf-stat-box">
+                <div class="perf-stat-label">${item.label}</div>
+                <div class="perf-stat-value">${item.val}</div>
+            </div>
+        `).join('');
 
-        if (estArriere) {
-            labelsPerf = ['Pelotes (%)', 'Pts Gagnés (%)', 'Pts Perdus (%)', 'Frappes/Recouv (%)', 'Victoires (%)'];
-            dataPerf = [pctPelotes, pctGagnes, pctPerdus, pctRecPos, pctVictoires];
-            colorsPerf = [accentColor, '#34d399', '#f87171', '#fbbf24', '#3b82f6'];
-        }
-
-        new Chart(document.getElementById('horizontalBarChart').getContext('2d'), {
+        recreerGraphique('horizontalBarChart', 'horizontalBarChart', {
             type: 'bar',
             data: {
-                labels: labelsPerf,
-                datasets: [{ data: dataPerf, backgroundColor: colorsPerf, borderRadius: 6 }]
+                labels: itemsPerf.map(i => `${i.label} (%)`),
+                datasets: [{ data: itemsPerf.map(i => i.pct), backgroundColor: itemsPerf.map(i => i.color), borderRadius: 6 }]
             },
             options: {
                 indexAxis: 'y',
                 responsive: true,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } }, max: 100 },
+                    x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, precision: 0 }, max: 100 },
                     y: { grid: { display: false }, ticks: { color: textColor, font: { size: 11 } } }
                 }
             }
         });
+    }
 
-        // 4. Bilan Global des Matchs
-        new Chart(document.getElementById('barChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Matchs', 'Victoires', 'Défaites'],
-                datasets: [{ data: [nbMatchs, nbVictoires, nbDefaites], backgroundColor: [accentColor, '#34d399', '#f87171'], borderRadius: 6 }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
-                    y: { grid: { color: gridColor }, ticks: { color: textColor, precision: 0 } }
-                }
-            }
+    function chargerEtAfficherStatsJoueur() {
+        const tousLesJoueurs = construireListeJoueurs();
+        if (!tousLesJoueurs.length) {
+            document.getElementById('player-name').textContent = "Erreur : aucun joueur disponible";
+            return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const joueurId = urlParams.get('id');
+
+        if (!joueurId) {
+            document.getElementById('player-name').textContent = "Aucun ID fourni dans l'URL";
+            return;
+        }
+
+        const cibleId = String(joueurId).trim().toLowerCase();
+        const joueur = tousLesJoueurs.find(j => {
+            const candidats = [j.id, j.firebaseId, j.docId].filter(Boolean).map(v => String(v).trim().toLowerCase());
+            return candidats.includes(cibleId);
         });
+
+        if (!joueur) {
+            document.getElementById('player-name').textContent = `Joueur introuvable (${joueurId})`;
+            return;
+        }
+
+        joueurActif = joueur;
+
+        // Affichage des informations de profil
+        document.getElementById('player-name').textContent = `${joueur.prenom || ''} ${joueur.nom || ''}`.trim();
+        document.getElementById('player-club').textContent = joueur.club || (joueur.estDuPole ? 'Pôle Performance' : 'Autre Club');
+        document.getElementById('player-poste').textContent = joueur.poste || joueur.specialite || 'Joueur';
+
+        const sourceBadge = document.getElementById('player-source-badge');
+        if (sourceBadge) {
+            sourceBadge.style.display = 'inline-block';
+            if (joueur.estDuPole) {
+                sourceBadge.textContent = 'Pôle';
+                sourceBadge.className = 'player-source-tag';
+            } else {
+                sourceBadge.textContent = 'Autre';
+                sourceBadge.className = 'player-source-tag autre';
+            }
+        }
+
+        const initiales = `${joueur.prenom ? joueur.prenom.charAt(0) : ''}${joueur.nom ? joueur.nom.charAt(0) : ''}`;
+        const photoContainer = document.getElementById('player-photo-container');
+        if (joueur.photo) {
+            photoContainer.innerHTML = `<img src="${joueur.photo}" alt="${joueur.nom}" class="player-photo" onerror="this.onerror=null; this.src='logoce.png';">`;
+        } else {
+            photoContainer.innerHTML = `<div class="player-photo">${initiales}</div>`;
+        }
+
+        matchsJoueurActifs = obtenirMatchsEnrichisPourJoueur(joueurId, joueur);
+        synchroniserSelecteursParPartie();
+        rendreVueStats();
     }
 </script>
 
