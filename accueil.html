@@ -380,6 +380,39 @@
             white-space: nowrap;
         }
 
+        /* --- BLOC SUR UNE SEULE LIGNE : STATISTIQUES TOUS JOUEURS --- */
+        .stats-all-players-card {
+            padding: 10px 14px;
+            text-decoration: none;
+            color: var(--container-text);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+        }
+        .stats-all-players-card:hover {
+            background: var(--card-hover-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        .stats-all-players-icon {
+            font-size: 1rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .stats-all-players-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--accent-color);
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .skeleton-loader {
             background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 75%);
             background-size: 200% 100%;
@@ -580,6 +613,12 @@
         </a>
     </div>
 
+    <!-- BLOC SUR UNE SEULE LIGNE : Statistiques tous joueurs (visible uniquement par admin et entraineurplus) -->
+    <a href="cartes.html" id="statsAllPlayersCard" class="stats-all-players-card full-width-block" aria-label="Statistiques tous joueurs" style="display: none;">
+        <span class="stats-all-players-icon" aria-hidden="true">📊</span>
+        <span class="stats-all-players-label">Statistiques tous joueurs</span>
+    </a>
+
     <nav class="admin-actions-grid admin-only" aria-label="Actions administrateur" style="display: none;">
         <a href="ajouter_partie.html" class="admin-action-card">
             <div class="admin-action-icon" aria-hidden="true">➕</div>
@@ -665,6 +704,24 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js"></script>
 
 <script>
+    // --- DISSUASION LÉGÈRE SUR PC (CLIC DROIT & RACCOURCIS COURANTS) ---
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        const keyUpper = e.key ? e.key.toUpperCase() : '';
+        const isDevShortcut =
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(keyUpper)) ||
+            (e.metaKey && e.altKey && ['I', 'J', 'C'].includes(keyUpper)) ||
+            ((e.ctrlKey || e.metaKey) && ['U', 'S'].includes(keyUpper));
+
+        if (isDevShortcut) {
+            e.preventDefault();
+        }
+    });
+
     // --- GÉNÉRATION DE LA NEIGE QUI TOMBE ---
     function lancerNeigeNoel() {
         const container = document.getElementById('snow-container');
@@ -859,8 +916,17 @@
         }
     }
 
+    function normaliserRole(role) {
+        return String(role || '')
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\s_-]+/g, '')
+            .trim();
+    }
+
     function appliquerDroitsAcces() {
-        const userRole = (localStorage.getItem('cesta_user_role') || '').toLowerCase();
+        const roleNormalise = normaliserRole(localStorage.getItem('cesta_user_role') || '');
         const userEmail = (localStorage.getItem('cesta_user_email') || '').toLowerCase();
         
         let isStaffMember = false;
@@ -868,13 +934,19 @@
             isStaffMember = staffData.some(s => s.email && s.email.toLowerCase() === userEmail);
         }
 
-        const isAdmin = (userRole === 'admin');
-        const isEntraineurOrAdmin = (userRole === 'admin' || userRole === 'entraineur' || userRole === 'coach' || isStaffMember);
+        const isAdmin = (roleNormalise === 'admin' || roleNormalise === 'administrateur');
+        const isEntraineurPlus = (roleNormalise === 'entraineurplus');
+        const isEntraineurOrAdmin = (isAdmin || isEntraineurPlus || roleNormalise === 'entraineur' || roleNormalise === 'coach' || isStaffMember);
 
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => {
             el.style.display = isAdmin ? 'grid' : 'none';
         });
+
+        const statsCard = document.getElementById('statsAllPlayersCard');
+        if (statsCard) {
+            statsCard.style.display = (isAdmin || isEntraineurPlus) ? 'flex' : 'none';
+        }
 
         const aiaCard = document.getElementById('aiaAccessCard');
         const topGrid = document.getElementById('topWidgetsGrid');
