@@ -416,6 +416,18 @@
             gap: 8px;
         }
 
+        .control-row-two {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        @media (max-width: 400px) {
+            .control-row-two {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .control-field {
             display: flex;
             flex-direction: column;
@@ -1069,9 +1081,15 @@
         </div>
 
         <div id="par-partie-controls" class="par-partie-controls" style="display: none;">
-            <div class="control-field">
-                <label for="select-lieu-filtre-partie" class="control-label">Filtrer par lieu</label>
-                <select id="select-lieu-filtre-partie" class="control-select"></select>
+            <div class="control-row-two">
+                <div class="control-field">
+                    <label for="select-annee-filtre-partie" class="control-label">Filtrer par année</label>
+                    <select id="select-annee-filtre-partie" class="control-select"></select>
+                </div>
+                <div class="control-field">
+                    <label for="select-lieu-filtre-partie" class="control-label">Filtrer par lieu</label>
+                    <select id="select-lieu-filtre-partie" class="control-select"></select>
+                </div>
             </div>
             <div class="control-field">
                 <label for="select-competition" class="control-label">Compétition</label>
@@ -1084,9 +1102,15 @@
         </div>
 
         <div id="par-lieu-controls" class="par-partie-controls" style="display: none;">
-            <div class="control-field">
-                <label for="select-lieu" class="control-label">Lieu</label>
-                <select id="select-lieu" class="control-select"></select>
+            <div class="control-row-two">
+                <div class="control-field">
+                    <label for="select-annee-lieu" class="control-label">Année</label>
+                    <select id="select-annee-lieu" class="control-select"></select>
+                </div>
+                <div class="control-field">
+                    <label for="select-lieu" class="control-label">Lieu</label>
+                    <select id="select-lieu" class="control-select"></select>
+                </div>
             </div>
             <div class="lieu-submode-switch">
                 <button type="button" id="lieu-mode-totales" class="lieu-submode-btn active">
@@ -1300,9 +1324,11 @@
     let joueurActif = null;
     let matchsJoueurActifs = [];
     let modeOnglet = 'totales';
+    let anneeFiltreParPartie = '__ALL__';
     let lieuFiltreParPartie = '__ALL__';
     let competitionSelectionnee = '';
     let partieSelectionneeId = '';
+    let anneeFiltreLieu = '__ALL__';
     let lieuSelectionne = '';
     let sousModeLieu = 'totales';
     let partieLieuSelectionneeId = '';
@@ -1334,10 +1360,11 @@
         }
         if (modeOnglet === 'lieu' && lieuSelectionne) {
             const lKey = normaliserNom(lieuSelectionne).replace(/[^a-zA-Z0-9_-]/g, '_') || 'lieu';
+            const anneeSuffix = anneeFiltreLieu !== '__ALL__' ? `__${anneeFiltreLieu}` : '';
             if (sousModeLieu === 'par-partie' && partieLieuSelectionneeId) {
-                return `${jKey}__lieu_${lKey}__partie__${String(partieLieuSelectionneeId).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+                return `${jKey}__lieu_${lKey}${anneeSuffix}__partie__${String(partieLieuSelectionneeId).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
             }
-            return `${jKey}__lieu_${lKey}__totales`;
+            return `${jKey}__lieu_${lKey}${anneeSuffix}__totales`;
         }
         return `${jKey}__totales`;
     }
@@ -1646,9 +1673,10 @@
             suffixeMode = `-${partieSelectionneeId}`;
         } else if (modeOnglet === 'lieu' && lieuSelectionne) {
             const slugLieu = normaliserNom(lieuSelectionne).replace(/[^a-z0-9]+/g, '-');
+            const slugAnnee = anneeFiltreLieu !== '__ALL__' ? `-${anneeFiltreLieu}` : '';
             suffixeMode = (sousModeLieu === 'par-partie' && partieLieuSelectionneeId)
-                ? `-lieu-${slugLieu}-${partieLieuSelectionneeId}`
-                : `-lieu-${slugLieu}-totales`;
+                ? `-lieu-${slugLieu}${slugAnnee}-${partieLieuSelectionneeId}`
+                : `-lieu-${slugLieu}${slugAnnee}-totales`;
         }
 
         const options = {
@@ -1775,14 +1803,15 @@
         return `<p>${paragrapheAnalyse}</p><p>${paragrapheSynthese}</p>`;
     }
 
-    function genererSyntheseLieuJoueur(joueur, lieuNom, sGraph, partieSpecifique) {
+    function genererSyntheseLieuJoueur(joueur, lieuNom, sGraph, partieSpecifique, anneeFiltre) {
         const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
         if (partieSpecifique) {
             return genererAnalyseEtSynthesePartie(joueur, partieSpecifique, sGraph);
         }
+        const suffixeAnnee = anneeFiltre && anneeFiltre !== '__ALL__' ? ` en ${anneeFiltre}` : '';
         const nbP = sGraph.nbParties;
         if (nbP === 0) {
-            return `<p><strong>Synthèse lieu (${lieuNom}) :</strong> Aucune partie enregistrée dans ce lieu pour ${nomComplet}.</p>`;
+            return `<p><strong>Synthèse lieu (${lieuNom}${suffixeAnnee}) :</strong> Aucune partie enregistrée dans ce lieu${suffixeAnnee} pour ${nomComplet}.</p>`;
         }
         const ratioV = Math.round((sGraph.nbVictoires / nbP) * 100);
         const soldePts = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
@@ -1793,7 +1822,7 @@
             ? 'un différentiel de points positif'
             : (soldePts < 0 ? 'un différentiel de points négatif' : 'un équilibre sur les points');
 
-        const p1 = `<strong>Analyse sur le lieu — ${lieuNom} :</strong> Sur ${nbP} partie${nbP > 1 ? 's' : ''} jouée${nbP > 1 ? 's' : ''} à ${lieuNom}, ${nomComplet} présente ${bilanTxt} avec ${ptsTxt}.`;
+        const p1 = `<strong>Analyse sur le lieu — ${lieuNom}${suffixeAnnee} :</strong> Sur ${nbP} partie${nbP > 1 ? 's' : ''} jouée${nbP > 1 ? 's' : ''} à ${lieuNom}${suffixeAnnee}, ${nomComplet} présente ${bilanTxt} avec ${ptsTxt}.`;
         const p2 = `<strong>Synthèse du lieu :</strong> Réception positive à ${sGraph.pctRecPos}% (${sGraph.valRecPos}/${sGraph.valRecTotal}) et frappes positives à ${sGraph.pctFrappesPos}% (${sGraph.valFrappesPos}/${sGraph.valFrappesTotal}).`;
         return `<p>${p1}</p><p>${p2}</p>`;
     }
@@ -1936,6 +1965,7 @@
                     competition: data.competition || data.titre || "Compétition non précisée",
                     lieu: String(data.lieu || data.ville || data.fronton || data.terrain || (data.stats && (data.stats.lieu || data.stats.ville || data.stats.fronton)) || "").trim(),
                     date: data.date || "",
+                    annee: data.annee || data.saison || "",
                     equipe1: data.equipe1 || "",
                     equipe2: data.equipe2 || "",
                     scoreEquipe1: data.scoreEquipe1 !== undefined ? data.scoreEquipe1 : data.equipe1Score,
@@ -2005,6 +2035,23 @@
             || "";
         const propre = String(brut || "").trim();
         return propre || "Lieu non précisé";
+    }
+
+    function extraireAnneeMatch(match, sourceBrute) {
+        const brutAnnee = (match && (match.annee || match.saison))
+            || (sourceBrute && (sourceBrute.annee || sourceBrute.saison))
+            || "";
+        const matchDirect = String(brutAnnee).match(/\b(20\d{2}|19\d{2})\b/);
+        if (matchDirect) return matchDirect[1];
+
+        const brutDate = (match && match.date) || (sourceBrute && sourceBrute.date) || "";
+        const strDate = String(brutDate).trim();
+        const matchIso = strDate.match(/^(\d{4})/);
+        if (matchIso) return matchIso[1];
+        const matchFr = strDate.match(/(\d{4})/);
+        if (matchFr) return matchFr[1];
+
+        return "Année non précisée";
     }
 
     function formaterLibellePartie(match, index, resultat, lieuNom) {
@@ -2141,6 +2188,7 @@
 
             const competitionNom = String(match.competition || match.titre || "Compétition non précisée").trim();
             const lieuNom = extraireLieuMatch(match, sourceBrute);
+            const anneeNom = extraireAnneeMatch(match, sourceBrute);
             const libelles = formaterLibellePartie(match, idx, resultat, lieuNom);
 
             const score1Str = s1 !== undefined && s1 !== null && String(s1).trim() !== '' ? String(s1).trim() : '-';
@@ -2151,6 +2199,7 @@
                 partieId: String(match.id || `partie_${idx}`),
                 competition: competitionNom,
                 lieu: lieuNom,
+                annee: anneeNom,
                 nomPartie: match.titre || competitionNom,
                 datePartie: match.date ? String(match.date).slice(0, 10) : '',
                 equipe1: match.equipe1 || 'Équipe 1',
@@ -2195,27 +2244,54 @@
         });
     }
 
-    function obtenirListeLieuxDisponibles() {
-        return Array.from(new Set(matchsJoueurActifs.map(m => m.lieu || "Lieu non précisé")))
+    function obtenirListeAnneesDisponibles(listeSource = matchsJoueurActifs) {
+        return Array.from(new Set(listeSource.map(m => m.annee || "Année non précisée")))
+            .sort((a, b) => b.localeCompare(a, 'fr'));
+    }
+
+    function obtenirListeLieuxDisponibles(listeSource = matchsJoueurActifs) {
+        return Array.from(new Set(listeSource.map(m => m.lieu || "Lieu non précisé")))
             .sort((a, b) => a.localeCompare(b, 'fr'));
     }
 
     function synchroniserSelecteursParPartie() {
+        const selectAnneeFiltre = document.getElementById('select-annee-filtre-partie');
         const selectLieuFiltre = document.getElementById('select-lieu-filtre-partie');
         const selectComp = document.getElementById('select-competition');
         const selectPartie = document.getElementById('select-partie');
         if (!selectComp || !selectPartie) return;
 
-        const lieux = obtenirListeLieuxDisponibles();
+        const annees = obtenirListeAnneesDisponibles();
+
+        if (selectAnneeFiltre) {
+            if (anneeFiltreParPartie !== '__ALL__' && !annees.includes(anneeFiltreParPartie)) {
+                anneeFiltreParPartie = '__ALL__';
+            }
+            const optionsAnnee = [
+                `<option value="__ALL__"${anneeFiltreParPartie === '__ALL__' ? ' selected' : ''}>Toutes les années (${matchsJoueurActifs.length})</option>`,
+                ...annees.map(a => {
+                    const nb = matchsJoueurActifs.filter(m => (m.annee || "Année non précisée") === a).length;
+                    const sel = a === anneeFiltreParPartie ? ' selected' : '';
+                    return `<option value="${a.replace(/"/g, '&quot;')}"${sel}>${a} (${nb})</option>`;
+                })
+            ];
+            selectAnneeFiltre.innerHTML = optionsAnnee.join('');
+        }
+
+        const matchsFiltresAnnee = anneeFiltreParPartie === '__ALL__'
+            ? matchsJoueurActifs
+            : matchsJoueurActifs.filter(m => (m.annee || "Année non précisée") === anneeFiltreParPartie);
+
+        const lieux = obtenirListeLieuxDisponibles(matchsFiltresAnnee);
 
         if (selectLieuFiltre) {
             if (lieuFiltreParPartie !== '__ALL__' && !lieux.includes(lieuFiltreParPartie)) {
                 lieuFiltreParPartie = '__ALL__';
             }
             const optionsLieu = [
-                `<option value="__ALL__"${lieuFiltreParPartie === '__ALL__' ? ' selected' : ''}>Tous les lieux (${matchsJoueurActifs.length})</option>`,
+                `<option value="__ALL__"${lieuFiltreParPartie === '__ALL__' ? ' selected' : ''}>Tous les lieux (${matchsFiltresAnnee.length})</option>`,
                 ...lieux.map(l => {
-                    const nb = matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === l).length;
+                    const nb = matchsFiltresAnnee.filter(m => (m.lieu || "Lieu non précisé") === l).length;
                     const sel = l === lieuFiltreParPartie ? ' selected' : '';
                     return `<option value="${l.replace(/"/g, '&quot;')}"${sel}>${l} (${nb})</option>`;
                 })
@@ -2223,11 +2299,11 @@
             selectLieuFiltre.innerHTML = optionsLieu.join('');
         }
 
-        const matchsFiltresLieu = lieuFiltreParPartie === '__ALL__'
-            ? matchsJoueurActifs
-            : matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === lieuFiltreParPartie);
+        const matchsFiltres = lieuFiltreParPartie === '__ALL__'
+            ? matchsFiltresAnnee
+            : matchsFiltresAnnee.filter(m => (m.lieu || "Lieu non précisé") === lieuFiltreParPartie);
 
-        const competitions = Array.from(new Set(matchsFiltresLieu.map(m => m.competition))).sort((a, b) => a.localeCompare(b, 'fr'));
+        const competitions = Array.from(new Set(matchsFiltres.map(m => m.competition))).sort((a, b) => a.localeCompare(b, 'fr'));
 
         if (!competitions.length) {
             selectComp.innerHTML = `<option value="">Aucune compétition disponible</option>`;
@@ -2242,12 +2318,12 @@
         }
 
         selectComp.innerHTML = competitions.map(comp => {
-            const nbDansComp = matchsFiltresLieu.filter(m => m.competition === comp).length;
+            const nbDansComp = matchsFiltres.filter(m => m.competition === comp).length;
             const selected = comp === competitionSelectionnee ? 'selected' : '';
             return `<option value="${comp.replace(/"/g, '&quot;')}" ${selected}>${comp} (${nbDansComp})</option>`;
         }).join('');
 
-        const partiesDeLaComp = matchsFiltresLieu.filter(m => m.competition === competitionSelectionnee);
+        const partiesDeLaComp = matchsFiltres.filter(m => m.competition === competitionSelectionnee);
         if (!partieSelectionneeId || !partiesDeLaComp.some(m => m.partieId === partieSelectionneeId)) {
             partieSelectionneeId = partiesDeLaComp[0] ? partiesDeLaComp[0].partieId : '';
         }
@@ -2259,6 +2335,7 @@
     }
 
     function synchroniserSelecteursLieu() {
+        const selectAnneeLieu = document.getElementById('select-annee-lieu');
         const selectLieu = document.getElementById('select-lieu');
         const btnTot = document.getElementById('lieu-mode-totales');
         const btnParP = document.getElementById('lieu-mode-par-partie');
@@ -2266,7 +2343,27 @@
         const selectPartieLieu = document.getElementById('select-partie-lieu');
         if (!selectLieu) return;
 
-        const lieux = obtenirListeLieuxDisponibles();
+        const annees = obtenirListeAnneesDisponibles();
+        if (selectAnneeLieu) {
+            if (anneeFiltreLieu !== '__ALL__' && !annees.includes(anneeFiltreLieu)) {
+                anneeFiltreLieu = '__ALL__';
+            }
+            const optionsAnnee = [
+                `<option value="__ALL__"${anneeFiltreLieu === '__ALL__' ? ' selected' : ''}>Toutes les années (${matchsJoueurActifs.length})</option>`,
+                ...annees.map(a => {
+                    const nb = matchsJoueurActifs.filter(m => (m.annee || "Année non précisée") === a).length;
+                    const sel = a === anneeFiltreLieu ? ' selected' : '';
+                    return `<option value="${a.replace(/"/g, '&quot;')}"${sel}>${a} (${nb})</option>`;
+                })
+            ];
+            selectAnneeLieu.innerHTML = optionsAnnee.join('');
+        }
+
+        const matchsFiltresAnnee = anneeFiltreLieu === '__ALL__'
+            ? matchsJoueurActifs
+            : matchsJoueurActifs.filter(m => (m.annee || "Année non précisée") === anneeFiltreLieu);
+
+        const lieux = obtenirListeLieuxDisponibles(matchsFiltresAnnee);
         if (!lieux.length) {
             selectLieu.innerHTML = `<option value="">Aucun lieu disponible</option>`;
             lieuSelectionne = '';
@@ -2280,7 +2377,7 @@
         }
 
         selectLieu.innerHTML = lieux.map(l => {
-            const nbDansLieu = matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === l).length;
+            const nbDansLieu = matchsFiltresAnnee.filter(m => (m.lieu || "Lieu non précisé") === l).length;
             const selected = l === lieuSelectionne ? 'selected' : '';
             return `<option value="${l.replace(/"/g, '&quot;')}" ${selected}>${l} (${nbDansLieu})</option>`;
         }).join('');
@@ -2289,7 +2386,7 @@
         if (btnParP) btnParP.classList.toggle('active', sousModeLieu === 'par-partie');
         if (partieField) partieField.style.display = sousModeLieu === 'par-partie' ? 'flex' : 'none';
 
-        const partiesDuLieu = matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === lieuSelectionne);
+        const partiesDuLieu = matchsFiltresAnnee.filter(m => (m.lieu || "Lieu non précisé") === lieuSelectionne);
         if (!partieLieuSelectionneeId || !partiesDuLieu.some(m => m.partieId === partieLieuSelectionneeId)) {
             partieLieuSelectionneeId = partiesDuLieu[0] ? partiesDuLieu[0].partieId : '';
         }
@@ -2313,10 +2410,12 @@
         const controlsPartieBox = document.getElementById('par-partie-controls');
         const controlsLieuBox = document.getElementById('par-lieu-controls');
 
+        const selectAnneeFiltre = document.getElementById('select-annee-filtre-partie');
         const selectLieuFiltre = document.getElementById('select-lieu-filtre-partie');
         const selectComp = document.getElementById('select-competition');
         const selectPartie = document.getElementById('select-partie');
 
+        const selectAnneeLieu = document.getElementById('select-annee-lieu');
         const selectLieu = document.getElementById('select-lieu');
         const btnLieuTotales = document.getElementById('lieu-mode-totales');
         const btnLieuParPartie = document.getElementById('lieu-mode-par-partie');
@@ -2342,6 +2441,16 @@
             tabLieu.addEventListener('click', () => appliquerMode('lieu'));
         }
 
+        if (selectAnneeFiltre) {
+            selectAnneeFiltre.addEventListener('change', (e) => {
+                anneeFiltreParPartie = e.target.value;
+                competitionSelectionnee = '';
+                partieSelectionneeId = '';
+                synchroniserSelecteursParPartie();
+                rendreVueStats();
+            });
+        }
+
         if (selectLieuFiltre) {
             selectLieuFiltre.addEventListener('change', (e) => {
                 lieuFiltreParPartie = e.target.value;
@@ -2363,6 +2472,15 @@
             partieSelectionneeId = e.target.value;
             rendreVueStats();
         });
+
+        if (selectAnneeLieu) {
+            selectAnneeLieu.addEventListener('change', (e) => {
+                anneeFiltreLieu = e.target.value;
+                partieLieuSelectionneeId = '';
+                synchroniserSelecteursLieu();
+                rendreVueStats();
+            });
+        }
 
         if (selectLieu) {
             selectLieu.addEventListener('change', (e) => {
@@ -2416,8 +2534,11 @@
             partieChoisie = matchsJoueurActifs.find(m => m.partieId === partieSelectionneeId) || null;
             matchsSelection = partieChoisie ? [partieChoisie] : [];
         } else if (estLieu) {
+            const matchsAnneeLieu = anneeFiltreLieu === '__ALL__'
+                ? matchsJoueurActifs
+                : matchsJoueurActifs.filter(m => (m.annee || "Année non précisée") === anneeFiltreLieu);
             matchsDuLieuActuel = lieuSelectionne
-                ? matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === lieuSelectionne)
+                ? matchsAnneeLieu.filter(m => (m.lieu || "Lieu non précisé") === lieuSelectionne)
                 : [];
             if (sousModeLieu === 'par-partie') {
                 partieChoisie = matchsDuLieuActuel.find(m => m.partieId === partieLieuSelectionneeId) || null;
@@ -2474,14 +2595,15 @@
                 contextTitleEl.textContent = partieChoisie.banniereTexte;
                 contextMetaEl.textContent = `Partie • ${resTexte}`;
             } else if (estLieu && lieuSelectionne) {
+                const anneeTag = anneeFiltreLieu !== '__ALL__' ? ` (${anneeFiltreLieu})` : '';
                 if (sousModeLieu === 'par-partie' && partieChoisie) {
                     const resTexte = partieChoisie.resultat === 'V' ? 'Victoire' : (partieChoisie.resultat === 'D' ? 'Défaite' : 'Match');
-                    contextTitleEl.textContent = `${lieuSelectionne} — ${partieChoisie.banniereTexte}`;
+                    contextTitleEl.textContent = `${lieuSelectionne}${anneeTag} — ${partieChoisie.banniereTexte}`;
                     contextMetaEl.textContent = `Lieu • Partie • ${resTexte}`;
                 } else {
                     const vLieu = matchsDuLieuActuel.filter(m => m.resultat === 'V').length;
                     const dLieu = matchsDuLieuActuel.filter(m => m.resultat === 'D').length;
-                    contextTitleEl.textContent = `Lieu : ${lieuSelectionne} (${matchsDuLieuActuel.length} partie${matchsDuLieuActuel.length > 1 ? 's' : ''})`;
+                    contextTitleEl.textContent = `Lieu : ${lieuSelectionne}${anneeTag} (${matchsDuLieuActuel.length} partie${matchsDuLieuActuel.length > 1 ? 's' : ''})`;
                     contextMetaEl.textContent = `Lieu • Totales (${vLieu}V / ${dLieu}D)`;
                 }
             } else {
@@ -2647,9 +2769,10 @@
                 iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Analyse de la partie`;
                 iaTexteEl.innerHTML = genererAnalyseEtSynthesePartie(joueurActif, partieChoisie, resumeStats);
             } else if (estLieu && lieuSelectionne) {
+                const anneeSuffix = anneeFiltreLieu !== '__ALL__' ? ` (${anneeFiltreLieu})` : '';
                 iaCardEl.style.display = 'flex';
-                iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse du lieu — ${lieuSelectionne}`;
-                iaTexteEl.innerHTML = genererSyntheseLieuJoueur(joueurActif, lieuSelectionne, resumeStats, null);
+                iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse du lieu — ${lieuSelectionne}${anneeSuffix}`;
+                iaTexteEl.innerHTML = genererSyntheseLieuJoueur(joueurActif, lieuSelectionne, resumeStats, null, anneeFiltreLieu);
             } else if (estTotales) {
                 iaCardEl.style.display = 'flex';
                 iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse globale du joueur`;
