@@ -344,8 +344,42 @@
 
         .parties-tabs-switch {
             display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .lieu-submode-switch {
+            display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 6px;
+            margin-top: 2px;
+        }
+
+        .lieu-submode-btn {
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.18);
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .lieu-submode-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--container-text);
+        }
+
+        .lieu-submode-btn.active {
+            background: rgba(23, 184, 144, 0.22);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
         }
 
         .partie-tab-btn {
@@ -1029,9 +1063,16 @@
             <button type="button" id="tab-par-partie" class="partie-tab-btn">
                 <i class="fa-solid fa-trophy"></i> Par partie
             </button>
+            <button type="button" id="tab-lieu" class="partie-tab-btn">
+                <i class="fa-solid fa-location-dot"></i> Lieu
+            </button>
         </div>
 
         <div id="par-partie-controls" class="par-partie-controls" style="display: none;">
+            <div class="control-field">
+                <label for="select-lieu-filtre-partie" class="control-label">Filtrer par lieu</label>
+                <select id="select-lieu-filtre-partie" class="control-select"></select>
+            </div>
             <div class="control-field">
                 <label for="select-competition" class="control-label">Compétition</label>
                 <select id="select-competition" class="control-select"></select>
@@ -1039,6 +1080,25 @@
             <div class="control-field">
                 <label for="select-partie" class="control-label">Partie</label>
                 <select id="select-partie" class="control-select"></select>
+            </div>
+        </div>
+
+        <div id="par-lieu-controls" class="par-partie-controls" style="display: none;">
+            <div class="control-field">
+                <label for="select-lieu" class="control-label">Lieu</label>
+                <select id="select-lieu" class="control-select"></select>
+            </div>
+            <div class="lieu-submode-switch">
+                <button type="button" id="lieu-mode-totales" class="lieu-submode-btn active">
+                    <i class="fa-solid fa-layer-group"></i> Totales du lieu
+                </button>
+                <button type="button" id="lieu-mode-par-partie" class="lieu-submode-btn">
+                    <i class="fa-solid fa-trophy"></i> Par partie du lieu
+                </button>
+            </div>
+            <div id="lieu-partie-field" class="control-field" style="display: none;">
+                <label for="select-partie-lieu" class="control-label">Partie dans ce lieu</label>
+                <select id="select-partie-lieu" class="control-select"></select>
             </div>
         </div>
 
@@ -1240,8 +1300,12 @@
     let joueurActif = null;
     let matchsJoueurActifs = [];
     let modeOnglet = 'totales';
+    let lieuFiltreParPartie = '__ALL__';
     let competitionSelectionnee = '';
     let partieSelectionneeId = '';
+    let lieuSelectionne = '';
+    let sousModeLieu = 'totales';
+    let partieLieuSelectionneeId = '';
     let estExportPdf = false;
     let estCoachOuAdmin = false;
     let utilisateurCourant = null;
@@ -1267,6 +1331,13 @@
         const jKey = normaliserNom(joueurActif.id || `${joueurActif.prenom || ''}_${joueurActif.nom || ''}`) || 'joueur';
         if (modeOnglet === 'par-partie' && partieSelectionneeId) {
             return `${jKey}__partie__${String(partieSelectionneeId).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+        }
+        if (modeOnglet === 'lieu' && lieuSelectionne) {
+            const lKey = normaliserNom(lieuSelectionne).replace(/[^a-zA-Z0-9_-]/g, '_') || 'lieu';
+            if (sousModeLieu === 'par-partie' && partieLieuSelectionneeId) {
+                return `${jKey}__lieu_${lKey}__partie__${String(partieLieuSelectionneeId).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+            }
+            return `${jKey}__lieu_${lKey}__totales`;
         }
         return `${jKey}__totales`;
     }
@@ -1570,9 +1641,15 @@
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]+/g, '-');
 
-        const suffixeMode = modeOnglet === 'par-partie' && partieSelectionneeId
-            ? `-${partieSelectionneeId}`
-            : '-totales';
+        let suffixeMode = '-totales';
+        if (modeOnglet === 'par-partie' && partieSelectionneeId) {
+            suffixeMode = `-${partieSelectionneeId}`;
+        } else if (modeOnglet === 'lieu' && lieuSelectionne) {
+            const slugLieu = normaliserNom(lieuSelectionne).replace(/[^a-z0-9]+/g, '-');
+            suffixeMode = (sousModeLieu === 'par-partie' && partieLieuSelectionneeId)
+                ? `-lieu-${slugLieu}-${partieLieuSelectionneeId}`
+                : `-lieu-${slugLieu}-totales`;
+        }
 
         const options = {
             margin: [5, 6, 5, 6],
@@ -1696,6 +1773,29 @@
         const paragrapheSynthese = `<strong>Synthèse :</strong> ${partieForte} ${partieAxe}`;
 
         return `<p>${paragrapheAnalyse}</p><p>${paragrapheSynthese}</p>`;
+    }
+
+    function genererSyntheseLieuJoueur(joueur, lieuNom, sGraph, partieSpecifique) {
+        const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
+        if (partieSpecifique) {
+            return genererAnalyseEtSynthesePartie(joueur, partieSpecifique, sGraph);
+        }
+        const nbP = sGraph.nbParties;
+        if (nbP === 0) {
+            return `<p><strong>Synthèse lieu (${lieuNom}) :</strong> Aucune partie enregistrée dans ce lieu pour ${nomComplet}.</p>`;
+        }
+        const ratioV = Math.round((sGraph.nbVictoires / nbP) * 100);
+        const soldePts = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
+        const bilanTxt = ratioV >= 60
+            ? `un bilan très solide (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D)`
+            : (ratioV >= 45 ? `un bilan équilibré (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D)` : `un bilan à redresser (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D)`);
+        const ptsTxt = soldePts > 0
+            ? 'un différentiel de points positif'
+            : (soldePts < 0 ? 'un différentiel de points négatif' : 'un équilibre sur les points');
+
+        const p1 = `<strong>Analyse sur le lieu — ${lieuNom} :</strong> Sur ${nbP} partie${nbP > 1 ? 's' : ''} jouée${nbP > 1 ? 's' : ''} à ${lieuNom}, ${nomComplet} présente ${bilanTxt} avec ${ptsTxt}.`;
+        const p2 = `<strong>Synthèse du lieu :</strong> Réception positive à ${sGraph.pctRecPos}% (${sGraph.valRecPos}/${sGraph.valRecTotal}) et frappes positives à ${sGraph.pctFrappesPos}% (${sGraph.valFrappesPos}/${sGraph.valFrappesTotal}).`;
+        return `<p>${p1}</p><p>${p2}</p>`;
     }
 
     function genererSyntheseGlobaleJoueur(joueur, sGraph) {
@@ -1834,6 +1934,7 @@
                     id: docSnap.id,
                     isCloud: true,
                     competition: data.competition || data.titre || "Compétition non précisée",
+                    lieu: String(data.lieu || data.ville || data.fronton || data.terrain || (data.stats && (data.stats.lieu || data.stats.ville || data.stats.fronton)) || "").trim(),
                     date: data.date || "",
                     equipe1: data.equipe1 || "",
                     equipe2: data.equipe2 || "",
@@ -1898,14 +1999,23 @@
         return 0;
     }
 
-    function formaterLibellePartie(match, index, resultat) {
+    function extraireLieuMatch(match, sourceBrute) {
+        const brut = (match && match.lieu)
+            || (sourceBrute && (sourceBrute.lieu || sourceBrute.ville || sourceBrute.fronton || sourceBrute.terrain))
+            || "";
+        const propre = String(brut || "").trim();
+        return propre || "Lieu non précisé";
+    }
+
+    function formaterLibellePartie(match, index, resultat, lieuNom) {
         const equipes = [match.equipe1, match.equipe2].filter(Boolean).join(' vs ');
         const dateCourt = match.date ? String(match.date).slice(0, 10) : '';
         const resTag = resultat === 'V' ? ' • V' : (resultat === 'D' ? ' • D' : '');
         const base = equipes || `Partie ${index + 1}`;
+        const lieuStr = lieuNom && lieuNom !== "Lieu non précisé" ? ` • ${lieuNom}` : '';
         return {
-            optionTexte: `${base}${dateCourt ? ` (${dateCourt})` : ''}${resTag}`,
-            banniereTexte: `${match.competition || 'Compétition'}${equipes ? ` — ${equipes}` : ''}${dateCourt ? ` • ${dateCourt}` : ''}`
+            optionTexte: `${base}${lieuStr}${dateCourt ? ` (${dateCourt})` : ''}${resTag}`,
+            banniereTexte: `${match.competition || 'Compétition'}${equipes ? ` — ${equipes}` : ''}${lieuStr}${dateCourt ? ` • ${dateCourt}` : ''}`
         };
     }
 
@@ -2030,7 +2140,8 @@
             );
 
             const competitionNom = String(match.competition || match.titre || "Compétition non précisée").trim();
-            const libelles = formaterLibellePartie(match, idx, resultat);
+            const lieuNom = extraireLieuMatch(match, sourceBrute);
+            const libelles = formaterLibellePartie(match, idx, resultat, lieuNom);
 
             const score1Str = s1 !== undefined && s1 !== null && String(s1).trim() !== '' ? String(s1).trim() : '-';
             const score2Str = s2 !== undefined && s2 !== null && String(s2).trim() !== '' ? String(s2).trim() : '-';
@@ -2039,6 +2150,7 @@
             return {
                 partieId: String(match.id || `partie_${idx}`),
                 competition: competitionNom,
+                lieu: lieuNom,
                 nomPartie: match.titre || competitionNom,
                 datePartie: match.date ? String(match.date).slice(0, 10) : '',
                 equipe1: match.equipe1 || 'Équipe 1',
@@ -2083,12 +2195,39 @@
         });
     }
 
+    function obtenirListeLieuxDisponibles() {
+        return Array.from(new Set(matchsJoueurActifs.map(m => m.lieu || "Lieu non précisé")))
+            .sort((a, b) => a.localeCompare(b, 'fr'));
+    }
+
     function synchroniserSelecteursParPartie() {
+        const selectLieuFiltre = document.getElementById('select-lieu-filtre-partie');
         const selectComp = document.getElementById('select-competition');
         const selectPartie = document.getElementById('select-partie');
         if (!selectComp || !selectPartie) return;
 
-        const competitions = Array.from(new Set(matchsJoueurActifs.map(m => m.competition))).sort((a, b) => a.localeCompare(b, 'fr'));
+        const lieux = obtenirListeLieuxDisponibles();
+
+        if (selectLieuFiltre) {
+            if (lieuFiltreParPartie !== '__ALL__' && !lieux.includes(lieuFiltreParPartie)) {
+                lieuFiltreParPartie = '__ALL__';
+            }
+            const optionsLieu = [
+                `<option value="__ALL__"${lieuFiltreParPartie === '__ALL__' ? ' selected' : ''}>Tous les lieux (${matchsJoueurActifs.length})</option>`,
+                ...lieux.map(l => {
+                    const nb = matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === l).length;
+                    const sel = l === lieuFiltreParPartie ? ' selected' : '';
+                    return `<option value="${l.replace(/"/g, '&quot;')}"${sel}>${l} (${nb})</option>`;
+                })
+            ];
+            selectLieuFiltre.innerHTML = optionsLieu.join('');
+        }
+
+        const matchsFiltresLieu = lieuFiltreParPartie === '__ALL__'
+            ? matchsJoueurActifs
+            : matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === lieuFiltreParPartie);
+
+        const competitions = Array.from(new Set(matchsFiltresLieu.map(m => m.competition))).sort((a, b) => a.localeCompare(b, 'fr'));
 
         if (!competitions.length) {
             selectComp.innerHTML = `<option value="">Aucune compétition disponible</option>`;
@@ -2103,12 +2242,12 @@
         }
 
         selectComp.innerHTML = competitions.map(comp => {
-            const nbDansComp = matchsJoueurActifs.filter(m => m.competition === comp).length;
+            const nbDansComp = matchsFiltresLieu.filter(m => m.competition === comp).length;
             const selected = comp === competitionSelectionnee ? 'selected' : '';
             return `<option value="${comp.replace(/"/g, '&quot;')}" ${selected}>${comp} (${nbDansComp})</option>`;
         }).join('');
 
-        const partiesDeLaComp = matchsJoueurActifs.filter(m => m.competition === competitionSelectionnee);
+        const partiesDeLaComp = matchsFiltresLieu.filter(m => m.competition === competitionSelectionnee);
         if (!partieSelectionneeId || !partiesDeLaComp.some(m => m.partieId === partieSelectionneeId)) {
             partieSelectionneeId = partiesDeLaComp[0] ? partiesDeLaComp[0].partieId : '';
         }
@@ -2119,29 +2258,99 @@
         }).join('');
     }
 
+    function synchroniserSelecteursLieu() {
+        const selectLieu = document.getElementById('select-lieu');
+        const btnTot = document.getElementById('lieu-mode-totales');
+        const btnParP = document.getElementById('lieu-mode-par-partie');
+        const partieField = document.getElementById('lieu-partie-field');
+        const selectPartieLieu = document.getElementById('select-partie-lieu');
+        if (!selectLieu) return;
+
+        const lieux = obtenirListeLieuxDisponibles();
+        if (!lieux.length) {
+            selectLieu.innerHTML = `<option value="">Aucun lieu disponible</option>`;
+            lieuSelectionne = '';
+            partieLieuSelectionneeId = '';
+            if (selectPartieLieu) selectPartieLieu.innerHTML = `<option value="">Aucune partie disponible</option>`;
+            return;
+        }
+
+        if (!lieuSelectionne || !lieux.includes(lieuSelectionne)) {
+            lieuSelectionne = lieux[0];
+        }
+
+        selectLieu.innerHTML = lieux.map(l => {
+            const nbDansLieu = matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === l).length;
+            const selected = l === lieuSelectionne ? 'selected' : '';
+            return `<option value="${l.replace(/"/g, '&quot;')}" ${selected}>${l} (${nbDansLieu})</option>`;
+        }).join('');
+
+        if (btnTot) btnTot.classList.toggle('active', sousModeLieu === 'totales');
+        if (btnParP) btnParP.classList.toggle('active', sousModeLieu === 'par-partie');
+        if (partieField) partieField.style.display = sousModeLieu === 'par-partie' ? 'flex' : 'none';
+
+        const partiesDuLieu = matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === lieuSelectionne);
+        if (!partieLieuSelectionneeId || !partiesDuLieu.some(m => m.partieId === partieLieuSelectionneeId)) {
+            partieLieuSelectionneeId = partiesDuLieu[0] ? partiesDuLieu[0].partieId : '';
+        }
+
+        if (selectPartieLieu) {
+            if (!partiesDuLieu.length) {
+                selectPartieLieu.innerHTML = `<option value="">Aucune partie dans ce lieu</option>`;
+            } else {
+                selectPartieLieu.innerHTML = partiesDuLieu.map((p, i) => {
+                    const selected = p.partieId === partieLieuSelectionneeId ? 'selected' : '';
+                    return `<option value="${p.partieId.replace(/"/g, '&quot;')}" ${selected}>#${i + 1} • ${p.optionTexte}</option>`;
+                }).join('');
+            }
+        }
+    }
+
     function initialiserEvenementsOnglets() {
         const tabTotales = document.getElementById('tab-totales');
         const tabParPartie = document.getElementById('tab-par-partie');
-        const controlsBox = document.getElementById('par-partie-controls');
+        const tabLieu = document.getElementById('tab-lieu');
+        const controlsPartieBox = document.getElementById('par-partie-controls');
+        const controlsLieuBox = document.getElementById('par-lieu-controls');
+
+        const selectLieuFiltre = document.getElementById('select-lieu-filtre-partie');
         const selectComp = document.getElementById('select-competition');
         const selectPartie = document.getElementById('select-partie');
 
-        tabTotales.addEventListener('click', () => {
-            modeOnglet = 'totales';
-            tabTotales.classList.add('active');
-            tabParPartie.classList.remove('active');
-            controlsBox.style.display = 'none';
-            rendreVueStats();
-        });
+        const selectLieu = document.getElementById('select-lieu');
+        const btnLieuTotales = document.getElementById('lieu-mode-totales');
+        const btnLieuParPartie = document.getElementById('lieu-mode-par-partie');
+        const selectPartieLieu = document.getElementById('select-partie-lieu');
 
-        tabParPartie.addEventListener('click', () => {
-            modeOnglet = 'par-partie';
-            tabParPartie.classList.add('active');
-            tabTotales.classList.remove('active');
-            controlsBox.style.display = 'grid';
-            synchroniserSelecteursParPartie();
+        function appliquerMode(nouveauMode) {
+            modeOnglet = nouveauMode;
+            tabTotales.classList.toggle('active', nouveauMode === 'totales');
+            tabParPartie.classList.toggle('active', nouveauMode === 'par-partie');
+            if (tabLieu) tabLieu.classList.toggle('active', nouveauMode === 'lieu');
+
+            controlsPartieBox.style.display = nouveauMode === 'par-partie' ? 'grid' : 'none';
+            if (controlsLieuBox) controlsLieuBox.style.display = nouveauMode === 'lieu' ? 'grid' : 'none';
+
+            if (nouveauMode === 'par-partie') synchroniserSelecteursParPartie();
+            if (nouveauMode === 'lieu') synchroniserSelecteursLieu();
             rendreVueStats();
-        });
+        }
+
+        tabTotales.addEventListener('click', () => appliquerMode('totales'));
+        tabParPartie.addEventListener('click', () => appliquerMode('par-partie'));
+        if (tabLieu) {
+            tabLieu.addEventListener('click', () => appliquerMode('lieu'));
+        }
+
+        if (selectLieuFiltre) {
+            selectLieuFiltre.addEventListener('change', (e) => {
+                lieuFiltreParPartie = e.target.value;
+                competitionSelectionnee = '';
+                partieSelectionneeId = '';
+                synchroniserSelecteursParPartie();
+                rendreVueStats();
+            });
+        }
 
         selectComp.addEventListener('change', (e) => {
             competitionSelectionnee = e.target.value;
@@ -2154,6 +2363,38 @@
             partieSelectionneeId = e.target.value;
             rendreVueStats();
         });
+
+        if (selectLieu) {
+            selectLieu.addEventListener('change', (e) => {
+                lieuSelectionne = e.target.value;
+                partieLieuSelectionneeId = '';
+                synchroniserSelecteursLieu();
+                rendreVueStats();
+            });
+        }
+
+        if (btnLieuTotales) {
+            btnLieuTotales.addEventListener('click', () => {
+                sousModeLieu = 'totales';
+                synchroniserSelecteursLieu();
+                rendreVueStats();
+            });
+        }
+
+        if (btnLieuParPartie) {
+            btnLieuParPartie.addEventListener('click', () => {
+                sousModeLieu = 'par-partie';
+                synchroniserSelecteursLieu();
+                rendreVueStats();
+            });
+        }
+
+        if (selectPartieLieu) {
+            selectPartieLieu.addEventListener('change', (e) => {
+                partieLieuSelectionneeId = e.target.value;
+                rendreVueStats();
+            });
+        }
     }
 
     initialiserEvenementsOnglets();
@@ -2162,15 +2403,31 @@
         if (!joueurActif) return;
 
         const estTotales = modeOnglet === 'totales';
+        const estParPartie = modeOnglet === 'par-partie';
+        const estLieu = modeOnglet === 'lieu';
+
         let matchsSelection = [];
         let partieChoisie = null;
+        let matchsDuLieuActuel = [];
 
         if (estTotales) {
             matchsSelection = matchsJoueurActifs;
-        } else {
+        } else if (estParPartie) {
             partieChoisie = matchsJoueurActifs.find(m => m.partieId === partieSelectionneeId) || null;
             matchsSelection = partieChoisie ? [partieChoisie] : [];
+        } else if (estLieu) {
+            matchsDuLieuActuel = lieuSelectionne
+                ? matchsJoueurActifs.filter(m => (m.lieu || "Lieu non précisé") === lieuSelectionne)
+                : [];
+            if (sousModeLieu === 'par-partie') {
+                partieChoisie = matchsDuLieuActuel.find(m => m.partieId === partieLieuSelectionneeId) || null;
+                matchsSelection = partieChoisie ? [partieChoisie] : [];
+            } else {
+                matchsSelection = matchsDuLieuActuel;
+            }
         }
+
+        const afficherCartePartieUnique = Boolean(partieChoisie) && (estParPartie || (estLieu && sousModeLieu === 'par-partie'));
 
         const posteJoueur = (joueurActif.poste || joueurActif.specialite || "").trim().toLowerCase();
         const estArriere = posteJoueur.includes('arrière') || posteJoueur.includes('arriere');
@@ -2181,10 +2438,10 @@
         const iaTexteEl = document.getElementById('ia-analyse-texte');
 
         if (detailCardEl) {
-            if (!estTotales && partieChoisie) {
+            if (afficherCartePartieUnique && partieChoisie) {
                 detailCardEl.style.display = 'flex';
                 document.getElementById('partie-detail-nom').textContent = partieChoisie.nomPartie || partieChoisie.competition || 'Partie';
-                document.getElementById('partie-detail-date').textContent = [partieChoisie.competition, partieChoisie.datePartie].filter(Boolean).join(' • ');
+                document.getElementById('partie-detail-date').textContent = [partieChoisie.competition, partieChoisie.lieu, partieChoisie.datePartie].filter(Boolean).join(' • ');
                 document.getElementById('partie-detail-eq1').textContent = partieChoisie.equipe1;
                 document.getElementById('partie-detail-eq2').textContent = partieChoisie.equipe2;
                 document.getElementById('partie-detail-score').textContent = partieChoisie.scoreAffiche;
@@ -2212,10 +2469,21 @@
             if (estTotales) {
                 contextTitleEl.textContent = `Cumul total : ${matchsJoueurActifs.length} partie${matchsJoueurActifs.length > 1 ? 's' : ''}`;
                 contextMetaEl.textContent = 'Total cumulé';
-            } else if (partieChoisie) {
+            } else if (estParPartie && partieChoisie) {
                 const resTexte = partieChoisie.resultat === 'V' ? 'Victoire' : (partieChoisie.resultat === 'D' ? 'Défaite' : 'Match');
                 contextTitleEl.textContent = partieChoisie.banniereTexte;
                 contextMetaEl.textContent = `Partie • ${resTexte}`;
+            } else if (estLieu && lieuSelectionne) {
+                if (sousModeLieu === 'par-partie' && partieChoisie) {
+                    const resTexte = partieChoisie.resultat === 'V' ? 'Victoire' : (partieChoisie.resultat === 'D' ? 'Défaite' : 'Match');
+                    contextTitleEl.textContent = `${lieuSelectionne} — ${partieChoisie.banniereTexte}`;
+                    contextMetaEl.textContent = `Lieu • Partie • ${resTexte}`;
+                } else {
+                    const vLieu = matchsDuLieuActuel.filter(m => m.resultat === 'V').length;
+                    const dLieu = matchsDuLieuActuel.filter(m => m.resultat === 'D').length;
+                    contextTitleEl.textContent = `Lieu : ${lieuSelectionne} (${matchsDuLieuActuel.length} partie${matchsDuLieuActuel.length > 1 ? 's' : ''})`;
+                    contextMetaEl.textContent = `Lieu • Totales (${vLieu}V / ${dLieu}D)`;
+                }
             } else {
                 contextTitleEl.textContent = 'Aucune partie disponible';
                 contextMetaEl.textContent = '';
@@ -2374,10 +2642,14 @@
         };
 
         if (iaCardEl && iaTitreEl && iaTexteEl) {
-            if (!estTotales && partieChoisie) {
+            if (afficherCartePartieUnique && partieChoisie) {
                 iaCardEl.style.display = 'flex';
                 iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Analyse de la partie`;
                 iaTexteEl.innerHTML = genererAnalyseEtSynthesePartie(joueurActif, partieChoisie, resumeStats);
+            } else if (estLieu && lieuSelectionne) {
+                iaCardEl.style.display = 'flex';
+                iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse du lieu — ${lieuSelectionne}`;
+                iaTexteEl.innerHTML = genererSyntheseLieuJoueur(joueurActif, lieuSelectionne, resumeStats, null);
             } else if (estTotales) {
                 iaCardEl.style.display = 'flex';
                 iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse globale du joueur`;
@@ -2602,6 +2874,7 @@
 
         matchsJoueurActifs = obtenirMatchsEnrichisPourJoueur(joueurId, joueur);
         synchroniserSelecteursParPartie();
+        synchroniserSelecteursLieu();
         rendreVueStats();
     }
 </script>
