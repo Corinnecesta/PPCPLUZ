@@ -14,8 +14,9 @@
     <!-- Fichier de styles global -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Inclusion de Chart.js -->
+    <!-- Inclusion de Chart.js et html2pdf.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         .mobile-container {
@@ -27,6 +28,167 @@
         }
 
         .section-title { font-size: 0.85rem; color: var(--accent-color); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.5px; }
+
+        .section-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .section-header-row .section-title {
+            margin-bottom: 0;
+        }
+
+        .pdf-download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--accent-color);
+            background: linear-gradient(135deg, rgba(23, 184, 144, 0.22), rgba(15, 76, 92, 0.38));
+            color: var(--container-text);
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .pdf-download-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        .pdf-download-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        /* --- AJUSTEMENTS SPÉCIAUX EXPORT PDF --- */
+        .pdf-exporting .top-header,
+        .pdf-exporting .separator,
+        .pdf-exporting .back-link,
+        .pdf-exporting .parties-tabs-box,
+        .pdf-exporting .pdf-download-btn {
+            display: none !important;
+        }
+
+        .pdf-exporting .mobile-container {
+            max-width: 680px !important;
+            width: 680px !important;
+            margin: 0 auto !important;
+            padding: 6px 10px !important;
+            gap: 6px !important;
+        }
+
+        .pdf-exporting .section-title {
+            font-size: 0.72rem !important;
+            margin-bottom: 5px !important;
+        }
+
+        .pdf-exporting .section-header-row {
+            margin-bottom: 5px !important;
+        }
+
+        .pdf-exporting .player-profile-card {
+            padding: 12px 14px !important;
+            margin-bottom: 8px !important;
+            gap: 14px !important;
+        }
+
+        .pdf-exporting .partie-detail-card,
+        .pdf-exporting .ia-analyse-card {
+            padding: 10px 12px !important;
+            margin-bottom: 8px !important;
+            gap: 6px !important;
+        }
+
+        .pdf-exporting .ia-analyse-texte {
+            font-size: 0.72rem !important;
+            line-height: 1.42 !important;
+        }
+
+        .pdf-exporting .player-photo {
+            width: 72px !important;
+            height: 72px !important;
+        }
+
+        .pdf-exporting .note-badge {
+            font-size: 1.7rem !important;
+        }
+
+        .pdf-exporting .chart-box {
+            padding: 10px 12px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .pdf-exporting .pn-grid {
+            gap: 8px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .pdf-exporting .pn-card {
+            padding: 10px 12px !important;
+            gap: 6px !important;
+        }
+
+        .pdf-exporting .pn-box,
+        .pdf-exporting .eff-stat-box,
+        .pdf-exporting .perf-stat-box,
+        .pdf-exporting .buts-stat-box,
+        .pdf-exporting .bilan-stat-box {
+            padding: 5px 6px !important;
+        }
+
+        .pdf-exporting .eff-stats-grid,
+        .pdf-exporting .perf-stats-grid,
+        .pdf-exporting .buts-stats-grid {
+            margin-bottom: 8px !important;
+            gap: 6px !important;
+        }
+
+        .pdf-exporting .bilan-chart-wrapper {
+            height: 118px !important;
+        }
+
+        .pdf-exporting #butsChart {
+            height: 120px !important;
+            max-height: 120px !important;
+        }
+
+        .pdf-exporting #efficaciteChart {
+            height: 165px !important;
+            max-height: 165px !important;
+        }
+
+        .pdf-exporting #horizontalBarChart {
+            height: 235px !important;
+            max-height: 235px !important;
+        }
+
+        .pdf-exporting .chart-box,
+        .pdf-exporting .pn-card,
+        .pdf-exporting .player-profile-card,
+        .pdf-exporting .partie-detail-card,
+        .pdf-exporting .ia-analyse-card,
+        .pdf-exporting .section-header-row {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        @media print {
+            .top-header,
+            .separator,
+            .back-link,
+            .parties-tabs-box,
+            .pdf-download-btn {
+                display: none !important;
+            }
+        }
 
         .player-profile-card {
             background: var(--card-bg);
@@ -204,6 +366,130 @@
             white-space: nowrap;
         }
 
+        /* Bloc détaillé de la partie sélectionnée (visible en mode Par partie) */
+        .partie-detail-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 10px rgba(23, 184, 144, 0.14);
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .partie-detail-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .partie-detail-name {
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: var(--container-text);
+        }
+
+        .partie-detail-date {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .partie-result-pill {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 999px;
+            letter-spacing: 0.3px;
+        }
+
+        .partie-result-pill.victoire {
+            background: rgba(52, 211, 153, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .partie-result-pill.defaite {
+            background: rgba(248, 113, 113, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .partie-result-pill.neutre {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-muted);
+            border: 1px solid var(--text-muted);
+        }
+
+        .partie-matchup-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .partie-side {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--container-text);
+            word-break: break-word;
+        }
+
+        .partie-score-box {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(23, 184, 144, 0.14);
+            white-space: nowrap;
+        }
+
+        /* Bloc Analyse de la partie / Synthèse globale */
+        .ia-analyse-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 10px rgba(23, 184, 144, 0.14);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ia-analyse-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .ia-analyse-texte {
+            font-size: 0.76rem;
+            line-height: 1.52;
+            color: var(--container-text);
+            margin: 0;
+        }
+
+        .ia-analyse-texte p {
+            margin: 0 0 7px 0;
+        }
+
+        .ia-analyse-texte p:last-child {
+            margin-bottom: 0;
+        }
+
         .chart-box {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
@@ -326,7 +612,7 @@
 
         .bilan-chart-wrapper {
             position: relative;
-            height: 115px;
+            height: 120px;
         }
 
         .bilan-parties {
@@ -495,7 +781,12 @@
 
     <a href="cartes.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour aux cartes</a>
 
-    <div class="section-title">Profil et Analyses</div>
+    <div class="section-header-row">
+        <div class="section-title">Profil et Analyses</div>
+        <button type="button" id="downloadPdfBtn" class="pdf-download-btn" onclick="telechargerFichePdf()">
+            <i class="fa-solid fa-file-pdf"></i> Télécharger en PDF
+        </button>
+    </div>
 
     <div class="player-profile-card">
         <div id="player-photo-container"></div>
@@ -538,6 +829,30 @@
             <span id="partie-context-title" class="partie-context-title">Cumul total : toutes les parties</span>
             <span id="partie-context-meta">Total cumulé</span>
         </div>
+    </div>
+
+    <!-- Informations de la partie sélectionnée (visible uniquement en mode Par partie) -->
+    <div id="partie-detail-card" class="partie-detail-card">
+        <div class="partie-detail-top">
+            <div>
+                <div id="partie-detail-nom" class="partie-detail-name">Partie</div>
+                <div id="partie-detail-date" class="partie-detail-date"></div>
+            </div>
+            <span id="partie-detail-resultat" class="partie-result-pill neutre">Match</span>
+        </div>
+        <div class="partie-matchup-row">
+            <div id="partie-detail-eq1" class="partie-side">Équipe 1</div>
+            <div id="partie-detail-score" class="partie-score-box">-</div>
+            <div id="partie-detail-eq2" class="partie-side">Équipe 2</div>
+        </div>
+    </div>
+
+    <!-- Analyse de la partie (Par partie) / Synthèse globale (Totales), placée juste avant les graphiques -->
+    <div id="ia-analyse-card" class="ia-analyse-card">
+        <div class="ia-analyse-header">
+            <div id="ia-analyse-titre" class="section-title" style="margin-bottom: 0;"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse globale</div>
+        </div>
+        <div id="ia-analyse-texte" class="ia-analyse-texte"></div>
     </div>
 
     <!-- Bilan Global des Parties (en premier) -->
@@ -630,14 +945,18 @@
     <div class="section-title"><i class="fa-solid fa-gauge-high mr-1"></i> Indicateurs Clés &amp; Efficacité (%)</div>
     <div class="chart-box">
         <div id="eff-stats-grid" class="eff-stats-grid"></div>
-        <canvas id="efficaciteChart"></canvas>
+        <div style="position: relative; height: 165px;">
+            <canvas id="efficaciteChart"></canvas>
+        </div>
     </div>
 
     <!-- Performance Globale (%) -->
     <div class="section-title"><i class="fa-solid fa-chart-bar mr-1"></i> Performance Globale (%)</div>
     <div class="chart-box">
         <div id="perf-stats-grid" class="perf-stats-grid"></div>
-        <canvas id="horizontalBarChart"></canvas>
+        <div style="position: relative; height: 235px;">
+            <canvas id="horizontalBarChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -671,7 +990,55 @@
     let modeOnglet = 'totales'; // 'totales' | 'par-partie'
     let competitionSelectionnee = '';
     let partieSelectionneeId = '';
+    let estExportPdf = false;
     const chartsInstances = {};
+
+    // Plugin Chart.js pour afficher la valeur exacte sur chaque barre
+    const pluginValeursBarres = {
+        id: 'valeursBarres',
+        afterDatasetsDraw(chart, args, pluginOptions) {
+            if (!pluginOptions || pluginOptions.enabled === false) return;
+            const { ctx, chartArea } = chart;
+            if (!chartArea) return;
+
+            const isHorizontal = chart.config.options.indexAxis === 'y';
+            const suffix = pluginOptions.suffix || '';
+            const labelColor = pluginOptions.color || '#0f172a';
+            const fontSize = pluginOptions.fontSize || 10;
+
+            ctx.save();
+            ctx.font = `700 ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
+            ctx.fillStyle = labelColor;
+
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const meta = chart.getDatasetMeta(datasetIndex);
+                if (!meta || meta.hidden) return;
+
+                meta.data.forEach((barElement, index) => {
+                    const rawVal = dataset.data[index];
+                    if (rawVal === undefined || rawVal === null || isNaN(Number(rawVal))) return;
+
+                    const texte = `${Math.round(Number(rawVal))}${suffix}`;
+
+                    if (isHorizontal) {
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        const xPos = Math.min(barElement.x + 6, chartArea.right - 2);
+                        const yPos = barElement.y;
+                        ctx.fillText(texte, xPos, yPos);
+                    } else {
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        const xPos = barElement.x;
+                        const yPos = Math.max(barElement.y - 3, chartArea.top + 10);
+                        ctx.fillText(texte, xPos, yPos);
+                    }
+                });
+            });
+
+            ctx.restore();
+        }
+    };
 
     // Gestion du Thème Clair/Sombre
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
@@ -697,6 +1064,225 @@
         } else {
             themeToggleBtn.innerHTML = '🌙';
         }
+    }
+
+    window.telechargerFichePdf = async function () {
+        const btn = document.getElementById('downloadPdfBtn');
+        const container = document.querySelector('.mobile-container');
+        if (!container || typeof html2pdf === 'undefined') {
+            window.print();
+            return;
+        }
+
+        const texteOriginal = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Génération...';
+        }
+
+        estExportPdf = true;
+        document.body.classList.add('pdf-exporting');
+        rendreVueStats();
+
+        Object.values(chartsInstances).forEach(chart => {
+            if (chart) {
+                chart.options.animation = false;
+                chart.resize();
+                chart.update('none');
+            }
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 160));
+
+        const nomJoueurTexte = (document.getElementById('player-name')?.textContent || 'joueur')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-');
+
+        const suffixeMode = modeOnglet === 'par-partie' && partieSelectionneeId
+            ? `-${partieSelectionneeId}`
+            : '-totales';
+
+        const bgCouleur = getComputedStyle(document.body).backgroundColor || '#0a192f';
+
+        const options = {
+            margin: [5, 6, 5, 6],
+            filename: `fiche-${nomJoueurTexte}${suffixeMode}.pdf`,
+            image: { type: 'jpeg', quality: 0.96 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: bgCouleur
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        try {
+            await html2pdf().set(options).from(container).save();
+        } catch (err) {
+            console.error('Erreur export PDF :', err);
+            window.print();
+        } finally {
+            estExportPdf = false;
+            document.body.classList.remove('pdf-exporting');
+            rendreVueStats();
+
+            await new Promise(resolve => setTimeout(resolve, 60));
+            Object.values(chartsInstances).forEach(chart => {
+                if (chart) {
+                    chart.options.animation = true;
+                    chart.resize();
+                    chart.update('none');
+                }
+            });
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = texteOriginal;
+            }
+        }
+    };
+
+    function genererAnalyseEtSynthesePartie(joueur, partie, sGraph) {
+        const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
+        const scoreStr = partie.scoreAffiche && partie.scoreAffiche !== '-' ? ` (${partie.scoreAffiche})` : '';
+        const issue = partie.resultat === 'V'
+            ? `une victoire${scoreStr}`
+            : (partie.resultat === 'D' ? `une défaite${scoreStr}` : `une rencontre disputée${scoreStr}`);
+
+        const soldePoints = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
+        const lecturePoints = soldePoints > 0
+            ? 'avec un ascendant net dans le gain des échanges'
+            : (soldePoints < 0 ? 'dans une partie où les échanges perdus ont pesé sur la fin de manche' : 'au coude à coude dans l’échange des points');
+
+        const lectureReception = sGraph.valRecTotal === 0
+            ? ''
+            : (sGraph.pctRecPos >= 75
+                ? 'La tenue de balle en réception est très fiable et permet de lancer le jeu proprement.'
+                : (sGraph.pctRecPos >= 55
+                    ? 'La réception reste globalement maîtrisée malgré quelques balles délicates à ajuster.'
+                    : 'La réception a subi la pression adverse, obligeant à jouer sous contrainte.'));
+
+        const lectureFrappe = sGraph.valFrappesTotal === 0
+            ? ''
+            : (sGraph.pctFrappesPos >= 70
+                ? 'L’exécution à la frappe est tranchante et impose du rythme.'
+                : (sGraph.pctFrappesPos >= 50
+                    ? 'Les frappes alternent entre séquences efficaces et fautes à canaliser.'
+                    : 'Le rendement offensif à la frappe manque encore de justesse dans les temps forts.'));
+
+        let lectureButs = '';
+        if (!sGraph.estArriere && sGraph.valButs > 0) {
+            if (sGraph.pctAvant >= 65) {
+                lectureButs = 'La finition s’appuie majoritairement sur un jeu orienté vers l’avant.';
+            } else if (sGraph.pctArriere >= 65) {
+                lectureButs = 'La finition passe surtout par un travail de profondeur et d’occupation sur l’arrière.';
+            } else {
+                lectureButs = 'La finition est bien répartie entre le jeu vers l’avant et le jeu sur l’arrière.';
+            }
+        }
+
+        const lectureStyle = sGraph.valDiffClassAtt > 2
+            ? 'Le registre privilégie la construction et la frappe classique.'
+            : (sGraph.valDiffClassAtt < -2
+                ? 'Le jeu s’oriente davantage vers l’initiative et l’attaque.'
+                : 'L’équilibre entre jeu classique et attaque est bien trouvé.');
+
+        const analyseDetails = [lectureReception, lectureFrappe, lectureButs, lectureStyle].filter(Boolean).join(' ');
+
+        const paragrapheAnalyse = `<strong>Analyse :</strong> Sur ${partie.competition} (${partie.equipe1} vs ${partie.equipe2}), ${nomComplet} signe ${issue}, ${lecturePoints}. ${analyseDetails}`.trim();
+
+        const pointsForts = [];
+        const axesTravaux = [];
+
+        if (sGraph.valRecTotal > 0) {
+            if (sGraph.pctRecPos >= 70) pointsForts.push('qualité de réception');
+            else axesTravaux.push('stabilité en réception');
+        }
+        if (sGraph.valFrappesTotal > 0) {
+            if (sGraph.pctFrappesPos >= 65) pointsForts.push('efficacité à la frappe');
+            else axesTravaux.push('justesse à la frappe');
+        }
+        if (!sGraph.estArriere && sGraph.valButs > 0) {
+            pointsForts.push('capacité à conclure les points');
+        }
+        if (soldePoints > 0) {
+            pointsForts.push('maîtrise du score dans les échanges');
+        } else if (soldePoints < 0) {
+            axesTravaux.push('gestion des points clés');
+        }
+
+        const partieForte = pointsForts.length
+            ? `Points forts : ${pointsForts.join(', ')}.`
+            : 'Prestation à lire dans la continuité du volume de jeu.';
+        const partieAxe = axesTravaux.length
+            ? `Axe à travailler : ${axesTravaux.join(', ')}.`
+            : 'Bonne constance globale sur l’ensemble de la partie.';
+
+        const paragrapheSynthese = `<strong>Synthèse :</strong> ${partieForte} ${partieAxe}`;
+
+        return `<p>${paragrapheAnalyse}</p><p>${paragrapheSynthese}</p>`;
+    }
+
+    function genererSyntheseGlobaleJoueur(joueur, sGraph) {
+        const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
+        const nbP = sGraph.nbParties;
+
+        if (nbP === 0) {
+            return `<p><strong>Synthèse globale :</strong> Aucune partie enregistrée pour ${nomComplet} à ce stade.</p>`;
+        }
+
+        const ratioVictoires = Math.round((sGraph.nbVictoires / nbP) * 100);
+        const soldePoints = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
+
+        const tendanceBilan = ratioVictoires >= 60
+            ? 'un bilan très positif avec une dynamique de victoires marquée'
+            : (ratioVictoires >= 45
+                ? 'un bilan équilibré et compétitif sur l’ensemble des rencontres'
+                : 'un bilan encore en construction sur l’ensemble des rencontres');
+
+        const tendancePoints = soldePoints > 0
+            ? 'un différentiel de points favorable sur la durée'
+            : (soldePoints < 0
+                ? 'un différentiel de points légèrement déficitaire à inverser'
+                : 'un équilibre global sur les points gagnés et perdus');
+
+        const forces = [];
+        const chantiers = [];
+
+        if (sGraph.valRecTotal > 0) {
+            if (sGraph.pctRecPos >= 70) forces.push('réception régulière');
+            else chantiers.push('fiabilité en réception');
+        }
+        if (sGraph.valFrappesTotal > 0) {
+            if (sGraph.pctFrappesPos >= 65) forces.push('frappes percutantes');
+            else chantiers.push('régularité à la frappe');
+        }
+        if (!sGraph.estArriere && sGraph.valButs > 0) {
+            forces.push('efficacité à la conclusion');
+        }
+        if (sGraph.pctPelotes >= 65) {
+            forces.push('forte implication dans l’échange');
+        }
+
+        const p1 = `<strong>Analyse globale :</strong> Sur l’ensemble de ses ${nbP} partie${nbP > 1 ? 's' : ''} (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D), ${nomComplet} affiche ${tendanceBilan} et ${tendancePoints}.`;
+
+        const resumeForces = forces.length
+            ? `Points forts récurrents : ${forces.join(', ')}.`
+            : 'Profil en cours d’observation sur les indicateurs clés.';
+        const resumeChantiers = chantiers.length
+            ? `Priorités de progression : ${chantiers.join(', ')}.`
+            : 'Maintien d’un niveau homogène sur l’ensemble des secteurs de jeu.';
+
+        const p2 = `<strong>Synthèse :</strong> ${resumeForces} ${resumeChantiers}`;
+
+        return `<p>${p1}</p><p>${p2}</p>`;
     }
 
     function normaliserNom(str) {
@@ -944,9 +1530,18 @@
             const competitionNom = String(match.competition || match.titre || "Compétition non précisée").trim();
             const libelles = formaterLibellePartie(match, idx, resultat);
 
+            const score1Str = s1 !== undefined && s1 !== null && String(s1).trim() !== '' ? String(s1).trim() : '-';
+            const score2Str = s2 !== undefined && s2 !== null && String(s2).trim() !== '' ? String(s2).trim() : '-';
+            const scoreAffiche = (score1Str !== '-' || score2Str !== '-') ? `${score1Str} - ${score2Str}` : '-';
+
             return {
                 partieId: String(match.id || `partie_${idx}`),
                 competition: competitionNom,
+                nomPartie: match.titre || competitionNom,
+                datePartie: match.date ? String(match.date).slice(0, 10) : '',
+                equipe1: match.equipe1 || 'Équipe 1',
+                equipe2: match.equipe2 || 'Équipe 2',
+                scoreAffiche,
                 optionTexte: libelles.optionTexte,
                 banniereTexte: libelles.banniereTexte,
                 resultat,
@@ -978,7 +1573,11 @@
             chartsInstances[cle].destroy();
         }
         const ctx = document.getElementById(canvasId).getContext('2d');
-        chartsInstances[cle] = new Chart(ctx, config);
+        const existingPlugins = Array.isArray(config.plugins) ? config.plugins : [];
+        chartsInstances[cle] = new Chart(ctx, {
+            ...config,
+            plugins: [...existingPlugins, pluginValeursBarres]
+        });
     }
 
     function synchroniserSelecteursParPartie() {
@@ -1070,6 +1669,40 @@
             matchsSelection = partieChoisie ? [partieChoisie] : [];
         }
 
+        const posteJoueur = (joueurActif.poste || joueurActif.specialite || "").trim().toLowerCase();
+        const estArriere = posteJoueur.includes('arrière') || posteJoueur.includes('arriere');
+
+        const detailCardEl = document.getElementById('partie-detail-card');
+        const iaCardEl = document.getElementById('ia-analyse-card');
+        const iaTitreEl = document.getElementById('ia-analyse-titre');
+        const iaTexteEl = document.getElementById('ia-analyse-texte');
+
+        if (detailCardEl) {
+            if (!estTotales && partieChoisie) {
+                detailCardEl.style.display = 'flex';
+                document.getElementById('partie-detail-nom').textContent = partieChoisie.nomPartie || partieChoisie.competition || 'Partie';
+                document.getElementById('partie-detail-date').textContent = [partieChoisie.competition, partieChoisie.datePartie].filter(Boolean).join(' • ');
+                document.getElementById('partie-detail-eq1').textContent = partieChoisie.equipe1;
+                document.getElementById('partie-detail-eq2').textContent = partieChoisie.equipe2;
+                document.getElementById('partie-detail-score').textContent = partieChoisie.scoreAffiche;
+
+                const pillEl = document.getElementById('partie-detail-resultat');
+                pillEl.className = 'partie-result-pill';
+                if (partieChoisie.resultat === 'V') {
+                    pillEl.textContent = 'Victoire';
+                    pillEl.classList.add('victoire');
+                } else if (partieChoisie.resultat === 'D') {
+                    pillEl.textContent = 'Défaite';
+                    pillEl.classList.add('defaite');
+                } else {
+                    pillEl.textContent = 'Nul / Non défini';
+                    pillEl.classList.add('neutre');
+                }
+            } else {
+                detailCardEl.style.display = 'none';
+            }
+        }
+
         const contextTitleEl = document.getElementById('partie-context-title');
         const contextMetaEl = document.getElementById('partie-context-meta');
         if (contextTitleEl && contextMetaEl) {
@@ -1086,8 +1719,6 @@
             }
         }
 
-        const posteJoueur = (joueurActif.poste || joueurActif.specialite || "").trim().toLowerCase();
-        const estArriere = posteJoueur.includes('arrière') || posteJoueur.includes('arriere');
         const butsSection = document.getElementById('buts-section');
         if (butsSection) {
             butsSection.style.display = estArriere ? 'none' : 'block';
@@ -1129,15 +1760,15 @@
         });
 
         const totalRec = totalRecPos + totalRecNeg;
-        const pctRecPos = totalRec > 0 ? Math.round((totalRecPos / totalRec) * 100) : 0;
-        const pctRecNeg = totalRec > 0 ? Math.round((totalRecNeg / totalRec) * 100) : 0;
+        const pctRecPos = totalRec > 0 ? Math.min(100, Math.round((totalRecPos / totalRec) * 100)) : 0;
+        const pctRecNeg = totalRec > 0 ? Math.max(0, 100 - pctRecPos) : 0;
         const valRecTotal = Math.round(totalRec);
         const valRecPos = Math.round(totalRecPos);
         const valRecNeg = Math.round(totalRecNeg);
 
         const totalFrappes = totalFrappesPos + totalFrappesNeg;
-        const pctFrappesPos = totalFrappes > 0 ? Math.round((totalFrappesPos / totalFrappes) * 100) : 0;
-        const pctFrappesNeg = totalFrappes > 0 ? Math.round((totalFrappesNeg / totalFrappes) * 100) : 0;
+        const pctFrappesPos = totalFrappes > 0 ? Math.min(100, Math.round((totalFrappesPos / totalFrappes) * 100)) : 0;
+        const pctFrappesNeg = totalFrappes > 0 ? Math.max(0, 100 - pctFrappesPos) : 0;
         const valFrappesTotal = Math.round(totalFrappes);
         const valFrappesPos = Math.round(totalFrappesPos);
         const valFrappesNeg = Math.round(totalFrappesNeg);
@@ -1150,18 +1781,27 @@
         document.getElementById('frappes-pos-val').innerHTML = `${valFrappesPos} <span class="pn-sub-pct">(${pctFrappesPos}%)</span>`;
         document.getElementById('frappes-neg-val').innerHTML = `${valFrappesNeg} <span class="pn-sub-pct">(${pctFrappesNeg}%)</span>`;
 
-        const pctPelotes = totalPelotesMax > 0 ? Math.round((totalPelotesJouees / totalPelotesMax) * 100) : 0;
-        const pctGagnes = totalPtsGagnesMax > 0 ? Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100) : 0;
-        const pctPerdus = totalPtsPerdusMax > 0 ? Math.round((totalPtsPerdus / totalPtsPerdusMax) * 100) : 0;
+        const pctPelotes = totalPelotesMax > 0 ? Math.min(100, Math.round((totalPelotesJouees / totalPelotesMax) * 100)) : 0;
+        const pctGagnes = totalPtsGagnesMax > 0 ? Math.min(100, Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100)) : 0;
+        const pctPerdus = totalPtsPerdusMax > 0 ? Math.min(100, Math.round((totalPtsPerdus / totalPtsPerdusMax) * 100)) : 0;
 
-        const butsTotCalcule = totalButs > 0 ? totalButs : (butsAvant + butsArriere);
+        const sommeDetailsButs = butsAvant + butsArriere;
+        const butsTotCalcule = Math.max(totalButs, sommeDetailsButs);
         const valButs = nbParties > 0
             ? Math.round(butsTotCalcule)
             : Math.round(Number(joueurActif.butsMoy || joueurActif.buts || 0));
         const valButsAvant = Math.round(butsAvant);
         const valButsArriere = Math.round(butsArriere);
-        const pctArriere = butsTotCalcule > 0 ? Math.round((butsArriere / butsTotCalcule) * 100) : Math.round(Number(joueurActif.butsArr || 0));
-        const pctAvant = butsTotCalcule > 0 ? Math.round((butsAvant / butsTotCalcule) * 100) : Math.round(Number(joueurActif.butsAv || 0));
+
+        let pctAvant = 0;
+        let pctArriere = 0;
+        if (sommeDetailsButs > 0) {
+            pctAvant = Math.min(100, Math.max(0, Math.round((butsAvant / sommeDetailsButs) * 100)));
+            pctArriere = Math.max(0, 100 - pctAvant);
+        } else if (butsTotCalcule > 0) {
+            pctAvant = Math.min(100, Math.max(0, Math.round((butsAvant / butsTotCalcule) * 100)));
+            pctArriere = Math.max(0, 100 - pctAvant);
+        }
 
         document.getElementById('buts-total-val').textContent = `${valButs}`;
         document.getElementById('buts-avant-val').innerHTML = `${valButsAvant} <span id="buts-avant-pct" class="buts-stat-pct">(${pctAvant}%)</span>`;
@@ -1172,25 +1812,92 @@
         let note100 = nbParties > 0 ? Math.min(100, Math.max(40, noteBrute + bonusArriere)) : 0;
         document.querySelector('.note-100').innerHTML = `${note100}<span>/100</span>`;
 
+        const valPelotes = Math.round(totalPelotesJouees);
+        const valPtsGagnes = Math.round(totalPtsGagnes);
+        const valPtsPerdus = Math.round(totalPtsPerdus);
+        const diffClassAtt = totalFrappesClassiques - totalFrappesAttaque;
+        const valDiffClassAtt = Math.round(diffClassAtt);
+        const totalClassAtt = totalFrappesClassiques + totalFrappesAttaque;
+        const pctDiffClassAtt = totalClassAtt > 0 ? Math.min(100, Math.round((Math.abs(diffClassAtt) / totalClassAtt) * 100)) : 0;
+
+        const resumeStats = {
+            estArriere,
+            nbParties,
+            nbVictoires,
+            nbDefaites,
+            valRecTotal,
+            valRecPos,
+            valRecNeg,
+            pctRecPos,
+            pctRecNeg,
+            valFrappesTotal,
+            valFrappesPos,
+            valFrappesNeg,
+            pctFrappesPos,
+            pctFrappesNeg,
+            valButs,
+            valButsAvant,
+            valButsArriere,
+            pctAvant,
+            pctArriere,
+            valPelotes,
+            pctPelotes,
+            valPtsGagnes,
+            pctGagnes,
+            valPtsPerdus,
+            pctPerdus,
+            valDiffClassAtt,
+            pctDiffClassAtt
+        };
+
+        if (iaCardEl && iaTitreEl && iaTexteEl) {
+            if (!estTotales && partieChoisie) {
+                iaCardEl.style.display = 'flex';
+                iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Analyse de la partie`;
+                iaTexteEl.innerHTML = genererAnalyseEtSynthesePartie(joueurActif, partieChoisie, resumeStats);
+            } else if (estTotales) {
+                iaCardEl.style.display = 'flex';
+                iaTitreEl.innerHTML = `<i class="fa-solid fa-chart-line mr-1"></i> Synthèse globale du joueur`;
+                iaTexteEl.innerHTML = genererSyntheseGlobaleJoueur(joueurActif, resumeStats);
+            } else {
+                iaCardEl.style.display = 'none';
+                iaTexteEl.innerHTML = '';
+            }
+        }
+
         const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
         const accentColor = '#17b890';
-        const textColor = currentTheme === 'dark' ? '#ffffff' : '#333333';
-        const gridColor = currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+        const textColor = estExportPdf
+            ? '#0f172a'
+            : (currentTheme === 'dark' ? '#ffffff' : '#1e293b');
+        const barLabelColor = estExportPdf
+            ? '#0f172a'
+            : (currentTheme === 'dark' ? '#f8fafc' : '#0f172a');
+        const gridColor = estExportPdf
+            ? 'rgba(15, 23, 42, 0.14)'
+            : (currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+        const tickFontSize = estExportPdf ? 10 : 9;
+        const barValFontSize = estExportPdf ? 10 : 9;
 
         // 1. Bilan Global des Parties
         recreerGraphique('barChart', 'barChart', {
             type: 'bar',
             data: {
                 labels: ['Parties', 'Victoires', 'Défaites'],
-                datasets: [{ data: [nbParties, nbVictoires, nbDefaites], backgroundColor: [accentColor, '#34d399', '#f87171'], borderRadius: 5, maxBarThickness: 28 }]
+                datasets: [{ data: [nbParties, nbVictoires, nbDefaites], backgroundColor: [accentColor, '#34d399', '#f87171'], borderRadius: 5, maxBarThickness: 22 }]
             },
             options: {
+                animation: !estExportPdf,
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                layout: { padding: { top: 14 } },
+                plugins: {
+                    legend: { display: false },
+                    valeursBarres: { enabled: true, suffix: '', color: barLabelColor, fontSize: barValFontSize }
+                },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
-                    y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, precision: 0 } }
+                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: tickFontSize, weight: '600' }, padding: 4 } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: tickFontSize }, precision: 0, padding: 4 } }
                 }
             }
         });
@@ -1205,17 +1912,22 @@
                         data: [valButs, valButsArriere, valButsAvant], 
                         backgroundColor: ['#a855f7', '#60a5fa', '#f87171'], 
                         borderRadius: 4,
-                        maxBarThickness: 16
+                        maxBarThickness: 14
                     }]
                 },
                 options: {
+                    animation: !estExportPdf,
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    layout: { padding: { right: 34 } },
+                    plugins: {
+                        legend: { display: false },
+                        valeursBarres: { enabled: true, suffix: '', color: barLabelColor, fontSize: barValFontSize }
+                    },
                     scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, precision: 0 } },
-                        y: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
+                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: tickFontSize }, precision: 0, padding: 4 } },
+                        y: { grid: { display: false }, ticks: { color: textColor, font: { size: tickFontSize, weight: '600' }, padding: 4 } }
                     }
                 }
             });
@@ -1225,9 +1937,6 @@
         }
 
         // 3. Indicateurs Clés & Efficacité
-        const valPelotes = Math.round(totalPelotesJouees);
-        const valPtsGagnes = Math.round(totalPtsGagnes);
-
         const itemsEff = [
             { label: 'Pelotes', val: valPelotes, pct: pctPelotes },
             { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes },
@@ -1245,25 +1954,25 @@
             type: 'bar',
             data: {
                 labels: ['Pelotes (%)', 'Pts Gagnés (%)', 'Recouvrements Pos (%)'],
-                datasets: [{ data: [pctPelotes, pctGagnes, pctRecPos], backgroundColor: [accentColor, '#34d399', '#fbbf24'], borderRadius: 6 }]
+                datasets: [{ data: [pctPelotes, pctGagnes, pctRecPos], backgroundColor: [accentColor, '#34d399', '#fbbf24'], borderRadius: 5, maxBarThickness: 28 }]
             },
             options: {
+                animation: !estExportPdf,
                 responsive: true,
-                plugins: { legend: { display: false } },
+                maintainAspectRatio: false,
+                layout: { padding: { top: 14 } },
+                plugins: {
+                    legend: { display: false },
+                    valeursBarres: { enabled: true, suffix: '%', color: barLabelColor, fontSize: barValFontSize }
+                },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
-                    y: { grid: { color: gridColor }, ticks: { color: textColor }, max: 100 }
+                    x: { grid: { display: false }, ticks: { color: textColor, font: { size: tickFontSize, weight: '600' }, padding: 4 } },
+                    y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: tickFontSize }, padding: 4 }, max: 100 }
                 }
             }
         });
 
         // 4. Performance Globale
-        const valPtsPerdus = Math.round(totalPtsPerdus);
-        const diffClassAtt = totalFrappesClassiques - totalFrappesAttaque;
-        const valDiffClassAtt = Math.round(diffClassAtt);
-        const totalClassAtt = totalFrappesClassiques + totalFrappesAttaque;
-        const pctDiffClassAtt = totalClassAtt > 0 ? Math.min(100, Math.round((Math.abs(diffClassAtt) / totalClassAtt) * 100)) : 0;
-
         const itemsPerf = [
             { label: 'Pelotes', val: valPelotes, pct: pctPelotes, color: accentColor },
             { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes, color: '#34d399' },
@@ -1290,15 +1999,21 @@
             type: 'bar',
             data: {
                 labels: itemsPerf.map(i => `${i.label} (%)`),
-                datasets: [{ data: itemsPerf.map(i => i.pct), backgroundColor: itemsPerf.map(i => i.color), borderRadius: 6 }]
+                datasets: [{ data: itemsPerf.map(i => i.pct), backgroundColor: itemsPerf.map(i => i.color), borderRadius: 4, maxBarThickness: 14 }]
             },
             options: {
+                animation: !estExportPdf,
                 indexAxis: 'y',
                 responsive: true,
-                plugins: { legend: { display: false } },
+                maintainAspectRatio: false,
+                layout: { padding: { right: 34 } },
+                plugins: {
+                    legend: { display: false },
+                    valeursBarres: { enabled: true, suffix: '%', color: barLabelColor, fontSize: barValFontSize }
+                },
                 scales: {
-                    x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 }, precision: 0 }, max: 100 },
-                    y: { grid: { display: false }, ticks: { color: textColor, font: { size: 11 } } }
+                    x: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: tickFontSize }, precision: 0, padding: 4 }, max: 100 },
+                    y: { grid: { display: false }, ticks: { color: textColor, font: { size: tickFontSize, weight: '600' }, padding: 4 } }
                 }
             }
         });
