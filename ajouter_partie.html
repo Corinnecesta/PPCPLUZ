@@ -355,6 +355,14 @@
                     </div>
                     <div id="pctPtsPerdus" class="pct-badge" style="color:#EF4444;">0%</div>
                 </div>
+                <div class="stat-field-box" style="grid-column: span 2;">
+                    <label>Points amenés, réception adverse négative</label>
+                    <div style="display:flex;gap:4px;">
+                        <input type="number" id="ptsAmenesRecAdvNeg" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Pts amenés">
+                        <input type="number" id="ptsAmenesRecAdvNegTotal" value="0" oninput="sauvegarderEtatActuel(); calculerPourcentagesGlobaux()" placeholder="Total réf.">
+                    </div>
+                    <div id="pctPtsAmenesRecAdvNeg" class="pct-badge" style="color:var(--accent-color);">0%</div>
+                </div>
             </div>
         </div>
 
@@ -763,7 +771,8 @@
 
     function obtenirTousLesChampsIds() {
         let ids = [
-            'pelotesJouees', 'pelotesTotales', 'ptsGagnes', 'ptsGagnesTotaux', 'ptsPerdus', 'ptsPerdusTotaux', 
+            'pelotesJouees', 'pelotesTotales', 'ptsGagnes', 'ptsGagnesTotaux', 'ptsPerdus', 'ptsPerdusTotaux',
+            'ptsAmenesRecAdvNeg', 'ptsAmenesRecAdvNegTotal',
             'coupDroitGlobalPct', 'pumpa', 'pumpaPositif', 'pumpaNegatif',
             'butsTotal', 'butsSurArriere', 'butsSurAvant', 'butsAce', 'butsPasa', 'butsFalta'
         ];
@@ -847,6 +856,11 @@
         const ptP = parseInt(document.getElementById('ptsPerdus').value) || 0;
         const ptPT = parseInt(document.getElementById('ptsPerdusTotaux').value) || 0;
         document.getElementById('pctPtsPerdus').textContent = calcPct(ptP, ptPT);
+
+        const ptA = parseInt(document.getElementById('ptsAmenesRecAdvNeg').value) || 0;
+        const ptAT = parseInt(document.getElementById('ptsAmenesRecAdvNegTotal').value) || 0;
+        const denomA = ptAT > 0 ? ptAT : ptG;
+        document.getElementById('pctPtsAmenesRecAdvNeg').textContent = calcPct(ptA, denomA);
     }
 
     function calculerLigneStats(prefix) {
@@ -989,7 +1003,7 @@
             const id = isNaN(cb.value) ? cb.value : Number(cb.value);
             statsParJoueurObj[id] = donneesParJoueur[id] || {
                 pelotesJouees: 0, pelotesTotales: 0, ptsGagnes: 0, ptsGagnesTotaux: 0,
-                ptsPerdus: 0, ptsPerdusTotaux: 0, coupDroitGlobalPct: 100,
+                ptsPerdus: 0, ptsPerdusTotaux: 0, ptsAmenesRecAdvNeg: 0, ptsAmenesRecAdvNegTotal: 0, coupDroitGlobalPct: 100,
                 butsTotal: 0, butsSurArriere: 0, butsSurAvant: 0, butsAce: 0, butsPasa: 0, butsFalta: 0
             };
         });
