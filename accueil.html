@@ -66,39 +66,6 @@
             overflow-x: hidden;
         }
 
-        /* --- ANIMATION NEIGE QUI TOMBE --- */
-        #snow-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            overflow: hidden;
-        }
-
-        .snowflake {
-            position: absolute;
-            top: -15px;
-            color: #ffffff;
-            user-select: none;
-            pointer-events: none;
-            text-shadow: 0 0 4px rgba(0, 242, 254, 0.5);
-            animation: snowfall linear infinite;
-        }
-
-        [data-theme="light"] .snowflake {
-            color: #93c5fd;
-            text-shadow: 0 0 3px rgba(2, 132, 199, 0.4);
-        }
-
-        @keyframes snowfall {
-            0% { transform: translateY(-10px) translateX(0) rotate(0deg); }
-            50% { transform: translateY(50vh) translateX(15px) rotate(180deg); }
-            100% { transform: translateY(105vh) translateX(-10px) rotate(360deg); }
-        }
-
         .menu-group-wrapper {
             position: relative;
             width: 100%;
@@ -554,9 +521,6 @@
 </head>
 <body>
 
-<!-- Conteneur pour la neige qui tombe -->
-<div id="snow-container" aria-hidden="true"></div>
-
 <div class="mobile-container">
     <header class="top-header">
         <img src="logoce.png" alt="Logo Pôle Performance Cesta Punta" class="logo-img">
@@ -589,7 +553,7 @@
         <img src="titrenoel.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
-    <!-- CONTENEUR SUR UNE SEULE LIGNE : Échanges + AIA (Admin/Entraîneurs) + Prochain entraînement -->
+    <!-- CONTENEUR SUR UNE SEULE LIGNE : Échanges + AIA (Admin/Entraîneurs/JoueurPlus) + Prochain entraînement -->
     <div class="top-widgets-grid" id="topWidgetsGrid">
         <a href="echanges.html" onclick="localStorage.setItem('dernier_clic_echanges', Date.now())" class="mini-chat-card full-width-block" aria-label="Accéder au tchat et aux échanges">
             <div class="mini-chat-icon" aria-hidden="true">
@@ -599,7 +563,7 @@
             <div class="mini-chat-label">Échanges</div>
         </a>
 
-        <!-- BLOC AIA : Uniquement visible par l'admin et les entraîneurs sur la même ligne -->
+        <!-- BLOC AIA : Visible par admin, entraîneurs et joueurplus -->
         <a href="https://multisports-front.azurewebsites.net/cesta-punta/players" target="_blank" id="aiaAccessCard" class="mini-aia-card full-width-block admin-entraineur-only" aria-label="Accéder à la plateforme AIA">
             <img src="aia.jpeg" alt="Logo AIA" class="mini-aia-logo" onerror="this.style.display='none'">
         </a>
@@ -721,35 +685,6 @@
             e.preventDefault();
         }
     });
-
-    // --- GÉNÉRATION DE LA NEIGE QUI TOMBE ---
-    function lancerNeigeNoel() {
-        const container = document.getElementById('snow-container');
-        if (!container) return;
-
-        const floconsSymboles = ['❄', '❅', '❆', '•'];
-        const nombreFlocons = 30;
-
-        for (let i = 0; i < nombreFlocons; i++) {
-            const flocon = document.createElement('div');
-            flocon.className = 'snowflake';
-            flocon.textContent = floconsSymboles[Math.floor(Math.random() * floconsSymboles.length)];
-
-            const leftPos = Math.random() * 100;
-            const fontSize = Math.random() * 10 + 8;
-            const duration = Math.random() * 6 + 6;
-            const delay = Math.random() * -12;
-            const opacity = Math.random() * 0.55 + 0.35;
-
-            flocon.style.left = `${leftPos}vw`;
-            flocon.style.fontSize = `${fontSize}px`;
-            flocon.style.animationDuration = `${duration}s`;
-            flocon.style.animationDelay = `${delay}s`;
-            flocon.style.opacity = opacity;
-
-            container.appendChild(flocon);
-        }
-    }
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -967,6 +902,7 @@
         const isAdmin = aRoleCible(roleBrut, ['admin', 'administrateur', 'superadmin']);
         const isEntraineurPlus = aRoleCible(roleBrut, ['entraineurplus', 'coachplus', 'superentraineur', 'entraineur2', 'entraineuravance']);
         const isEntraineur = aRoleCible(roleBrut, ['entraineur', 'coach', 'staff']);
+        const isJoueurPlus = aRoleCible(roleBrut, ['joueurplus', 'playerplus']);
         const isEntraineurOrAdmin = (isAdmin || isEntraineurPlus || isEntraineur || isStaffMember);
 
         const adminElements = document.querySelectorAll('.admin-only');
@@ -982,7 +918,7 @@
         const aiaCard = document.getElementById('aiaAccessCard');
         const topGrid = document.getElementById('topWidgetsGrid');
         if (aiaCard && topGrid) {
-            if (isEntraineurOrAdmin) {
+            if (isEntraineurOrAdmin || isJoueurPlus) {
                 aiaCard.style.display = 'flex';
                 topGrid.classList.add('has-aia');
             } else {
@@ -993,7 +929,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        lancerNeigeNoel();
         effacerBadgeApplication();
 
         if ("Notification" in window && Notification.permission === "granted") {
