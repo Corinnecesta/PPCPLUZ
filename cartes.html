@@ -594,7 +594,29 @@
   .player-card-header { height: clamp(108px, 31vw, 145px) !important; }
 }
 
-    </style>
+    
+/* Version 17 : logos plus petits et ensemble remonte dans le bandeau marine */
+.player-card-header::before {
+  top: -3px !important; left: 5px !important;
+  width: 25px !important; height: 18px !important;
+  background-position: center center !important;
+}
+.player-card-header::after {
+  top: -3px !important; left: 35px !important; right: 35px !important;
+  height: 18px !important; font-size: clamp(9px, 1.35vw, 12px) !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+}
+.player-card-header .logo-icp {
+  top: -3px !important; right: 5px !important;
+  width: 25px !important; height: 18px !important;
+}
+@media (min-width:651px) {
+  .player-card-header::before { top: -3px !important; left: 6px !important; width: 29px !important; height: 20px !important; }
+  .player-card-header::after { top: -3px !important; left: 40px !important; right: 40px !important; height: 20px !important; }
+  .player-card-header .logo-icp { top: -3px !important; right: 6px !important; width: 29px !important; height: 20px !important; }
+}
+
+</style>
 </head>
 <body>
 
