@@ -80,7 +80,9 @@
         .pdf-exporting .separator,
         .pdf-exporting .back-link,
         .pdf-exporting .parties-tabs-box,
-        .pdf-exporting .pdf-download-btn {
+        .pdf-exporting .pdf-download-btn,
+        .pdf-exporting .coach-editor-controls,
+        .pdf-exporting .coach-status-msg {
             display: none !important;
         }
 
@@ -105,8 +107,10 @@
         .pdf-exporting .player-profile-card,
         .pdf-exporting .partie-detail-card,
         .pdf-exporting .ia-analyse-card,
+        .pdf-exporting .coach-analyse-card,
         .pdf-exporting .chart-box,
-        .pdf-exporting .pn-card {
+        .pdf-exporting .pn-card,
+        .pdf-exporting .single-stat-banner {
             background: #ffffff !important;
             background-color: #ffffff !important;
             color: #0f172a !important;
@@ -130,8 +134,10 @@
         .pdf-exporting .partie-detail-name,
         .pdf-exporting .partie-side,
         .pdf-exporting .ia-analyse-texte,
+        .pdf-exporting .coach-analyse-rendered,
         .pdf-exporting .pn-card-header,
-        .pdf-exporting .buts-stat-value {
+        .pdf-exporting .buts-stat-value,
+        .pdf-exporting .single-stat-label {
             color: #0f172a !important;
         }
 
@@ -142,7 +148,8 @@
         .pdf-exporting .perf-stat-label,
         .pdf-exporting .buts-stat-label,
         .pdf-exporting .bilan-stat-label,
-        .pdf-exporting .note-badge span {
+        .pdf-exporting .note-badge span,
+        .pdf-exporting .coach-meta-badge {
             color: #475569 !important;
         }
 
@@ -153,13 +160,15 @@
         }
 
         .pdf-exporting .partie-detail-card,
-        .pdf-exporting .ia-analyse-card {
+        .pdf-exporting .ia-analyse-card,
+        .pdf-exporting .coach-analyse-card {
             padding: 10px 12px !important;
             margin-bottom: 8px !important;
             gap: 6px !important;
         }
 
-        .pdf-exporting .ia-analyse-texte {
+        .pdf-exporting .ia-analyse-texte,
+        .pdf-exporting .coach-analyse-rendered {
             font-size: 0.72rem !important;
             line-height: 1.42 !important;
         }
@@ -181,6 +190,11 @@
 
         .pdf-exporting .pn-grid {
             gap: 8px !important;
+            margin-bottom: 6px !important;
+        }
+
+        .pdf-exporting .single-stat-banner {
+            padding: 8px 12px !important;
             margin-bottom: 8px !important;
         }
 
@@ -219,15 +233,17 @@
         }
 
         .pdf-exporting #horizontalBarChart {
-            height: 235px !important;
-            max-height: 235px !important;
+            height: 255px !important;
+            max-height: 255px !important;
         }
 
         .pdf-exporting .chart-box,
         .pdf-exporting .pn-card,
+        .pdf-exporting .single-stat-banner,
         .pdf-exporting .player-profile-card,
         .pdf-exporting .partie-detail-card,
         .pdf-exporting .ia-analyse-card,
+        .pdf-exporting .coach-analyse-card,
         .pdf-exporting .section-header-row {
             break-inside: avoid;
             page-break-inside: avoid;
@@ -238,7 +254,9 @@
             .separator,
             .back-link,
             .parties-tabs-box,
-            .pdf-download-btn {
+            .pdf-download-btn,
+            .coach-editor-controls,
+            .coach-status-msg {
                 display: none !important;
             }
         }
@@ -303,7 +321,6 @@
         }
         .player-club { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
         
-        /* Ligne du bas (Poste + Note alignés horizontalement) */
         .player-bottom-row {
             display: flex;
             align-items: flex-end;
@@ -313,11 +330,9 @@
         }
         .player-poste { font-size: 0.8rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Note sur 100 agrandie à 2.2rem pour bien ressortir */
         .note-badge { font-size: 2.2rem; font-weight: 800; color: var(--accent-color); line-height: 1; flex-shrink: 0; text-align: right; }
         .note-badge span { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; }
 
-        /* Onglets Totales / Par partie + sélection par compétition */
         .parties-tabs-box {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
@@ -419,7 +434,6 @@
             white-space: nowrap;
         }
 
-        /* Bloc détaillé de la partie sélectionnée (visible en mode Par partie) */
         .partie-detail-card {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
@@ -509,7 +523,8 @@
         }
 
         /* Bloc Analyse de la partie / Synthèse globale */
-        .ia-analyse-card {
+        .ia-analyse-card,
+        .coach-analyse-card {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
             border-radius: 14px;
@@ -526,13 +541,22 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .ia-analyse-texte {
+        .coach-meta-badge {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .ia-analyse-texte,
+        .coach-analyse-rendered {
             font-size: 0.76rem;
             line-height: 1.52;
             color: var(--container-text);
             margin: 0;
+            white-space: pre-line;
         }
 
         .ia-analyse-texte p {
@@ -541,6 +565,90 @@
 
         .ia-analyse-texte p:last-child {
             margin-bottom: 0;
+        }
+
+        .coach-editor-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .coach-textarea {
+            width: 100%;
+            min-height: 82px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--container-text);
+            font-family: inherit;
+            font-size: 0.76rem;
+            line-height: 1.45;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .coach-textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        .coach-actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .coach-save-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 9px;
+            border: 1px solid var(--accent-color);
+            background: var(--accent-color);
+            color: #000;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .coach-save-btn:hover {
+            opacity: 0.9;
+        }
+
+        .coach-save-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .coach-clear-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 10px;
+            border-radius: 9px;
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .coach-clear-btn:hover {
+            color: #f87171;
+            border-color: #f87171;
+        }
+
+        .coach-status-msg {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #34d399;
+            min-height: 14px;
         }
 
         .chart-box {
@@ -726,7 +834,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 8px;
         }
 
         @media (max-width: 460px) {
@@ -771,6 +879,11 @@
             text-align: center;
         }
 
+        .pn-values-three {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
         .pn-box {
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--card-border);
@@ -778,8 +891,12 @@
             padding: 8px 6px;
         }
 
+        .pn-values-three .pn-box {
+            padding: 7px 4px;
+        }
+
         .pn-label {
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             text-transform: uppercase;
             color: var(--text-muted);
             font-weight: 600;
@@ -787,13 +904,13 @@
         }
 
         .pn-num {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 800;
             line-height: 1.2;
         }
 
         .pn-sub-pct {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 700;
             opacity: 0.92;
         }
@@ -802,8 +919,56 @@
             color: #34d399;
         }
 
+        .pn-neu {
+            color: #94a3b8;
+        }
+
         .pn-neg {
             color: #f87171;
+        }
+
+        .single-stat-banner {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 10px rgba(23, 184, 144, 0.14);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .single-stat-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--container-text);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .single-stat-value-wrap {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .single-stat-value {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #34d399;
+            line-height: 1.1;
+        }
+
+        .single-stat-pct {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #34d399;
         }
 
         .back-link {
@@ -856,7 +1021,6 @@
         </div>
     </div>
 
-    <!-- Onglets : Totales (cumul toutes parties) / Par partie (choix par compétition) -->
     <div class="parties-tabs-box">
         <div class="parties-tabs-switch">
             <button type="button" id="tab-totales" class="partie-tab-btn active">
@@ -884,7 +1048,6 @@
         </div>
     </div>
 
-    <!-- Informations de la partie sélectionnée (visible uniquement en mode Par partie) -->
     <div id="partie-detail-card" class="partie-detail-card">
         <div class="partie-detail-top">
             <div>
@@ -900,7 +1063,6 @@
         </div>
     </div>
 
-    <!-- Analyse de la partie (Par partie) / Synthèse globale (Totales), placée juste avant les graphiques -->
     <div id="ia-analyse-card" class="ia-analyse-card">
         <div class="ia-analyse-header">
             <div id="ia-analyse-titre" class="section-title" style="margin-bottom: 0;"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse globale</div>
@@ -908,7 +1070,34 @@
         <div id="ia-analyse-texte" class="ia-analyse-texte"></div>
     </div>
 
-    <!-- Bilan Global des Parties (en premier) -->
+    <div id="coach-analyse-card" class="coach-analyse-card" style="display: none;">
+        <div class="ia-analyse-header">
+            <div class="section-title" style="margin-bottom: 0;"><i class="fa-solid fa-user-pen mr-1"></i> Analyse de l'entraîneur / commentateur</div>
+            <span id="coach-analyse-meta" class="coach-meta-badge"></span>
+        </div>
+
+        <div id="coach-analyse-rendered" class="coach-analyse-rendered" style="display: none;"></div>
+
+        <div id="coach-editor-controls" class="coach-editor-controls" style="display: none;">
+            <textarea
+                id="coach-analyse-textarea"
+                class="coach-textarea"
+                placeholder="Saisir l'analyse de l'entraîneur / commentateur pour ce joueur (ou cette partie)..."
+            ></textarea>
+            <div class="coach-actions-row">
+                <span id="coach-status-msg" class="coach-status-msg"></span>
+                <div style="display: inline-flex; gap: 6px;">
+                    <button type="button" id="coach-clear-btn" class="coach-clear-btn" onclick="effacerAnalyseCoach()">
+                        <i class="fa-solid fa-trash-can"></i> Effacer
+                    </button>
+                    <button type="button" id="coach-save-btn" class="coach-save-btn" onclick="enregistrerAnalyseCoach()">
+                        <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="section-title"><i class="fa-solid fa-chart-column mr-1"></i> Bilan Global des Parties</div>
     <div class="chart-box bilan-box">
         <div class="bilan-stats-grid">
@@ -930,9 +1119,8 @@
         </div>
     </div>
 
-    <!-- Bloc Réceptions et Frappes Positives / Négatives -->
     <div id="rec-frappes-section">
-        <div class="section-title"><i class="fa-solid fa-scale-balanced mr-1"></i> Réceptions &amp; Frappes (+ / -)</div>
+        <div class="section-title"><i class="fa-solid fa-scale-balanced mr-1"></i> Réceptions &amp; Frappes (+ / = / -)</div>
         <div class="pn-grid">
             <div class="pn-card">
                 <div class="pn-card-header">
@@ -956,10 +1144,14 @@
                     <span><i class="fa-solid fa-bolt mr-1"></i> Frappes</span>
                     <span id="frappes-summary-badge" class="pn-card-summary">0 (0%)</span>
                 </div>
-                <div class="pn-values">
+                <div class="pn-values pn-values-three">
                     <div class="pn-box">
                         <div class="pn-label">Positives (+)</div>
                         <div id="frappes-pos-val" class="pn-num pn-pos">0 <span class="pn-sub-pct">(0%)</span></div>
+                    </div>
+                    <div class="pn-box">
+                        <div class="pn-label">Neutres (=)</div>
+                        <div id="frappes-neu-val" class="pn-num pn-neu">0 <span class="pn-sub-pct">(0%)</span></div>
                     </div>
                     <div class="pn-box">
                         <div class="pn-label">Négatives (-)</div>
@@ -968,9 +1160,16 @@
                 </div>
             </div>
         </div>
+
+        <div class="single-stat-banner">
+            <span class="single-stat-label"><i class="fa-solid fa-arrow-turn-down mr-1" style="color:#34d399;"></i> Pts amenés, réception adverse négative</span>
+            <span class="single-stat-value-wrap">
+                <span id="pts-amenes-rec-adv-neg-val" class="single-stat-value">0</span>
+                <span id="pts-amenes-rec-adv-neg-pct" class="single-stat-pct">(0%)</span>
+            </span>
+        </div>
     </div>
 
-    <!-- Analyse des Buts (Masqué si le joueur est Arrière, placé après Réceptions & Frappes) -->
     <div id="buts-section">
         <div class="section-title"><i class="fa-solid fa-crosshairs mr-1"></i> Analyse des Buts</div>
         <div class="chart-box" style="padding: 12px 16px;">
@@ -994,7 +1193,6 @@
         </div>
     </div>
 
-    <!-- Indicateurs Clés & Efficacité -->
     <div class="section-title"><i class="fa-solid fa-gauge-high mr-1"></i> Indicateurs Clés &amp; Efficacité (%)</div>
     <div class="chart-box">
         <div id="eff-stats-grid" class="eff-stats-grid"></div>
@@ -1003,24 +1201,23 @@
         </div>
     </div>
 
-    <!-- Performance Globale (%) -->
     <div class="section-title"><i class="fa-solid fa-chart-bar mr-1"></i> Performance Globale (%)</div>
     <div class="chart-box">
         <div id="perf-stats-grid" class="perf-stats-grid"></div>
-        <div style="position: relative; height: 235px;">
+        <div style="position: relative; height: 255px;">
             <canvas id="horizontalBarChart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- Scripts de données -->
 <script src="joueurs-data.js?v=7"></script>
 <script src="statsdata.js"></script>
 <script src="matchs-data.js"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, getDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
@@ -1034,19 +1231,236 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
     window.matchsCloudCharges = [];
     window.joueursFirebaseCharges = [];
     window.tousLesJoueursFusionnes = [];
 
     let joueurActif = null;
     let matchsJoueurActifs = [];
-    let modeOnglet = 'totales'; // 'totales' | 'par-partie'
+    let modeOnglet = 'totales';
     let competitionSelectionnee = '';
     let partieSelectionneeId = '';
     let estExportPdf = false;
+    let estCoachOuAdmin = false;
+    let utilisateurCourant = null;
+    const analysesCoachCache = {};
     const chartsInstances = {};
 
-    // Plugin Chart.js pour afficher la valeur exacte sur chaque barre
+    function normaliserRole(role) {
+        return String(role || '')
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\s_-]+/g, '')
+            .trim();
+    }
+
+    function verifierRoleCoachOuAdmin(role) {
+        const r = normaliserRole(role);
+        return r === 'admin' || r === 'administrateur' || r === 'entraineurplus';
+    }
+
+    function obtenirCleAnalyseCoach() {
+        if (!joueurActif) return '';
+        const jKey = normaliserNom(joueurActif.id || `${joueurActif.prenom || ''}_${joueurActif.nom || ''}`) || 'joueur';
+        if (modeOnglet === 'par-partie' && partieSelectionneeId) {
+            return `${jKey}__partie__${String(partieSelectionneeId).replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+        }
+        return `${jKey}__totales`;
+    }
+
+    function lireAnalyseCoachLocale(cle) {
+        try {
+            const raw = localStorage.getItem(`coach_analyse_${cle}`);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function ecrireAnalyseCoachLocale(cle, payload) {
+        try {
+            localStorage.setItem(`coach_analyse_${cle}`, JSON.stringify(payload));
+        } catch (e) {
+            console.warn('Stockage local analyse coach indisponible :', e);
+        }
+    }
+
+    async function chargerAnalyseCoachDepuisFirestore(cle) {
+        if (!cle) return null;
+        if (analysesCoachCache[cle]) return analysesCoachCache[cle];
+
+        const locale = lireAnalyseCoachLocale(cle);
+        if (locale) {
+            analysesCoachCache[cle] = locale;
+        }
+
+        try {
+            const snap = await getDoc(doc(db, "analyses_joueurs", cle));
+            if (snap.exists()) {
+                const data = snap.data();
+                const entry = {
+                    texte: String(data.texte || ''),
+                    auteur: String(data.auteur || ''),
+                    updatedAt: String(data.updatedAt || '')
+                };
+                analysesCoachCache[cle] = entry;
+                ecrireAnalyseCoachLocale(cle, entry);
+                return entry;
+            }
+        } catch (err) {
+            console.warn('Lecture Firestore analyses_joueurs :', err);
+        }
+
+        return analysesCoachCache[cle] || { texte: '', auteur: '', updatedAt: '' };
+    }
+
+    function rendreBlocAnalyseCoach() {
+        const cardEl = document.getElementById('coach-analyse-card');
+        const metaEl = document.getElementById('coach-analyse-meta');
+        const renderedEl = document.getElementById('coach-analyse-rendered');
+        const editorEl = document.getElementById('coach-editor-controls');
+        const textareaEl = document.getElementById('coach-analyse-textarea');
+        const statusEl = document.getElementById('coach-status-msg');
+
+        if (!cardEl || !joueurActif) return;
+
+        const cle = obtenirCleAnalyseCoach();
+        const entry = analysesCoachCache[cle] || lireAnalyseCoachLocale(cle) || { texte: '', auteur: '', updatedAt: '' };
+        const texteExistant = String(entry.texte || '').trim();
+
+        if (!estCoachOuAdmin && !texteExistant) {
+            cardEl.style.display = 'none';
+            return;
+        }
+
+        cardEl.style.display = 'flex';
+
+        if (metaEl) {
+            const parts = [];
+            if (entry.auteur) parts.push(entry.auteur);
+            if (entry.updatedAt) parts.push(entry.updatedAt.slice(0, 10));
+            metaEl.textContent = parts.length ? parts.join(' • ') : (estCoachOuAdmin ? 'Entraîneur / Commentateur' : '');
+        }
+
+        if (estExportPdf) {
+            if (editorEl) editorEl.style.display = 'none';
+            if (renderedEl) {
+                renderedEl.style.display = texteExistant ? 'block' : 'none';
+                renderedEl.textContent = texteExistant;
+            }
+            if (!texteExistant) {
+                cardEl.style.display = 'none';
+            }
+            return;
+        }
+
+        if (estCoachOuAdmin) {
+            if (editorEl) editorEl.style.display = 'flex';
+            if (renderedEl) renderedEl.style.display = 'none';
+            if (textareaEl && document.activeElement !== textareaEl) {
+                textareaEl.value = entry.texte || '';
+            }
+            if (statusEl && !statusEl.dataset.keepMessage) {
+                statusEl.textContent = '';
+            }
+        } else {
+            if (editorEl) editorEl.style.display = 'none';
+            if (renderedEl) {
+                renderedEl.style.display = texteExistant ? 'block' : 'none';
+                renderedEl.textContent = texteExistant;
+            }
+        }
+    }
+
+    window.enregistrerAnalyseCoach = async function () {
+        if (!estCoachOuAdmin || !joueurActif) return;
+
+        const textareaEl = document.getElementById('coach-analyse-textarea');
+        const saveBtn = document.getElementById('coach-save-btn');
+        const statusEl = document.getElementById('coach-status-msg');
+        if (!textareaEl) return;
+
+        const cle = obtenirCleAnalyseCoach();
+        const texte = textareaEl.value.trim();
+        const auteur = utilisateurCourant?.email || (localStorage.getItem('cesta_user_role') || 'Entraîneur / Commentateur');
+        const updatedAt = new Date().toISOString();
+
+        const payload = {
+            joueurId: String(joueurActif.id || ''),
+            mode: modeOnglet,
+            partieId: modeOnglet === 'par-partie' ? String(partieSelectionneeId || '') : '',
+            texte,
+            auteur,
+            updatedAt
+        };
+
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sauvegarde...';
+        }
+
+        analysesCoachCache[cle] = payload;
+        ecrireAnalyseCoachLocale(cle, payload);
+
+        try {
+            await setDoc(doc(db, "analyses_joueurs", cle), payload, { merge: true });
+            if (statusEl) {
+                statusEl.dataset.keepMessage = '1';
+                statusEl.style.color = '#34d399';
+                statusEl.textContent = 'Analyse enregistrée.';
+            }
+        } catch (err) {
+            console.warn('Sauvegarde locale effectuée :', err);
+            if (statusEl) {
+                statusEl.dataset.keepMessage = '1';
+                statusEl.style.color = '#fbbf24';
+                statusEl.textContent = 'Enregistré localement.';
+            }
+        } finally {
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer';
+            }
+            rendreBlocAnalyseCoach();
+            setTimeout(() => {
+                if (statusEl) {
+                    delete statusEl.dataset.keepMessage;
+                    statusEl.textContent = '';
+                }
+            }, 2500);
+        }
+    };
+
+    window.effacerAnalyseCoach = async function () {
+        if (!estCoachOuAdmin || !joueurActif) return;
+        const textareaEl = document.getElementById('coach-analyse-textarea');
+        if (textareaEl) textareaEl.value = '';
+        await window.enregistrerAnalyseCoach();
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+        utilisateurCourant = user || null;
+        let roleEffectif = localStorage.getItem('cesta_user_role') || '';
+
+        if (user) {
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (userSnap.exists() && userSnap.data().role) {
+                    roleEffectif = userSnap.data().role;
+                    localStorage.setItem('cesta_user_role', roleEffectif);
+                }
+            } catch (err) {
+                console.warn('Lecture rôle utilisateur :', err);
+            }
+        }
+
+        estCoachOuAdmin = verifierRoleCoachOuAdmin(roleEffectif);
+        rendreBlocAnalyseCoach();
+    });
+
     const pluginValeursBarres = {
         id: 'valeursBarres',
         afterDatasetsDraw(chart, args, pluginOptions) {
@@ -1093,7 +1507,6 @@
         }
     };
 
-    // Gestion du Thème Clair/Sombre
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
     const htmlElement = document.documentElement;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -1243,9 +1656,9 @@
             }
         }
 
-        const lectureStyle = sGraph.valDiffClassAtt > 2
+        const lectureStyle = sGraph.valAttaques > 2
             ? 'Le registre privilégie la construction et la frappe classique.'
-            : (sGraph.valDiffClassAtt < -2
+            : (sGraph.valAttaques < -2
                 ? 'Le jeu s’oriente davantage vers l’initiative et l’attaque.'
                 : 'L’équilibre entre jeu classique et attaque est bien trouvé.');
 
@@ -1364,7 +1777,6 @@
             idsLocaux = [];
         }
 
-        // 1. Joueurs du Pôle (depuis joueursData)
         if (typeof joueursData !== 'undefined' && Array.isArray(joueursData)) {
             joueursData.forEach((joueur, index) => {
                 if (joueur.statut === "retraite" || joueur.retraite === true) return;
@@ -1387,7 +1799,6 @@
             });
         }
 
-        // 2. Autres joueurs (depuis la collection Firebase "joueurs")
         (window.joueursFirebaseCharges || []).forEach((jFb, index) => {
             if (jFb.statut === "retraite" || jFb.retraite === true) return;
 
@@ -1510,7 +1921,7 @@
         const nomJoueur = (jObj.nom || "").trim().toLowerCase();
         const prenomJoueur = (jObj.prenom || "").trim().toLowerCase();
 
-        const matchsTraites = listeMatchs.map((match, idx) => {
+        return listeMatchs.map((match, idx) => {
             let sourceBrute = {};
             if (match.statsParJoueur) {
                 let foundKey = Object.keys(match.statsParJoueur).find(k => {
@@ -1572,6 +1983,19 @@
                 ['deuxMursPos', 'deuxMursNeg']
             ];
 
+            const basesFrappesNeutres = [
+                'frappesClassiques',
+                'frappesAttaque',
+                'picada',
+                'dejada',
+                'txikTxak',
+                'txula',
+                'cortada',
+                'gaucheGauche',
+                'gaucheDroite',
+                'deuxMurs'
+            ];
+
             let frappesPos = 0;
             let frappesNeg = 0;
             typesFrappesKeys.forEach(([pKey, nKey]) => {
@@ -1579,8 +2003,31 @@
                 frappesNeg += Number(sourceBrute[nKey] || 0);
             });
 
-            const frappesClassiques = Number(sourceBrute.frappesClassiquesPos || 0) + Number(sourceBrute.frappesClassiquesNeg || 0);
-            const frappesAttaque = Number(sourceBrute.frappesAttaquePos || 0) + Number(sourceBrute.frappesAttaqueNeg || 0);
+            let frappesNeutres = Number(sourceBrute.frappesNeutres || sourceBrute.frappesNeutre || 0);
+            basesFrappesNeutres.forEach(base => {
+                frappesNeutres += Number(sourceBrute[`${base}Neutre`] || sourceBrute[`${base}Neutres`] || 0);
+            });
+
+            const frappesClassiques = Number(sourceBrute.frappesClassiquesPos || 0)
+                + Number(sourceBrute.frappesClassiquesNeutre || 0)
+                + Number(sourceBrute.frappesClassiquesNeg || 0);
+            const frappesAttaque = Number(sourceBrute.frappesAttaquePos || 0)
+                + Number(sourceBrute.frappesAttaqueNeutre || 0)
+                + Number(sourceBrute.frappesAttaqueNeg || 0);
+
+            const ptsAmenesRecAdvNeg = Number(
+                sourceBrute.ptsAmenesRecAdvNeg
+                ?? sourceBrute.pointsAmenesRecAdvNeg
+                ?? sourceBrute.ptsAmenesReceptionAdverseNeg
+                ?? sourceBrute.recAdverseNeg
+                ?? 0
+            );
+            const ptsAmenesRecAdvNegTotal = Number(
+                sourceBrute.ptsAmenesRecAdvNegTotal
+                ?? sourceBrute.pointsAmenesRecAdvNegTotal
+                ?? sourceBrute.ptsAmenesRecAdvNegTotaux
+                ?? 50
+            );
 
             const competitionNom = String(match.competition || match.titre || "Compétition non précisée").trim();
             const libelles = formaterLibellePartie(match, idx, resultat);
@@ -1613,14 +2060,15 @@
                     recPositif: recPos,
                     recNegatif: recNeg,
                     frappesPositif: frappesPos,
+                    frappesNeutres: frappesNeutres,
                     frappesNegatif: frappesNeg,
                     frappesClassiques: frappesClassiques,
-                    frappesAttaque: frappesAttaque
+                    frappesAttaque: frappesAttaque,
+                    ptsAmenesRecAdvNeg: ptsAmenesRecAdvNeg,
+                    ptsAmenesRecAdvNegTotal: ptsAmenesRecAdvNegTotal
                 }
             };
         }).filter(Boolean);
-
-        return matchsTraites;
     }
 
     function recreerGraphique(cle, canvasId, config) {
@@ -1792,8 +2240,9 @@
         let totalPtsPerdus = 0, totalPtsPerdusMax = 0;
         let totalButs = 0, butsArriere = 0, butsAvant = 0;
         let totalRecPos = 0, totalRecNeg = 0;
-        let totalFrappesPos = 0, totalFrappesNeg = 0;
+        let totalFrappesPos = 0, totalFrappesNeutres = 0, totalFrappesNeg = 0;
         let totalFrappesClassiques = 0, totalFrappesAttaque = 0;
+        let totalPtsAmenesRecAdvNeg = 0, totalPtsAmenesRecAdvNegMax = 0;
 
         matchsSelection.forEach(m => {
             const s = m.stats;
@@ -1809,9 +2258,12 @@
             totalRecPos += s.recPositif;
             totalRecNeg += s.recNegatif;
             totalFrappesPos += s.frappesPositif;
+            totalFrappesNeutres += s.frappesNeutres;
             totalFrappesNeg += s.frappesNegatif;
             totalFrappesClassiques += s.frappesClassiques;
             totalFrappesAttaque += s.frappesAttaque;
+            totalPtsAmenesRecAdvNeg += s.ptsAmenesRecAdvNeg;
+            totalPtsAmenesRecAdvNegMax += s.ptsAmenesRecAdvNegTotal;
         });
 
         const totalRec = totalRecPos + totalRecNeg;
@@ -1821,12 +2273,19 @@
         const valRecPos = Math.round(totalRecPos);
         const valRecNeg = Math.round(totalRecNeg);
 
-        const totalFrappes = totalFrappesPos + totalFrappesNeg;
+        const totalFrappes = totalFrappesPos + totalFrappesNeutres + totalFrappesNeg;
         const pctFrappesPos = totalFrappes > 0 ? Math.min(100, Math.round((totalFrappesPos / totalFrappes) * 100)) : 0;
-        const pctFrappesNeg = totalFrappes > 0 ? Math.max(0, 100 - pctFrappesPos) : 0;
+        const pctFrappesNeutres = totalFrappes > 0 ? Math.min(100, Math.round((totalFrappesNeutres / totalFrappes) * 100)) : 0;
+        const pctFrappesNeg = totalFrappes > 0 ? Math.max(0, 100 - pctFrappesPos - pctFrappesNeutres) : 0;
         const valFrappesTotal = Math.round(totalFrappes);
         const valFrappesPos = Math.round(totalFrappesPos);
+        const valFrappesNeutres = Math.round(totalFrappesNeutres);
         const valFrappesNeg = Math.round(totalFrappesNeg);
+
+        const valPtsAmenesRecAdvNeg = Math.round(Math.max(0, totalPtsAmenesRecAdvNeg));
+        const pctPtsAmenesRecAdvNeg = totalPtsAmenesRecAdvNegMax > 0
+            ? Math.min(100, Math.round((totalPtsAmenesRecAdvNeg / totalPtsAmenesRecAdvNegMax) * 100))
+            : 0;
 
         document.getElementById('rec-summary-badge').textContent = `${valRecTotal} (${pctRecPos}%)`;
         document.getElementById('rec-pos-val').innerHTML = `${valRecPos} <span class="pn-sub-pct">(${pctRecPos}%)</span>`;
@@ -1834,7 +2293,11 @@
 
         document.getElementById('frappes-summary-badge').textContent = `${valFrappesTotal} (${pctFrappesPos}%)`;
         document.getElementById('frappes-pos-val').innerHTML = `${valFrappesPos} <span class="pn-sub-pct">(${pctFrappesPos}%)</span>`;
+        document.getElementById('frappes-neu-val').innerHTML = `${valFrappesNeutres} <span class="pn-sub-pct">(${pctFrappesNeutres}%)</span>`;
         document.getElementById('frappes-neg-val').innerHTML = `${valFrappesNeg} <span class="pn-sub-pct">(${pctFrappesNeg}%)</span>`;
+
+        document.getElementById('pts-amenes-rec-adv-neg-val').textContent = `${valPtsAmenesRecAdvNeg}`;
+        document.getElementById('pts-amenes-rec-adv-neg-pct').textContent = `(${pctPtsAmenesRecAdvNeg}%)`;
 
         const pctPelotes = totalPelotesMax > 0 ? Math.min(100, Math.round((totalPelotesJouees / totalPelotesMax) * 100)) : 0;
         const pctGagnes = totalPtsGagnesMax > 0 ? Math.min(100, Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100)) : 0;
@@ -1870,10 +2333,11 @@
         const valPelotes = Math.round(totalPelotesJouees);
         const valPtsGagnes = Math.round(totalPtsGagnes);
         const valPtsPerdus = Math.round(totalPtsPerdus);
-        const diffClassAtt = totalFrappesClassiques - totalFrappesAttaque;
-        const valDiffClassAtt = Math.round(diffClassAtt);
+        const valAttaques = Math.round(totalFrappesAttaque);
         const totalClassAtt = totalFrappesClassiques + totalFrappesAttaque;
-        const pctDiffClassAtt = totalClassAtt > 0 ? Math.min(100, Math.round((Math.abs(diffClassAtt) / totalClassAtt) * 100)) : 0;
+        const pctAttaques = totalClassAtt > 0
+            ? Math.min(100, Math.round((totalFrappesAttaque / totalClassAtt) * 100))
+            : (valFrappesTotal > 0 ? Math.min(100, Math.round((totalFrappesAttaque / valFrappesTotal) * 100)) : 0);
 
         const resumeStats = {
             estArriere,
@@ -1887,9 +2351,13 @@
             pctRecNeg,
             valFrappesTotal,
             valFrappesPos,
+            valFrappesNeutres,
             valFrappesNeg,
             pctFrappesPos,
+            pctFrappesNeutres,
             pctFrappesNeg,
+            valPtsAmenesRecAdvNeg,
+            pctPtsAmenesRecAdvNeg,
             valButs,
             valButsAvant,
             valButsArriere,
@@ -1901,8 +2369,8 @@
             pctGagnes,
             valPtsPerdus,
             pctPerdus,
-            valDiffClassAtt,
-            pctDiffClassAtt
+            valAttaques,
+            pctAttaques
         };
 
         if (iaCardEl && iaTitreEl && iaTexteEl) {
@@ -1912,13 +2380,21 @@
                 iaTexteEl.innerHTML = genererAnalyseEtSynthesePartie(joueurActif, partieChoisie, resumeStats);
             } else if (estTotales) {
                 iaCardEl.style.display = 'flex';
-                iaTitreEl.innerHTML = `<i class="fa-solid fa-chart-line mr-1"></i> Synthèse globale du joueur`;
+                iaTitreEl.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Synthèse globale du joueur`;
                 iaTexteEl.innerHTML = genererSyntheseGlobaleJoueur(joueurActif, resumeStats);
             } else {
                 iaCardEl.style.display = 'none';
                 iaTexteEl.innerHTML = '';
             }
         }
+
+        const cleCoach = obtenirCleAnalyseCoach();
+        rendreBlocAnalyseCoach();
+        chargerAnalyseCoachDepuisFirestore(cleCoach).then(() => {
+            if (obtenirCleAnalyseCoach() === cleCoach) {
+                rendreBlocAnalyseCoach();
+            }
+        });
 
         const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
         const accentColor = '#17b890';
@@ -1934,7 +2410,6 @@
         const tickFontSize = estExportPdf ? 10 : 9;
         const barValFontSize = estExportPdf ? 10 : 9;
 
-        // 1. Bilan Global des Parties
         recreerGraphique('barChart', 'barChart', {
             type: 'bar',
             data: {
@@ -1957,7 +2432,6 @@
             }
         });
 
-        // 2. Analyse des Buts
         if (!estArriere) {
             recreerGraphique('butsChart', 'butsChart', {
                 type: 'bar',
@@ -1991,11 +2465,10 @@
             delete chartsInstances.butsChart;
         }
 
-        // 3. Indicateurs Clés & Efficacité
         const itemsEff = [
             { label: 'Pelotes', val: valPelotes, pct: pctPelotes },
             { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes },
-            { label: 'Recouvrements Pos', val: valRecPos, pct: pctRecPos }
+            { label: 'Réceptions +', val: valRecPos, pct: pctRecPos }
         ];
 
         document.getElementById('eff-stats-grid').innerHTML = itemsEff.map(item => `
@@ -2008,7 +2481,7 @@
         recreerGraphique('efficaciteChart', 'efficaciteChart', {
             type: 'bar',
             data: {
-                labels: ['Pelotes (%)', 'Pts Gagnés (%)', 'Recouvrements Pos (%)'],
+                labels: ['Pelotes (%)', 'Pts Gagnés (%)', 'Réceptions + (%)'],
                 datasets: [{ data: [pctPelotes, pctGagnes, pctRecPos], backgroundColor: [accentColor, '#34d399', '#fbbf24'], borderRadius: 5, maxBarThickness: 28 }]
             },
             options: {
@@ -2027,26 +2500,27 @@
             }
         });
 
-        // 4. Performance Globale
         const itemsPerf = [
-            { label: 'Pelotes', val: valPelotes, pct: pctPelotes, color: accentColor },
-            { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes, color: '#34d399' },
-            { label: 'Pts Perdus', val: valPtsPerdus, pct: pctPerdus, color: '#f87171' },
-            { label: 'Réception +', val: valRecPos, pct: pctRecPos, color: '#fbbf24' },
-            { label: 'Réception -', val: valRecNeg, pct: pctRecNeg, color: '#f97316' },
-            { label: 'Frappes +', val: valFrappesPos, pct: pctFrappesPos, color: '#38bdf8' },
-            { label: 'Frappes -', val: valFrappesNeg, pct: pctFrappesNeg, color: '#fb7185' },
-            { label: 'Classiques - Attaque', val: valDiffClassAtt, pct: pctDiffClassAtt, color: '#818cf8' }
+            { label: 'Pelotes', val: valPelotes, pct: pctPelotes, color: accentColor, valColor: '' },
+            { label: 'Pts Gagnés', val: valPtsGagnes, pct: pctGagnes, color: '#34d399', valColor: '' },
+            { label: 'Pts Perdus', val: valPtsPerdus, pct: pctPerdus, color: '#f87171', valColor: '' },
+            { label: 'Réception +', val: valRecPos, pct: pctRecPos, color: '#fbbf24', valColor: '' },
+            { label: 'Réception -', val: valRecNeg, pct: pctRecNeg, color: '#f97316', valColor: '' },
+            { label: 'Frappes +', val: valFrappesPos, pct: pctFrappesPos, color: '#38bdf8', valColor: '' },
+            { label: 'Frappes Neutres', val: valFrappesNeutres, pct: pctFrappesNeutres, color: '#94a3b8', valColor: '' },
+            { label: 'Frappes -', val: valFrappesNeg, pct: pctFrappesNeg, color: '#fb7185', valColor: '' },
+            { label: 'Pts amenés réc. adv. -', val: valPtsAmenesRecAdvNeg, pct: pctPtsAmenesRecAdvNeg, color: '#10b981', valColor: '#34d399' },
+            { label: 'Attaques', val: valAttaques, pct: pctAttaques, color: '#818cf8', valColor: '' }
         ];
 
         if (!estArriere) {
-            itemsPerf.push({ label: 'Buts', val: valButs, pct: Math.min(100, valButs), color: '#a855f7' });
+            itemsPerf.push({ label: 'Buts', val: valButs, pct: Math.min(100, valButs), color: '#a855f7', valColor: '' });
         }
 
         document.getElementById('perf-stats-grid').innerHTML = itemsPerf.map(item => `
             <div class="perf-stat-box">
                 <div class="perf-stat-label">${item.label}</div>
-                <div class="perf-stat-value">${item.val}</div>
+                <div class="perf-stat-value"${item.valColor ? ` style="color: ${item.valColor};"` : ''}>${item.val}</div>
             </div>
         `).join('');
 
@@ -2102,7 +2576,6 @@
 
         joueurActif = joueur;
 
-        // Affichage des informations de profil
         document.getElementById('player-name').textContent = `${joueur.prenom || ''} ${joueur.nom || ''}`.trim();
         document.getElementById('player-club').textContent = joueur.club || (joueur.estDuPole ? 'Pôle Performance' : 'Autre Club');
         document.getElementById('player-poste').textContent = joueur.poste || joueur.specialite || 'Joueur';

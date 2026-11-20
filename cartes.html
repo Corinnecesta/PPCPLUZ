@@ -181,21 +181,44 @@
         .stats-grid-mini span { display: block; }
         .stats-label { color: var(--text-muted); font-size: 0.58rem; margin-bottom: 3px; text-transform: uppercase; }
 
-        .metrics-details { font-size: 0.66rem; color: var(--container-text); display: flex; flex-direction: column; gap: 3px; }
-        .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); gap: 6px; }
+        .metrics-details { font-size: 0.72rem; color: var(--container-text); display: flex; flex-direction: column; gap: 2px; }
+        .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); gap: 8px; }
         .metric-row:last-child { border-bottom: none; }
         .metric-label { color: var(--text-muted); flex-shrink: 0; font-weight: 600; }
-        .metric-values { text-align: right; line-height: 1.25; }
+        .metric-values { text-align: right; line-height: 1.45; display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 5px; }
+        .stat-pill {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.68rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat-pill-pos {
+            color: #34d399;
+            background: rgba(52, 211, 153, 0.12);
+            border-color: rgba(52, 211, 153, 0.28);
+        }
+        .stat-pill-neg {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.12);
+            border-color: rgba(248, 113, 113, 0.28);
+        }
+        .stat-sep {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
         .metric-row-stacked {
             flex-direction: column;
             align-items: flex-start;
-            padding: 7px 0;
+            padding: 8px 4px;
         }
         .metric-row-stacked .metric-values {
             width: 100%;
-            text-align: right;
-            margin-top: 2px;
+            justify-content: flex-end;
+            margin-top: 3px;
         }
     </style>
 </head>
@@ -312,7 +335,7 @@
         return String(role || '')
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[̀-ͯ]/g, "")
             .replace(/[\s_-]+/g, '')
             .trim();
     }
@@ -390,7 +413,7 @@
         return String(str || '')
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[̀-ͯ]/g, "")
             .replace(/\s+/g, '')
             .trim();
     }
@@ -514,32 +537,79 @@
 
                 <div class="metrics-details">
                     <div class="metric-row">
-                        <span class="metric-label">Pelotes /m (%):</span>
-                        <span class="metric-values"><strong class="pelotes-moy">0.0</strong> <span class="pelotes-pct" style="color: #34d399; font-weight: 700;">0%</span></span>
+                        <span class="metric-label">Pelotes / match:</span>
+                        <span class="metric-values"><strong class="pelotes-moy">0</strong> <span class="stat-pill stat-pill-pos pelotes-pct">0%</span></span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Pts gagnés /m (%):</span>
-                        <span class="metric-values"><strong class="gagnes-moy">0.0</strong> <span class="gagnes-pct" style="color: #34d399; font-weight: 700;">0%</span></span>
+                        <span class="metric-label">Pts gagnés / match:</span>
+                        <span class="metric-values"><strong class="gagnes-moy">0</strong> <span class="stat-pill stat-pill-pos gagnes-pct">0%</span></span>
                     </div>
                     <div class="metric-row">
-                        <span class="metric-label">Pts perdus /m (%):</span>
-                        <span class="metric-values"><strong class="perdus-moy">0.0</strong> <span class="perdus-pct" style="color: #f87171; font-weight: 700;">0%</span></span>
+                        <span class="metric-label">Pts perdus / match:</span>
+                        <span class="metric-values"><strong class="perdus-moy">0</strong> <span class="stat-pill stat-pill-neg perdus-pct">0%</span></span>
                     </div>
                     <div class="metric-row metric-row-stacked">
-                        <span class="metric-label">Buts /m (Avant / Arrière):</span>
-                        <span class="metric-values"><strong class="buts-moy">0.0</strong> (Av: <strong class="buts-av-moy">0.0</strong> <span class="buts-av-pct">0%</span> / Arr: <strong class="buts-arr-moy">0.0</strong> <span class="buts-arr-pct">0%</span>)</span>
+                        <span class="metric-label">Buts / match (Avant / Arrière):</span>
+                        <span class="metric-values">
+                            <strong class="buts-moy">0</strong>
+                            <span class="stat-sep">•</span>
+                            <span>Av: <strong class="buts-av-moy">0</strong> <span class="buts-av-pct">(0%)</span></span>
+                            <span class="stat-sep">/</span>
+                            <span>Arr: <strong class="buts-arr-moy">0</strong> <span class="buts-arr-pct">(0%)</span></span>
+                        </span>
                     </div>
                     <div class="metric-row metric-row-stacked">
-                        <span class="metric-label">Réceptions /m (+ / - / %):</span>
-                        <span class="metric-values"><strong class="rec-moy">0.0</strong> (<strong class="rec-pos-moy" style="color: #34d399;">0.0</strong>+ / <strong class="rec-neg-moy" style="color: #f87171;">0.0</strong>-) <strong class="rec-pct" style="color: #34d399; font-weight: 700;">0%</strong></span>
+                        <span class="metric-label">Réceptions / match (+ / - / %):</span>
+                        <span class="metric-values">
+                            <strong class="rec-moy">0</strong>
+                            <span class="stat-sep">(</span>
+                            <span class="stat-pill stat-pill-pos"><span class="rec-pos-moy">0</span>+</span>
+                            <span class="stat-sep">/</span>
+                            <span class="stat-pill stat-pill-neg"><span class="rec-neg-moy">0</span>-</span>
+                            <span class="stat-sep">)</span>
+                            <span class="stat-pill stat-pill-pos rec-pct">0%</span>
+                        </span>
                     </div>
                     <div class="metric-row metric-row-stacked">
-                        <span class="metric-label">Frappes /m (+ / - / %):</span>
-                        <span class="metric-values"><strong class="frappes-moy">0.0</strong> (<strong class="frappes-pos-moy" style="color: #34d399;">0.0</strong>+ / <strong class="frappes-neg-moy" style="color: #f87171;">0.0</strong>-) <strong class="frappes-pct" style="color: #34d399; font-weight: 700;">0%</strong></span>
+                        <span class="metric-label">Frappes / match (+ / - / %):</span>
+                        <span class="metric-values">
+                            <strong class="frappes-moy">0</strong>
+                            <span class="stat-sep">(</span>
+                            <span class="stat-pill stat-pill-pos"><span class="frappes-pos-moy">0</span>+</span>
+                            <span class="stat-sep">/</span>
+                            <span class="stat-pill stat-pill-neg"><span class="frappes-neg-moy">0</span>-</span>
+                            <span class="stat-sep">)</span>
+                            <span class="stat-pill stat-pill-pos frappes-pct">0%</span>
+                        </span>
                     </div>
                     <div class="metric-row metric-row-stacked">
-                        <span class="metric-label">Att. vs Cla. /m (Diff / %):</span>
-                        <span class="metric-values">Att: <strong class="att-moy" style="color: var(--accent-color);">0.0</strong> vs Cla: <strong class="cla-moy">0.0</strong> | Diff: <strong class="att-cla-diff">0.0</strong> (<strong class="att-cla-pct" style="color: #34d399;">0%</strong>)</span>
+                        <span class="metric-label">Classique / match (Moy / Neutre / + / -):</span>
+                        <span class="metric-values">
+                            <strong class="cla-moy" style="color: var(--accent-color);">0</strong>
+                            <span class="stat-sep">(</span>
+                            <span class="stat-pill"><span class="cla-neu-moy">0</span> neutre</span>
+                            <span class="stat-pill stat-pill-pos"><span class="cla-pos-moy">0</span>+</span>
+                            <span class="stat-pill stat-pill-neg"><span class="cla-neg-moy">0</span>-</span>
+                            <span class="stat-sep">)</span>
+                        </span>
+                    </div>
+                    <div class="metric-row metric-row-stacked">
+                        <span class="metric-label">Attaque / match (Moy / Neutre / + / -):</span>
+                        <span class="metric-values">
+                            <strong class="att-moy" style="color: var(--accent-color);">0</strong>
+                            <span class="stat-sep">(</span>
+                            <span class="stat-pill"><span class="att-neu-moy">0</span> neutre</span>
+                            <span class="stat-pill stat-pill-pos"><span class="att-pos-moy">0</span>+</span>
+                            <span class="stat-pill stat-pill-neg"><span class="att-neg-moy">0</span>-</span>
+                            <span class="stat-sep">)</span>
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Pts amenés, réc. adv. nég. / match:</span>
+                        <span class="metric-values">
+                            <strong class="pts-amenes-rec-adv-neg-moy" style="color: var(--accent-color);">0</strong>
+                            <span class="stat-pill stat-pill-pos pts-amenes-rec-adv-neg-pct">0%</span>
+                        </span>
                     </div>
                 </div>
             </a>
@@ -715,7 +785,16 @@
             });
 
             const attaquesTot = Number(sourceBrute.frappesAttaqueTotal || sourceBrute.attaquesTotal || 0);
+            const attaquesPos = Number(sourceBrute.frappesAttaquePos || sourceBrute.attaquesPositif || 0);
+            const attaquesNeg = Number(sourceBrute.frappesAttaqueNeg || sourceBrute.attaquesNegatif || 0);
+            const attaquesNeuRaw = sourceBrute.frappesAttaqueNeutre ?? sourceBrute.attaquesNeutre;
+            const attaquesNeu = attaquesNeuRaw !== undefined ? Number(attaquesNeuRaw) : Math.max(0, attaquesTot - attaquesPos - attaquesNeg);
+
             const classiquesTot = Number(sourceBrute.frappesClassiquesTotal || sourceBrute.classiquesTotal || 0);
+            const classiquesPos = Number(sourceBrute.frappesClassiquesPos || sourceBrute.classiquesPositif || 0);
+            const classiquesNeg = Number(sourceBrute.frappesClassiquesNeg || sourceBrute.classiquesNegatif || 0);
+            const classiquesNeuRaw = sourceBrute.frappesClassiquesNeutre ?? sourceBrute.classiquesNeutre;
+            const classiquesNeu = classiquesNeuRaw !== undefined ? Number(classiquesNeuRaw) : Math.max(0, classiquesTot - classiquesPos - classiquesNeg);
 
             return {
                 resultat,
@@ -736,14 +815,34 @@
                     frappesPositif: fPos,
                     frappesNegatif: fNeg,
                     attaquesTotal: attaquesTot,
-                    classiquesTotal: classiquesTot
+                    attaquesNeutre: attaquesNeu,
+                    attaquesPositif: attaquesPos,
+                    attaquesNegatif: attaquesNeg,
+                    classiquesTotal: classiquesTot,
+                    classiquesNeutre: classiquesNeu,
+                    classiquesPositif: classiquesPos,
+                    classiquesNegatif: classiquesNeg,
+                    ptsAmenesRecAdvNeg: Number(
+                        sourceBrute.ptsAmenesRecAdvNeg ??
+                        sourceBrute.pointsAmenesRecAdversesNegatives ??
+                        sourceBrute.ptsAmenesRecNeg ??
+                        sourceBrute.recAdversesNegatives ??
+                        sourceBrute.receptionsAdversesNegatives ??
+                        sourceBrute.ptsAmenes ??
+                        0
+                    ),
+                    ptsAmenesRecAdvNegTotal: Number(
+                        sourceBrute.ptsAmenesRecAdvNegTotal ??
+                        sourceBrute.ptsAmenesTotal ??
+                        0
+                    )
                 }
             };
         }).filter(Boolean);
     }
 
     function moyParPartie(valeur, nbMatchs) {
-        return nbMatchs > 0 ? (valeur / nbMatchs).toFixed(1) : "0.0";
+        return nbMatchs > 0 ? String(Math.round(valeur / nbMatchs)) : "0";
     }
 
     function calculerToutesLesStatsJoueurs() {
@@ -773,7 +872,9 @@
             let totalButs = 0, butsArriere = 0, butsAvant = 0;
             let sumRecTot = 0, sumRecPos = 0, sumRecNeg = 0;
             let sumFrappesTot = 0, sumFrappesPos = 0, sumFrappesNeg = 0;
-            let sumAttaquesTot = 0, sumClassiquesTot = 0;
+            let sumAttaquesTot = 0, sumAttaquesNeu = 0, sumAttaquesPos = 0, sumAttaquesNeg = 0;
+            let sumClassiquesTot = 0, sumClassiquesNeu = 0, sumClassiquesPos = 0, sumClassiquesNeg = 0;
+            let sumPtsAmenesRecAdvNeg = 0, sumPtsAmenesRecAdvNegTotal = 0;
 
             matchsJoueur.forEach(m => {
                 const s = m.stats;
@@ -797,7 +898,17 @@
                 sumFrappesNeg += s.frappesNegatif;
 
                 sumAttaquesTot += s.attaquesTotal;
+                sumAttaquesNeu += s.attaquesNeutre;
+                sumAttaquesPos += s.attaquesPositif;
+                sumAttaquesNeg += s.attaquesNegatif;
+
                 sumClassiquesTot += s.classiquesTotal;
+                sumClassiquesNeu += s.classiquesNeutre;
+                sumClassiquesPos += s.classiquesPositif;
+                sumClassiquesNeg += s.classiquesNegatif;
+
+                sumPtsAmenesRecAdvNeg += s.ptsAmenesRecAdvNeg;
+                sumPtsAmenesRecAdvNegTotal += s.ptsAmenesRecAdvNegTotal;
             });
 
             const pctPelotes = totalPelotesMax > 0 ? Math.round((totalPelotesJouees / totalPelotesMax) * 100) : 0;
@@ -810,14 +921,6 @@
 
             const pctRecPos = sumRecTot > 0 ? Math.round((sumRecPos / sumRecTot) * 100) : 0;
             const pctFrappesPos = sumFrappesTot > 0 ? Math.round((sumFrappesPos / sumFrappesTot) * 100) : 0;
-
-            const moyAtt = nbMatchs > 0 ? (sumAttaquesTot / nbMatchs) : 0;
-            const moyCla = nbMatchs > 0 ? (sumClassiquesTot / nbMatchs) : 0;
-            const diffMoyAttCla = moyAtt - moyCla;
-            const diffMoyFormatee = diffMoyAttCla > 0.04 ? `+${diffMoyAttCla.toFixed(1)}` : (diffMoyAttCla < -0.04 ? diffMoyAttCla.toFixed(1) : "0.0");
-
-            const totalAttCla = sumAttaquesTot + sumClassiquesTot;
-            const pctAttCla = totalAttCla > 0 ? Math.round((sumAttaquesTot / totalAttCla) * 100) : 0;
 
             let noteBrute = nbMatchs > 0 ? Math.round((nbVictoires / nbMatchs) * 60 + pctGagnes * 0.4 + 15) : 0;
             const bonusArriere = !estAvant ? 8 : 0;
@@ -853,12 +956,20 @@
             card.querySelector('.frappes-neg-moy').textContent = moyParPartie(sumFrappesNeg, nbMatchs);
             card.querySelector('.frappes-pct').textContent = `${pctFrappesPos}%`;
 
-            card.querySelector('.att-moy').textContent = moyAtt.toFixed(1);
-            card.querySelector('.cla-moy').textContent = moyCla.toFixed(1);
-            const diffEl = card.querySelector('.att-cla-diff');
-            diffEl.textContent = diffMoyFormatee;
-            diffEl.style.color = diffMoyAttCla > 0.04 ? '#34d399' : (diffMoyAttCla < -0.04 ? '#f87171' : 'var(--container-text)');
-            card.querySelector('.att-cla-pct').textContent = `${pctAttCla}%`;
+            card.querySelector('.cla-moy').textContent = moyParPartie(sumClassiquesTot, nbMatchs);
+            card.querySelector('.cla-neu-moy').textContent = moyParPartie(sumClassiquesNeu, nbMatchs);
+            card.querySelector('.cla-pos-moy').textContent = moyParPartie(sumClassiquesPos, nbMatchs);
+            card.querySelector('.cla-neg-moy').textContent = moyParPartie(sumClassiquesNeg, nbMatchs);
+
+            card.querySelector('.att-moy').textContent = moyParPartie(sumAttaquesTot, nbMatchs);
+            card.querySelector('.att-neu-moy').textContent = moyParPartie(sumAttaquesNeu, nbMatchs);
+            card.querySelector('.att-pos-moy').textContent = moyParPartie(sumAttaquesPos, nbMatchs);
+            card.querySelector('.att-neg-moy').textContent = moyParPartie(sumAttaquesNeg, nbMatchs);
+
+            const denomAmenes = sumPtsAmenesRecAdvNegTotal > 0 ? sumPtsAmenesRecAdvNegTotal : totalPtsGagnes;
+            const pctPtsAmenesRecAdvNeg = denomAmenes > 0 ? Math.round((sumPtsAmenesRecAdvNeg / denomAmenes) * 100) : 0;
+            card.querySelector('.pts-amenes-rec-adv-neg-moy').textContent = moyParPartie(sumPtsAmenesRecAdvNeg, nbMatchs);
+            card.querySelector('.pts-amenes-rec-adv-neg-pct').textContent = `${pctPtsAmenesRecAdvNeg}%`;
 
             if (estAvant) {
                 listAvants.push({ card, note: note100 });
