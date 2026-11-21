@@ -683,6 +683,44 @@
   }
 }
 
+/* Agrandissement marqué de la carte au survol / appui, clic vers detail-joueur.html conservé */
+.player-card {
+    position: relative;
+    z-index: 1;
+    transform-origin: center center;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.22s ease,
+                background-color 0.22s ease !important;
+}
+
+.player-card:hover,
+.player-card:focus-visible {
+    z-index: 40 !important;
+    transform: scale(1.24) translateY(-6px) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.72), 0 0 0 3px rgba(23, 184, 144, 0.45) !important;
+    background-color: #103b53;
+    color: white;
+}
+
+.player-card:active {
+    z-index: 40 !important;
+    transform: scale(1.18) translateY(-4px) !important;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.68) !important;
+}
+
+@media (max-width: 650px) {
+    .player-card:hover,
+    .player-card:focus-visible {
+        z-index: 40 !important;
+        transform: scale(1.16) translateY(-4px) !important;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.72) !important;
+    }
+    .player-card:active {
+        z-index: 40 !important;
+        transform: scale(1.16) translateY(-4px) !important;
+    }
+}
+
         /* Styles dédiés à l'export / impression PDF : format carte bleue PORTRAIT (54mm x 85.6mm) */
         @media print {
             @page {
