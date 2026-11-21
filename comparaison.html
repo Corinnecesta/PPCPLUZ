@@ -174,25 +174,25 @@
         .note-badge span { font-size: 0.52rem; color: var(--text-muted); font-weight: normal; }
 
         /* Bandeau bilan resserré */
-        .stats-grid-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; text-align: center; background: rgba(0, 0, 0, 0.22); padding: 5px 4px; border-radius: 7px; border: 1px solid var(--card-border); margin-bottom: 6px; font-size: 0.68rem; }
-        .stats-grid-mini span { display: block; line-height: 1.15; }
-        .stats-label { color: var(--text-muted); font-size: 0.5rem; margin-bottom: 1px; text-transform: uppercase; }
+        .stats-grid-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; text-align: center; background: rgba(0, 0, 0, 0.22); padding: 3px 4px; border-radius: 7px; border: 1px solid var(--card-border); margin-bottom: 4px; font-size: 0.68rem; }
+        .stats-grid-mini span { display: block; line-height: 1.05; }
+        .stats-label { color: var(--text-muted); font-size: 0.5rem; margin-bottom: 0; text-transform: uppercase; }
 
         /* Lignes de statistiques avec espacement réduit */
         .metrics-details { font-size: 0.64rem; color: var(--container-text); display: flex; flex-direction: column; gap: 0; }
-        .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); gap: 4px; min-height: 20px; }
+        .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 1.5px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); gap: 4px; min-height: 14px; }
         .metric-row:last-child { border-bottom: none; }
-        .metric-label { color: var(--text-muted); font-weight: 600; font-size: 0.61rem; line-height: 1.15; }
-        .metric-values { text-align: right; line-height: 1.2; display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 3px; font-size: 0.63rem; }
+        .metric-label { color: var(--text-muted); font-weight: 600; font-size: 0.61rem; line-height: 1.05; }
+        .metric-values { text-align: right; line-height: 1.05; display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 2px; font-size: 0.63rem; }
         .stat-pill {
             display: inline-block;
-            padding: 0.5px 4px;
+            padding: 0 4px;
             border-radius: 5px;
             font-weight: 700;
             font-size: 0.59rem;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            line-height: 1.2;
+            line-height: 1.1;
         }
         .stat-pill-pos {
             color: #34d399;
@@ -212,13 +212,20 @@
 
         .metric-row-stacked {
             flex-direction: column;
-            align-items: flex-start;
-            padding: 3px 2px;
+            align-items: stretch;
+            padding: 1.5px 2px;
         }
         .metric-row-stacked .metric-values {
             width: 100%;
-            justify-content: flex-end;
-            margin-top: 1px;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            margin-top: 0;
+        }
+        .metric-sublabel {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: left;
+            white-space: nowrap;
         }
 
 
@@ -230,7 +237,7 @@
 .player-card:hover{transform:translateY(-3px);background-color:#103b53;color:white}
 .player-card:before{content:"";position:absolute;z-index:-1;left:0;right:0;top:0;height:45%;background:linear-gradient(0deg,#061d32 1%,transparent 55%),linear-gradient(160deg,transparent 0 38%,#ffe600 38.4% 39%,transparent 39.5%),linear-gradient(115deg,#0c5550 0 48%,#bb1719 48% 65%,#151f28 65% 100%);opacity:.92}
 .player-card:after{content:"";position:absolute;z-index:-1;top:21%;right:8%;width:35%;height:18%;border-top:3px solid #ffe100;border-right:3px solid #ffe100;transform:skewY(-10deg);opacity:.9}
-.player-card-header{height:clamp(155px,26vw,270px);position:relative;display:block;margin-bottom:5px;overflow:hidden}
+.player-card-header{height:clamp(155px,26vw,270px);position:relative;display:block;margin-bottom:3px;overflow:hidden}
 .player-card-header:before{content:'';position:absolute;top:2px;left:4px;width:clamp(42px,7vw,74px);height:clamp(25px,4vw,45px);background:url('logoce.png') left center / contain no-repeat;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55));pointer-events:none}
 .player-info-left{display:block;position:static;overflow:visible}
 .player-photo{position:absolute;left:0;bottom:24px;width:65%;height:83%;border:0;border-radius:0;background:transparent;object-fit:contain;object-position:bottom left;filter:drop-shadow(2px 2px 3px #001b2c);font-size:20px}
@@ -243,18 +250,20 @@
 .player-poste{position:absolute;bottom:0;left:45%;z-index:4;color:#fff;background:#13a85a;border:1px solid #baffd6;border-radius:5px;padding:2px 9px;font-size:clamp(8px,1vw,12px);transform:skew(-9deg)}
 .note-badge{position:absolute;right:2px;bottom:34px;z-index:5;color:#fff;background:linear-gradient(125deg,#12253c,#071423);border:2px solid var(--collector);border-radius:9px;transform:skew(-10deg);padding:4px 9px;font-size:clamp(20px,4vw,36px);font-weight:900;text-shadow:0 2px 3px #000}
 .note-badge span{color:#fff;font-size:clamp(9px,1.3vw,13px)}
-.stats-grid-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:0 0 5px;padding:5px 2px;background:#072b47;border:1px solid #8fdfff;border-radius:7px}
+.stats-grid-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:0 0 3px;padding:3px 2px;background:#072b47;border:1px solid #8fdfff;border-radius:7px}
 .stats-label{color:#d1e9f9;font-size:clamp(7px,1.05vw,11px);font-weight:700}
 .stats-grid-mini .font-bold{font-size:clamp(13px,2.4vw,22px)!important}
-.metrics-details{background:linear-gradient(120deg,#dceef7,#f0f7fa 60%,#c9e4ee);color:#09273b;border-radius:8px;padding:4px 5px 8px;box-shadow:inset 0 0 0 1px #91cde0}
-.metric-row,.metric-row-stacked{flex-direction:row;align-items:center;gap:3px;min-height:22px;padding:3px 2px;border-bottom:1px solid #bed6e2}
-.metric-row-stacked .metric-values{width:auto;margin:0;justify-content:flex-end}
-.metric-label{font-size:clamp(8px,1.1vw,12px);color:#153c51;font-weight:750;flex:1;min-width:0}
-.metric-values{font-size:clamp(8px,1.1vw,12px);color:#092c43;gap:2px;flex-shrink:1}
-.stat-pill{font-size:clamp(7px,1vw,11px);padding:1px 3px;color:#16435b;background:#d9e7ed;border-color:#b4cbd6}
+.metrics-details{background:linear-gradient(120deg,#dceef7,#f0f7fa 60%,#c9e4ee);color:#09273b;border-radius:8px;padding:2px 4px 4px;box-shadow:inset 0 0 0 1px #91cde0}
+.metric-row,.metric-row-stacked{flex-direction:row;align-items:center;gap:2px;min-height:15px;padding:1.5px 2px;border-bottom:1px solid #bed6e2}
+.metric-row-stacked{flex-direction:column;align-items:stretch}
+.metric-row-stacked .metric-values{width:100%;margin:0;justify-content:space-between;flex-wrap:nowrap}
+.metric-label{font-size:clamp(8px,1.1vw,12px);color:#153c51;font-weight:750;flex:1;min-width:0;line-height:1.05}
+.metric-values{font-size:clamp(8px,1.1vw,12px);color:#092c43;gap:2px;flex-shrink:1;line-height:1.05}
+.metric-sublabel{color:#153c51;font-weight:750;text-align:left;white-space:nowrap}
+.stat-pill{font-size:clamp(7px,1vw,11px);padding:0 3px;color:#16435b;background:#d9e7ed;border-color:#b4cbd6;line-height:1.1}
 .stat-pill-pos{background:#079e5a;color:white;border-color:#0b9e59}.stat-pill-neg{background:#d64b59;color:white;border-color:#d64b59}
 .stat-sep{color:#537182;font-size:10px}
-@media(max-width:600px){.mobile-container{padding:7px}.players-list{gap:9px}.player-card{padding:5px 4px 9px;border-width:2px;border-radius:14px}.player-card-header{height:clamp(130px,33vw,210px)}.player-name-row{padding:4px 5px}.note-badge{padding:3px 5px;bottom:30px}.metric-row,.metric-row-stacked{min-height:18px;padding:3px 1px}.metrics-details{padding:3px 2px 6px}.metric-label{font-size:7.5px}.metric-values{font-size:7.5px}.stat-pill{font-size:7px}.player-club{left:4px}.player-poste{padding:1px 4px}}
+@media(max-width:600px){.mobile-container{padding:7px}.players-list{gap:9px}.player-card{padding:5px 4px 9px;border-width:2px;border-radius:14px}.player-card-header{height:clamp(130px,33vw,210px)}.player-name-row{padding:4px 5px}.note-badge{padding:3px 5px;bottom:30px}.metric-row,.metric-row-stacked{min-height:13px;padding:1px 1px}.metrics-details{padding:2px 2px 3px}.metric-label{font-size:7.5px}.metric-values{font-size:7.5px}.stat-pill{font-size:7px}.player-club{left:4px}.player-poste{padding:1px 4px}}
 
 
 /* Ajustements : cartes moins larges, club sous le trait vert, chiffres noirs */
@@ -313,13 +322,13 @@
 .player-club{bottom:0!important;left:12px!important;right:auto!important;text-align:left!important;max-width:42%!important;font-size:clamp(8px,1.2vw,15px)!important}
 .player-poste{bottom:0!important;left:46%!important;font-size:clamp(9px,1.2vw,15px)!important;padding:3px 12px!important;background:linear-gradient(120deg,#51d800,#008e48)!important;border:2px solid #a7ff56!important}
 .note-badge{bottom:42px!important;right:3px!important;font-size:clamp(26px,4vw,48px)!important;padding:5px 11px!important;border:3px solid #91ee16!important;box-shadow:0 4px 8px #0018!important}.player-card:nth-child(even) .note-badge{border-color:#00caff!important}
-.stats-grid-mini{background:#062440!important;border:2px solid #e3f6ff!important;border-radius:14px!important;padding:10px 5px!important;margin:6px 3px 8px!important;gap:0!important}.stats-grid-mini>div{border-right:1px solid #4b9cc7}.stats-grid-mini>div:last-child{border:0}
+.stats-grid-mini{background:#062440!important;border:2px solid #e3f6ff!important;border-radius:14px!important;padding:4px 5px!important;margin:3px 3px 4px!important;gap:0!important}.stats-grid-mini>div{border-right:1px solid #4b9cc7}.stats-grid-mini>div:last-child{border:0}
 .stats-label{font-size:clamp(8px,1.05vw,13px)!important;color:#f6fbff!important;font-style:italic}.stats-grid-mini .font-bold{font-size:clamp(17px,2.4vw,28px)!important}
-.metrics-details{background:linear-gradient(120deg,#c2e3ec,#f0f8fc 52%,#b9dfed)!important;border-radius:17px!important;padding:8px 9px 12px!important;box-shadow:inset 0 0 0 1px #f5ffff!important}
-.metric-row,.metric-row-stacked{min-height:31px!important;border-bottom:1px solid #9cc4d4!important;padding:5px 4px!important}.metric-label{font-size:clamp(9px,1.08vw,14px)!important;color:#071c35!important;font-weight:800!important}.metric-values{font-size:clamp(9px,1.08vw,14px)!important;color:#071c35!important}
-.stat-pill{border-radius:20px!important;padding:2px 7px!important;font-size:clamp(8px,1vw,13px)!important;font-weight:800!important}.stat-pill-pos{background:linear-gradient(#09b657,#00833d)!important;color:#fff!important}.stat-pill-neg{background:linear-gradient(#f56b65,#d3333d)!important;color:#fff!important}
+.metrics-details{background:linear-gradient(120deg,#c2e3ec,#f0f8fc 52%,#b9dfed)!important;border-radius:17px!important;padding:3px 7px 5px!important;box-shadow:inset 0 0 0 1px #f5ffff!important}
+.metric-row,.metric-row-stacked{min-height:18px!important;border-bottom:1px solid #9cc4d4!important;padding:2px 4px!important}.metric-row-stacked{flex-direction:column!important;align-items:stretch!important}.metric-row-stacked .metric-values{width:100%!important;justify-content:space-between!important;flex-wrap:nowrap!important}.metric-label{font-size:clamp(9px,1.08vw,14px)!important;color:#071c35!important;font-weight:800!important;line-height:1.05!important}.metric-values{font-size:clamp(9px,1.08vw,14px)!important;color:#071c35!important;line-height:1.05!important}.metric-sublabel{color:#071c35!important;font-weight:800!important;text-align:left!important;white-space:nowrap!important}
+.stat-pill{border-radius:20px!important;padding:0.5px 6px!important;font-size:clamp(8px,1vw,13px)!important;font-weight:800!important;line-height:1.1!important}.stat-pill-pos{background:linear-gradient(#09b657,#00833d)!important;color:#fff!important}.stat-pill-neg{background:linear-gradient(#f56b65,#d3333d)!important;color:#fff!important}
 .metrics-details .pelotes-moy,.metrics-details .gagnes-moy,.metrics-details .perdus-moy,.metrics-details .buts-moy,.metrics-details .frappes-moy,.metrics-details .rec-moy,.metrics-details .cla-moy,.metrics-details .att-moy,.metrics-details .pts-amenes-rec-adv-neg-moy{color:#071c35!important;font-weight:900!important}
-@media(max-width:650px){.players-list{gap:8px!important}.player-card{border-width:3px!important;border-radius:19px!important;padding:5px 4px 10px!important}.player-card-header{height:clamp(155px,35vw,225px)!important;border-radius:12px 12px 0 0!important}.player-card-header::after{font-size:10px!important;left:37%!important}.player-name-row{padding:5px!important;bottom:17px!important}.player-name{font-size:clamp(10px,2.5vw,15px)!important}.note-badge{font-size:clamp(18px,4vw,25px)!important;bottom:35px!important;padding:3px 5px!important}.player-poste{left:43%!important;padding:1px 4px!important;font-size:8px!important}.player-club{left:4px!important;font-size:8px!important}.stats-grid-mini{padding:5px 2px!important}.metrics-details{padding:4px 3px 7px!important}.metric-row,.metric-row-stacked{min-height:22px!important;padding:3px 1px!important}.metric-label,.metric-values{font-size:7.5px!important}.stat-pill{font-size:7px!important;padding:1px 3px!important}}
+@media(max-width:650px){.players-list{gap:8px!important}.player-card{border-width:3px!important;border-radius:19px!important;padding:5px 4px 10px!important}.player-card-header{height:clamp(155px,35vw,225px)!important;border-radius:12px 12px 0 0!important}.player-card-header::after{font-size:10px!important;left:37%!important}.player-name-row{padding:5px!important;bottom:17px!important}.player-name{font-size:clamp(10px,2.5vw,15px)!important}.note-badge{font-size:clamp(18px,4vw,25px)!important;bottom:35px!important;padding:3px 5px!important}.player-poste{left:43%!important;padding:1px 4px!important;font-size:8px!important}.player-club{left:4px!important;font-size:8px!important}.stats-grid-mini{padding:3px 2px!important}.metrics-details{padding:2px 3px 4px!important}.metric-row,.metric-row-stacked{min-height:14px!important;padding:1px 1px!important}.metric-label,.metric-values{font-size:7.5px!important}.stat-pill{font-size:7px!important;padding:0 3px!important}}
 
 
 /* Ajustements demandés : en-tête collector épuré */
@@ -370,13 +379,13 @@
 .player-poste { left: 5px !important; right: auto !important; bottom: 5px !important; padding: 2px 7px !important; font-size: clamp(8px, .9vw, 11px) !important; }
 .player-club { left: 50% !important; right: auto !important; bottom: 8px !important; transform: translateX(-50%) !important; transform-origin: center !important; max-width: 48% !important; width: max-content !important; text-align: center !important; font-size: clamp(8px, .9vw, 11px) !important; white-space: nowrap !important; }
 .note-badge { font-size: clamp(20px, 2.8vw, 32px) !important; bottom: 37px !important; padding: 4px 7px !important; }
-.stats-grid-mini { padding: 6px 3px !important; margin: 4px 2px 6px !important; border-radius: 10px !important; }
+.stats-grid-mini { padding: 3px 3px !important; margin: 2px 2px 3px !important; border-radius: 10px !important; }
 .stats-label { font-size: clamp(7px, .8vw, 10px) !important; }
 .stats-grid-mini .font-bold { font-size: clamp(13px, 1.7vw, 20px) !important; }
-.metrics-details { padding: 5px 6px 8px !important; border-radius: 11px !important; }
-.metric-row, .metric-row-stacked { min-height: 24px !important; padding: 3px 2px !important; }
-.metric-label, .metric-values { font-size: clamp(8px, .85vw, 10.5px) !important; }
-.stat-pill { font-size: clamp(7px, .8vw, 10px) !important; padding: 1px 4px !important; }
+.metrics-details { padding: 2px 5px 4px !important; border-radius: 11px !important; }
+.metric-row, .metric-row-stacked { min-height: 15px !important; padding: 1.5px 2px !important; }
+.metric-label, .metric-values { font-size: clamp(8px, .85vw, 10.5px) !important; line-height: 1.05 !important; }
+.stat-pill { font-size: clamp(7px, .8vw, 10px) !important; padding: 0 4px !important; line-height: 1.1 !important; }
 @media(max-width:650px) {
  .mobile-container { padding: 5px !important; }
  .players-list { gap: 7px !important; }
@@ -388,13 +397,13 @@
  .player-poste { left: 2px !important; bottom: 3px !important; font-size: 7px !important; padding: 1px 3px !important; }
  .player-club { bottom: 5px !important; font-size: 7px !important; max-width: 49% !important; }
  .note-badge { bottom: 31px !important; font-size: clamp(16px, 3.6vw, 23px) !important; padding: 2px 4px !important; }
- .stats-grid-mini { padding: 4px 1px !important; }
+ .stats-grid-mini { padding: 2px 1px !important; }
  .stats-grid-mini .font-bold { font-size: 12px !important; }
  .stats-label { font-size: 7px !important; }
- .metrics-details { padding: 3px 2px 5px !important; }
- .metric-row, .metric-row-stacked { min-height: 19px !important; padding: 2px 1px !important; }
+ .metrics-details { padding: 2px 2px 3px !important; }
+ .metric-row, .metric-row-stacked { min-height: 13px !important; padding: 1px 1px !important; }
  .metric-label, .metric-values { font-size: 7px !important; }
- .stat-pill { font-size: 6.5px !important; padding: 1px 2px !important; }
+ .stat-pill { font-size: 6.5px !important; padding: 0 2px !important; }
 }
 
     
@@ -437,17 +446,17 @@
 .player-poste { font-size: clamp(7px, .8vw, 9px) !important; }
 .note-badge { font-size: clamp(17px, 2.4vw, 26px) !important; padding: 3px 6px !important; }
 .note-badge span { font-size: 9px !important; }
-.stats-grid-mini { padding: 4px 2px !important; }
+.stats-grid-mini { padding: 2px 2px !important; margin: 2px 2px 3px !important; }
 .stats-label { font-size: clamp(6.5px, .7vw, 8px) !important; }
 .stats-grid-mini .font-bold { font-size: clamp(12px, 1.4vw, 16px) !important; }
-.metrics-details { padding: 4px 4px 7px !important; }
-.metric-row, .metric-row-stacked { min-height: 20px !important; padding: 3px 1px !important; gap: 2px !important; }
-.metric-label, .metric-values { font-size: clamp(7px, .77vw, 9px) !important; }
-.stat-pill { font-size: clamp(6.5px, .7vw, 8px) !important; padding: 1px 3px !important; }
+.metrics-details { padding: 2px 4px 4px !important; }
+.metric-row, .metric-row-stacked { min-height: 14px !important; padding: 1px 1px !important; gap: 2px !important; }
+.metric-label, .metric-values { font-size: clamp(7px, .77vw, 9px) !important; line-height: 1.05 !important; }
+.stat-pill { font-size: clamp(6.5px, .7vw, 8px) !important; padding: 0 3px !important; line-height: 1.1 !important; }
 /* Étiquette en première ligne, valeurs alignées à droite en seconde ligne */
 .metric-row-two-lines { flex-direction: column !important; align-items: stretch !important; }
 .metric-row-two-lines .metric-label { width: 100% !important; flex: none !important; }
-.metric-row-two-lines .metric-values { width: 100% !important; justify-content: flex-end !important; margin-top: 2px !important; }
+.metric-row-two-lines .metric-values { width: 100% !important; justify-content: flex-end !important; margin-top: 0 !important; }
 @media(max-width:650px) {
  .mobile-container { padding: 5px !important; }
  .players-list { gap: 6px !important; }
@@ -455,8 +464,8 @@
  .player-card-header { height: clamp(112px, 32vw, 175px) !important; }
  .player-card-header::before { width: 31px !important; height: 23px !important; top: 3px !important; left: 3px !important; }
  .player-name { font-size: clamp(8px, 2vw, 11px) !important; }
- .metric-label, .metric-values { font-size: 6.8px !important; }
- .stat-pill { font-size: 6.3px !important; padding: 1px 2px !important; }
+ .metric-label, .metric-values { font-size: 6.8px !important; line-height: 1.05 !important; }
+ .stat-pill { font-size: 6.3px !important; padding: 0 2px !important; line-height: 1.1 !important; }
 }
 
     
@@ -578,20 +587,23 @@
 }
 
 
-/* Version 16 : cartes plus étroites, deux colonnes conservées. */
+/* Version 16 : cartes plus étroites, deux colonnes conservées, hauteur compacte. */
 .mobile-container { max-width: 495px !important; }
 .players-list { max-width: 460px !important; gap: 8px !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-.player-card { min-width: 0 !important; padding: 4px 4px 8px !important; }
-.player-card-header { height: clamp(118px, 27vw, 155px) !important; }
+.player-card { min-width: 0 !important; padding: 4px 4px 5px !important; }
+.player-card-header { height: clamp(118px, 27vw, 155px) !important; margin-bottom: 2px !important; }
 .player-name { font-size: clamp(9px, 1.2vw, 12px) !important; }
 .note-badge { font-size: clamp(16px, 2.2vw, 22px) !important; padding: 2px 5px !important; }
-.metrics-details { padding: 3px 3px 6px !important; }
-.metric-label, .metric-values { font-size: clamp(6.5px, .72vw, 8px) !important; }
-.stat-pill { font-size: clamp(6px, .65vw, 7px) !important; padding: 1px 2px !important; }
+.stats-grid-mini { padding: 2px 2px !important; margin: 2px 2px 3px !important; }
+.metrics-details { padding: 2px 3px 3px !important; }
+.metric-row, .metric-row-stacked { min-height: 13px !important; padding: 1px 1px !important; gap: 1px !important; }
+.metric-label, .metric-values { font-size: clamp(6.5px, .72vw, 8px) !important; line-height: 1.02 !important; }
+.stat-pill { font-size: clamp(6px, .65vw, 7px) !important; padding: 0 2px !important; line-height: 1.05 !important; }
 @media (max-width: 500px) {
   .mobile-container { max-width: 100% !important; padding: 5px !important; }
   .players-list { max-width: 460px !important; gap: 6px !important; }
   .player-card-header { height: clamp(108px, 31vw, 145px) !important; }
+  .metric-row, .metric-row-stacked { min-height: 12px !important; padding: 0.5px 1px !important; }
 }
 
     
@@ -621,6 +633,28 @@
 /* Ajustement : remonter uniquement le titre Cesta Punta dans le bandeau marine. */
 .player-card-header::after {
   top: -4px !important;
+}
+
+/* Lignes Classique / Attaque : éviter tout retour à la ligne des chiffres et pastilles */
+.metric-row-stacked .metric-sublabel {
+  font-size: clamp(6px, .65vw, 7.2px) !important;
+  letter-spacing: -0.2px !important;
+}
+.metric-row-stacked .metric-values {
+  gap: 1px !important;
+}
+.metric-row-stacked .stat-pill {
+  font-size: clamp(5.6px, .6vw, 6.6px) !important;
+  padding: 0 1.5px !important;
+}
+@media (max-width: 500px) {
+  .metric-row-stacked .metric-sublabel {
+    font-size: 5.7px !important;
+  }
+  .metric-row-stacked .stat-pill {
+    font-size: 5.4px !important;
+    padding: 0 1px !important;
+  }
 }
 </style>
 </head>
@@ -830,7 +864,7 @@
                     </div>
                 </div>
 
-                <!-- Détails métriques avec pastilles de couleurs comme dans cartes_2.html et les 3 dernières lignes -->
+                <!-- Détails métriques -->
                 <div class="metrics-details">
                     <div class="metric-row">
                         <span class="metric-label">Pelotes (Moy/Tot/%):</span>
@@ -869,7 +903,7 @@
                         </span>
                     </div>
                     ` : ''}
-                    <div class="metric-row metric-row-stacked">
+                    <div class="metric-row">
                         <span class="metric-label">Frappes (Moy/Pos/Nég/%):</span>
                         <span class="metric-values">
                             <strong class="frappes-moy">0</strong>
@@ -881,8 +915,8 @@
                             <span class="stat-pill stat-pill-pos frappes-pct">0%</span>
                         </span>
                     </div>
-                    <div class="metric-row metric-row-stacked">
-                        <span class="metric-label">Réceptions (Moy/Pos/Nég/%):</span>
+                    <div class="metric-row">
+                        <span class="metric-label">Réceptions<br>(Moy/Pos/Nég/%):</span>
                         <span class="metric-values">
                             <strong class="rec-moy">0</strong>
                             <span class="stat-sep">(</span>
@@ -893,9 +927,10 @@
                             <span class="stat-pill stat-pill-pos rec-pct">0%</span>
                         </span>
                     </div>
-                    <div class="metric-row metric-row-stacked metric-row-two-lines">
-                        <span class="metric-label">Classique / match (Moy / Neutre / + / -):</span>
+                    <div class="metric-row metric-row-stacked">
+                        <span class="metric-label">Classique</span>
                         <span class="metric-values">
+                            <span class="metric-sublabel">/ match (Moy / Neutre / + / -) :</span>
                             <strong class="cla-moy" style="color: var(--accent-color);">0</strong>
                             <span class="stat-sep">(</span>
                             <span class="stat-pill"><span class="cla-neu-moy">0</span> neutre</span>
@@ -904,9 +939,10 @@
                             <span class="stat-sep">)</span>
                         </span>
                     </div>
-                    <div class="metric-row metric-row-stacked metric-row-two-lines">
-                        <span class="metric-label">Attaque / match (Moy / Neutre / + / -):</span>
+                    <div class="metric-row metric-row-stacked">
+                        <span class="metric-label">Attaque</span>
                         <span class="metric-values">
+                            <span class="metric-sublabel">/ match (Moy / Neutre / + / -) :</span>
                             <strong class="att-moy" style="color: var(--accent-color);">0</strong>
                             <span class="stat-sep">(</span>
                             <span class="stat-pill"><span class="att-neu-moy">0</span> neutre</span>
