@@ -68,6 +68,336 @@
             cursor: wait;
         }
 
+        /* --- CARTE COLLECTOR AJOUTÉE (STYLE COMPARAISON) --- */
+        .detail-collector-wrap {
+            max-width: 310px;
+            width: 100%;
+            margin: 0 auto 14px;
+        }
+
+        .collector-card {
+            --collector: #31c97c;
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
+            color: #fff;
+            border: 3px solid #f4fbff;
+            border-radius: 20px;
+            padding: 6px 6px 10px;
+            box-shadow: 0 0 0 3px #10334c, 0 10px 22px rgba(0, 0, 0, 0.48);
+            background: linear-gradient(165deg, #082c43, #0a7c57 72%, #09522c);
+        }
+
+        .collector-card.is-arriere {
+            --collector: #1da8f5;
+            background: linear-gradient(165deg, #082c43, #087db9 72%, #06365d);
+        }
+
+        .collector-card-header {
+            height: 155px;
+            position: relative;
+            display: block;
+            margin-bottom: 3px;
+            overflow: hidden;
+            border-radius: 13px 13px 0 0;
+            background-color: #092e42;
+            background-image: linear-gradient(to bottom, rgba(2,25,42,0) 58%, rgba(3,34,54,.9) 92%, #062b45 100%), url('cancha_haut_sans_inscriptions.jpg');
+            background-size: 100% 100%, contain;
+            background-position: center center, center center;
+            background-repeat: no-repeat, no-repeat;
+        }
+
+        .collector-card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 5px;
+            width: 25px;
+            height: 16px;
+            background: url('logoce.png') center / contain no-repeat;
+            z-index: 3;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,.55));
+            pointer-events: none;
+        }
+
+        .collector-card-header::after {
+            content: "Cesta Punta";
+            position: absolute;
+            top: -3px;
+            left: 38px;
+            right: 38px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 0.2px;
+            text-shadow: 0 2px 5px #001b35;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .collector-logo-icp {
+            position: absolute;
+            z-index: 5;
+            right: 5px;
+            top: 0;
+            width: 25px;
+            height: 16px;
+            object-fit: contain;
+            border-radius: 3px;
+            filter: drop-shadow(0 2px 3px #0018);
+            pointer-events: none;
+        }
+
+        .collector-photo {
+            position: absolute;
+            left: 0;
+            bottom: 30px;
+            width: 55%;
+            height: 70%;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            object-fit: contain;
+            object-position: left bottom;
+            filter: drop-shadow(3px 3px 5px #001a2c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-weight: 800;
+            font-size: 1rem;
+            z-index: 2;
+        }
+
+        .collector-name-row {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            right: 0;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            transform: skewY(-6deg);
+            padding: 4px 9px;
+            background: linear-gradient(90deg, #082647, #0c5b7e 67%, #082747);
+            border-top: 2px solid #e1faff;
+            border-bottom: 2px solid var(--collector);
+            box-shadow: 0 2px 6px #0008;
+        }
+
+        .collector-name {
+            font-size: 0.9rem;
+            font-style: italic;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.08;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 1px 2px 2px #001a30;
+        }
+
+        .collector-club {
+            position: absolute;
+            bottom: 7px;
+            left: 45%;
+            transform: translateX(-50%);
+            max-width: 46%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px #001;
+            z-index: 8;
+        }
+
+        .collector-poste {
+            position: absolute;
+            bottom: 4px;
+            right: 5px;
+            max-width: 34%;
+            z-index: 8;
+            color: #fff;
+            background: linear-gradient(120deg, #51d800, #008e48);
+            border: 1.5px solid #a7ff56;
+            border-radius: 5px;
+            padding: 1.5px 7px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            transform: skew(-9deg);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .collector-note {
+            position: absolute;
+            right: 4px;
+            bottom: 34px;
+            z-index: 6;
+            color: #fff;
+            background: linear-gradient(125deg, #12253c, #071423);
+            border: 2px solid #91ee16;
+            border-radius: 9px;
+            transform: skew(-10deg);
+            padding: 3px 8px;
+            font-size: 1.45rem;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 2px 3px #000;
+            box-shadow: 0 4px 8px #0018;
+        }
+
+        .collector-card.is-arriere .collector-note {
+            border-color: #00caff;
+        }
+
+        .collector-note span {
+            color: #fff;
+            font-size: 0.58rem;
+            font-weight: 600;
+        }
+
+        .collector-bilan-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            text-align: center;
+            background: #062440;
+            border: 2px solid #e3f6ff;
+            border-radius: 11px;
+            padding: 3px 4px;
+            margin: 2px 2px 3px;
+        }
+
+        .collector-bilan-grid > div {
+            border-right: 1px solid #4b9cc7;
+        }
+
+        .collector-bilan-grid > div:last-child {
+            border-right: none;
+        }
+
+        .collector-bilan-label {
+            display: block;
+            color: #f6fbff;
+            font-size: 0.56rem;
+            font-weight: 700;
+            font-style: italic;
+            text-transform: uppercase;
+            line-height: 1.05;
+        }
+
+        .collector-bilan-val {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .collector-metrics {
+            font-size: 0.62rem;
+            background: linear-gradient(120deg, #c2e3ec, #f0f8fc 52%, #b9dfed);
+            color: #071c35;
+            border-radius: 13px;
+            padding: 3px 6px 4px;
+            box-shadow: inset 0 0 0 1px #f5ffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .collector-metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 15px;
+            padding: 1.5px 2px;
+            border-bottom: 1px solid #9cc4d4;
+            gap: 3px;
+        }
+
+        .collector-metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .collector-metric-stacked {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .collector-metric-stacked .collector-metric-vals {
+            width: 100%;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+        }
+
+        .collector-metric-lbl {
+            font-size: 0.6rem;
+            color: #071c35;
+            font-weight: 800;
+            line-height: 1.05;
+        }
+
+        .collector-metric-vals {
+            font-size: 0.6rem;
+            color: #071c35;
+            font-weight: 800;
+            line-height: 1.05;
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .collector-pill {
+            display: inline-block;
+            padding: 0.5px 4px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.55rem;
+            background: #d9e7ed;
+            color: #16435b;
+            border: 1px solid #b4cbd6;
+            line-height: 1.05;
+        }
+
+        .collector-pill-pos {
+            background: linear-gradient(#09b657, #00833d);
+            color: #fff;
+            border-color: #0b9e59;
+        }
+
+        .collector-pill-neg {
+            background: linear-gradient(#f56b65, #d3333d);
+            color: #fff;
+            border-color: #d64b59;
+        }
+
+        .collector-sep {
+            color: #537182;
+            font-weight: 600;
+            font-size: 0.55rem;
+        }
+
         /* --- AJUSTEMENTS SPÉCIAUX EXPORT PDF (MODE CLAIR / FOND BLANC) --- */
         body.pdf-exporting,
         .pdf-exporting .mobile-container {
@@ -241,6 +571,7 @@
         .pdf-exporting .pn-card,
         .pdf-exporting .single-stat-banner,
         .pdf-exporting .player-profile-card,
+        .pdf-exporting .detail-collector-wrap,
         .pdf-exporting .partie-detail-card,
         .pdf-exporting .ia-analyse-card,
         .pdf-exporting .coach-analyse-card,
@@ -1043,7 +1374,7 @@
 
     <hr class="separator">
 
-    <a href="cartes.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour aux cartes</a>
+    <a href="comparaison.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour comparaison</a>
 
     <div class="section-header-row">
         <div class="section-title">Profil et Analyses</div>
@@ -1063,6 +1394,128 @@
             <div class="player-bottom-row">
                 <div id="player-poste" class="player-poste">...</div>
                 <span class="note-badge note-100">0<span>/100</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Collector (même design que comparaison) -->
+    <div class="detail-collector-wrap">
+        <div id="collector-card" class="collector-card">
+            <div class="collector-card-header">
+                <img src="ICP.png" alt="Logo ICP" class="collector-logo-icp">
+                <div id="collector-photo-container"></div>
+                <div class="collector-name-row">
+                    <div id="collector-name" class="collector-name">Chargement...</div>
+                </div>
+                <div id="collector-club" class="collector-club">...</div>
+                <div id="collector-poste" class="collector-poste">...</div>
+                <span id="collector-note" class="collector-note">0<span>/100</span></span>
+            </div>
+
+            <div class="collector-bilan-grid">
+                <div>
+                    <span class="collector-bilan-label">Parties</span>
+                    <span id="collector-nb-matchs" class="collector-bilan-val" style="color: #fff;">0</span>
+                </div>
+                <div>
+                    <span class="collector-bilan-label">Victoires</span>
+                    <span id="collector-nb-victoires" class="collector-bilan-val" style="color: #34d399;">0</span>
+                </div>
+                <div>
+                    <span class="collector-bilan-label">Défaites</span>
+                    <span id="collector-nb-defaites" class="collector-bilan-val" style="color: #f87171;">0</span>
+                </div>
+            </div>
+
+            <div class="collector-metrics">
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Pelotes (Moy/Tot/%):</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-pelotes-moy">0</strong>
+                        <span class="collector-sep">(</span><span id="collector-pelotes-tot" class="collector-pill">0</span><span class="collector-sep">)</span>
+                        <span id="collector-pelotes-pct" class="collector-pill collector-pill-pos">0%</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Pts gagnés (Moy/Tot/%):</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-gagnes-moy">0</strong>
+                        <span class="collector-sep">(</span><span id="collector-gagnes-tot" class="collector-pill collector-pill-pos">0</span><span class="collector-sep">)</span>
+                        <span id="collector-gagnes-pct" class="collector-pill collector-pill-pos">0%</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Pts perdus (Moy/Tot/%):</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-perdus-moy">0</strong>
+                        <span class="collector-sep">(</span><span id="collector-perdus-tot" class="collector-pill collector-pill-neg">0</span><span class="collector-sep">)</span>
+                        <span id="collector-perdus-pct" class="collector-pill collector-pill-neg">0%</span>
+                    </span>
+                </div>
+                <div id="collector-buts-row" class="collector-metric-row">
+                    <span class="collector-metric-lbl">Buts (Moy / Arr / Av):</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-buts-moy">0</strong>
+                        <span class="collector-sep">(</span>
+                        <span id="collector-buts-arr-pct" class="collector-pill collector-pill-pos">0%</span>
+                        <span class="collector-sep">/</span>
+                        <span id="collector-buts-av-pct" class="collector-pill collector-pill-pos">0%</span>
+                        <span class="collector-sep">)</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Frappes (Moy/Pos/Nég/%):</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-frappes-moy">0</strong>
+                        <span class="collector-sep">(</span>
+                        <span id="collector-frappes-pos" class="collector-pill collector-pill-pos">0</span>
+                        <span class="collector-sep">/</span>
+                        <span id="collector-frappes-neg" class="collector-pill collector-pill-neg">0</span>
+                        <span class="collector-sep">)</span>
+                        <span id="collector-frappes-pct" class="collector-pill collector-pill-pos">0%</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Réceptions (Moy/Pos/Nég/%):</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-rec-moy">0</strong>
+                        <span class="collector-sep">(</span>
+                        <span id="collector-rec-pos" class="collector-pill collector-pill-pos">0</span>
+                        <span class="collector-sep">/</span>
+                        <span id="collector-rec-neg" class="collector-pill collector-pill-neg">0</span>
+                        <span class="collector-sep">)</span>
+                        <span id="collector-rec-pct" class="collector-pill collector-pill-pos">0%</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row collector-metric-stacked">
+                    <span class="collector-metric-lbl">Classique / match (Moy / Neutre / + / -) :</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-cla-moy">0</strong>
+                        <span class="collector-sep">(</span>
+                        <span class="collector-pill"><span id="collector-cla-neu">0</span> neutre</span>
+                        <span class="collector-pill collector-pill-pos"><span id="collector-cla-pos">0</span>+</span>
+                        <span class="collector-pill collector-pill-neg"><span id="collector-cla-neg">0</span>-</span>
+                        <span class="collector-sep">)</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row collector-metric-stacked">
+                    <span class="collector-metric-lbl">Attaque / match (Moy / Neutre / + / -) :</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-att-moy">0</strong>
+                        <span class="collector-sep">(</span>
+                        <span class="collector-pill"><span id="collector-att-neu">0</span> neutre</span>
+                        <span class="collector-pill collector-pill-pos"><span id="collector-att-pos">0</span>+</span>
+                        <span class="collector-pill collector-pill-neg"><span id="collector-att-neg">0</span>-</span>
+                        <span class="collector-sep">)</span>
+                    </span>
+                </div>
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Pts amenés, réc. adv. nég. / match:</span>
+                    <span class="collector-metric-vals">
+                        <strong id="collector-amenes-moy">0</strong>
+                        <span id="collector-amenes-pct" class="collector-pill collector-pill-pos">0%</span>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -2517,6 +2970,90 @@
 
     initialiserEvenementsOnglets();
 
+    function mettreAJourCarteCollector(donnees) {
+        const cardEl = document.getElementById('collector-card');
+        if (!cardEl || !joueurActif) return;
+
+        const posteTexte = joueurActif.poste || joueurActif.specialite || 'Joueur';
+        const posteLower = posteTexte.trim().toLowerCase();
+        const estAvant = posteLower.includes('avant');
+        const estArriere = posteLower.includes('arrière') || posteLower.includes('arriere') || !estAvant;
+
+        cardEl.classList.toggle('is-arriere', estArriere);
+
+        document.getElementById('collector-name').textContent = `${joueurActif.prenom || ''} ${joueurActif.nom || ''}`.trim();
+        document.getElementById('collector-club').textContent = joueurActif.club || (joueurActif.estDuPole ? 'Pôle Performance' : 'Autre Club');
+        document.getElementById('collector-poste').textContent = posteTexte;
+
+        const initiales = `${joueurActif.prenom ? joueurActif.prenom.charAt(0) : ''}${joueurActif.nom ? joueurActif.nom.charAt(0) : ''}`;
+        const photoWrap = document.getElementById('collector-photo-container');
+        if (photoWrap) {
+            if (joueurActif.photo) {
+                photoWrap.innerHTML = `<img src="${joueurActif.photo}" alt="${joueurActif.nom || ''}" class="collector-photo" onerror="this.onerror=null; this.src='logoce.png';">`;
+            } else {
+                photoWrap.innerHTML = `<div class="collector-photo">${initiales}</div>`;
+            }
+        }
+
+        document.getElementById('collector-note').innerHTML = `${donnees.note100}<span>/100</span>`;
+        document.getElementById('collector-nb-matchs').textContent = donnees.nbParties;
+        document.getElementById('collector-nb-victoires').textContent = donnees.nbVictoires;
+        document.getElementById('collector-nb-defaites').textContent = donnees.nbDefaites;
+
+        const divOuZero = (val, nb) => nb > 0 ? String(Math.round(val / nb)) : '0';
+
+        document.getElementById('collector-pelotes-moy').textContent = divOuZero(donnees.valPelotes, donnees.nbParties);
+        document.getElementById('collector-pelotes-tot').textContent = donnees.valPelotes;
+        document.getElementById('collector-pelotes-pct').textContent = `${donnees.pctPelotes}%`;
+
+        document.getElementById('collector-gagnes-moy').textContent = divOuZero(donnees.valPtsGagnes, donnees.nbParties);
+        document.getElementById('collector-gagnes-tot').textContent = donnees.valPtsGagnes;
+        document.getElementById('collector-gagnes-pct').textContent = `${donnees.pctGagnes}%`;
+
+        document.getElementById('collector-perdus-moy').textContent = divOuZero(donnees.valPtsPerdus, donnees.nbParties);
+        document.getElementById('collector-perdus-tot').textContent = donnees.valPtsPerdus;
+        document.getElementById('collector-perdus-pct').textContent = `${donnees.pctPerdus}%`;
+
+        const butsRow = document.getElementById('collector-buts-row');
+        if (butsRow) {
+            butsRow.style.display = estArriere ? 'none' : 'flex';
+        }
+        if (!estArriere) {
+            document.getElementById('collector-buts-moy').textContent = divOuZero(donnees.valButs, donnees.nbParties);
+            document.getElementById('collector-buts-arr-pct').textContent = `${donnees.pctArriere}%`;
+            document.getElementById('collector-buts-av-pct').textContent = `${donnees.pctAvant}%`;
+        }
+
+        const fTot = donnees.valFrappesTotal;
+        document.getElementById('collector-frappes-moy').textContent = divOuZero(fTot, donnees.nbParties);
+        document.getElementById('collector-frappes-pos').textContent = donnees.valFrappesPos;
+        document.getElementById('collector-frappes-neg').textContent = donnees.valFrappesNeg;
+        document.getElementById('collector-frappes-pct').textContent = `${donnees.pctFrappesPos}%`;
+
+        const rTot = donnees.valRecTotal;
+        document.getElementById('collector-rec-moy').textContent = divOuZero(rTot, donnees.nbParties);
+        document.getElementById('collector-rec-pos').textContent = donnees.valRecPos;
+        document.getElementById('collector-rec-neg').textContent = donnees.valRecNeg;
+        document.getElementById('collector-rec-pct').textContent = `${donnees.pctRecPos}%`;
+
+        const cTot = donnees.totalFrappesClassiques;
+        const cNeu = Math.max(0, cTot - donnees.valFrappesPos - donnees.valFrappesNeg);
+        document.getElementById('collector-cla-moy').textContent = divOuZero(cTot, donnees.nbParties);
+        document.getElementById('collector-cla-neu').textContent = divOuZero(cNeu, donnees.nbParties);
+        document.getElementById('collector-cla-pos').textContent = divOuZero(donnees.valFrappesPos, donnees.nbParties);
+        document.getElementById('collector-cla-neg').textContent = divOuZero(donnees.valFrappesNeg, donnees.nbParties);
+
+        const aTot = donnees.valAttaques;
+        const aNeu = Math.max(0, aTot);
+        document.getElementById('collector-att-moy').textContent = divOuZero(aTot, donnees.nbParties);
+        document.getElementById('collector-att-neu').textContent = divOuZero(aNeu, donnees.nbParties);
+        document.getElementById('collector-att-pos').textContent = '0';
+        document.getElementById('collector-att-neg').textContent = '0';
+
+        document.getElementById('collector-amenes-moy').textContent = divOuZero(donnees.valPtsAmenesRecAdvNeg, donnees.nbParties);
+        document.getElementById('collector-amenes-pct').textContent = `${donnees.pctPtsAmenesRecAdvNeg}%`;
+    }
+
     function rendreVueStats() {
         if (!joueurActif) return;
 
@@ -2734,6 +3271,8 @@
             nbParties,
             nbVictoires,
             nbDefaites,
+            note100,
+            totalFrappesClassiques: Math.round(totalFrappesClassiques),
             valRecTotal,
             valRecPos,
             valRecNeg,
@@ -2762,6 +3301,8 @@
             valAttaques,
             pctAttaques
         };
+
+        mettreAJourCarteCollector(resumeStats);
 
         if (iaCardEl && iaTitreEl && iaTexteEl) {
             if (afficherCartePartieUnique && partieChoisie) {
