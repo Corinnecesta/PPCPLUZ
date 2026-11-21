@@ -81,6 +81,32 @@
         .filter-btn { flex: 1; padding: 5px 4px; text-align: center; font-size: 0.7rem; font-weight: 600; border-radius: 8px; border: none; background: transparent; color: var(--container-text); cursor: pointer; transition: all 0.25s; }
         .filter-btn.active { background: var(--accent-color); color: #000; box-shadow: 0 2px 8px rgba(23, 184, 144, 0.4); }
 
+        /* Bouton export PDF */
+        .pdf-export-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .pdf-export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--accent-color);
+            background: var(--accent-color);
+            color: #000;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(23, 184, 144, 0.3);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .pdf-export-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.92;
+        }
+
         /* Grille en 2 colonnes conservée, avec espacements resserrés */
         .players-list { 
             display: grid; 
@@ -656,13 +682,195 @@
     padding: 0 1px !important;
   }
 }
-</style>
+
+        /* Styles dédiés à l'export / impression PDF : format carte bleue PORTRAIT (54mm x 85.6mm) */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .top-header,
+            .separator,
+            .filters-wrapper,
+            .pdf-export-bar,
+            .no-print,
+            .access-guard-card {
+                display: none !important;
+            }
+            .mobile-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            section[style*="display: none"] {
+                display: none !important;
+            }
+            section {
+                break-inside: auto;
+                page-break-inside: auto;
+            }
+            .section-title {
+                font-size: 9pt !important;
+                margin: 4px 0 !important;
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+            .players-list {
+                max-width: 100% !important;
+                display: grid !important;
+                grid-template-columns: repeat(3, 54mm) !important;
+                justify-content: center !important;
+                gap: 4mm !important;
+                align-items: start !important;
+            }
+            .player-card[style*="display: none"] {
+                display: none !important;
+            }
+            .player-card:not([style*="display: none"]) {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                width: 54mm !important;
+                height: 85.6mm !important;
+                min-width: 54mm !important;
+                max-width: 54mm !important;
+                min-height: 85.6mm !important;
+                max-height: 85.6mm !important;
+                padding: 1.5mm !important;
+                border-width: 1.5px !important;
+                border-radius: 3.5mm !important;
+                box-shadow: none !important;
+                transform: none !important;
+                overflow: hidden !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+            .player-card:hover {
+                transform: none !important;
+            }
+            /* En-tête adapté au format vertical étroit (54mm de large) */
+            .player-card .player-card-header {
+                height: 27mm !important;
+                min-height: 27mm !important;
+                margin-bottom: 1mm !important;
+                border-radius: 2mm 2mm 0 0 !important;
+                background-size: 100% 100%, contain !important;
+                background-position: center center, center center !important;
+            }
+            .player-card .player-card-header::before {
+                width: 4.5mm !important;
+                height: 3mm !important;
+                top: 0.5mm !important;
+                left: 0.5mm !important;
+            }
+            .player-card .player-card-header::after {
+                top: 0.2mm !important;
+                left: 6mm !important;
+                right: 6mm !important;
+                font-size: 4.6pt !important;
+            }
+            .player-card .logo-icp {
+                width: 4.5mm !important;
+                height: 3mm !important;
+                top: 0.5mm !important;
+                right: 0.5mm !important;
+            }
+            .player-card .player-photo {
+                width: 21mm !important;
+                height: 19mm !important;
+                bottom: 6.5mm !important;
+                left: 0.5mm !important;
+            }
+            .player-card .player-name-row {
+                bottom: 5.5mm !important;
+                padding: 0.6mm 1.5mm !important;
+            }
+            .player-card .player-name {
+                font-size: 5.6pt !important;
+                line-height: 1.05 !important;
+            }
+            .player-card .player-club {
+                bottom: 0.8mm !important;
+                left: 1.5mm !important;
+                right: auto !important;
+                transform: none !important;
+                max-width: 55% !important;
+                text-align: left !important;
+                font-size: 4pt !important;
+            }
+            .player-card .player-poste {
+                bottom: 0.7mm !important;
+                left: auto !important;
+                right: 1mm !important;
+                max-width: 40% !important;
+                padding: 0.3mm 1.2mm !important;
+                font-size: 4pt !important;
+            }
+            .player-card .note-badge {
+                bottom: 8.5mm !important;
+                right: 0.8mm !important;
+                padding: 0.5mm 1.2mm !important;
+                font-size: 8.5pt !important;
+                border-width: 1px !important;
+                border-radius: 1.5mm !important;
+            }
+            .player-card .note-badge span {
+                font-size: 4pt !important;
+            }
+            .player-card .stats-grid-mini {
+                margin: 0 0 1mm !important;
+                padding: 0.6mm 0.8mm !important;
+                border-radius: 1.5mm !important;
+            }
+            .player-card .stats-label {
+                font-size: 3.8pt !important;
+            }
+            .player-card .stats-grid-mini .font-bold {
+                font-size: 5.5pt !important;
+            }
+            .player-card .metrics-details {
+                padding: 0.6mm 0.8mm !important;
+                border-radius: 1.5mm !important;
+                flex: 1 1 auto !important;
+                overflow: hidden !important;
+            }
+            .player-card .metric-row,
+            .player-card .metric-row-stacked {
+                min-height: 0 !important;
+                height: auto !important;
+                padding: 0.25mm 0.4mm !important;
+                border-bottom-width: 0.5px !important;
+            }
+            .player-card .metric-row-stacked {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .player-card .metric-label,
+            .player-card .metric-values,
+            .player-card .metric-sublabel,
+            .player-card .stat-pill,
+            .player-card .stat-sep {
+                font-size: 3.7pt !important;
+                line-height: 1.05 !important;
+            }
+            .player-card .stat-pill {
+                padding: 0 0.7mm !important;
+            }
+        }
+    </style>
 </head>
 <body>
 
 <div class="mobile-container">
     <!-- En-tête -->
-    <div class="top-header">
+    <div class="top-header no-print">
         <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
         <div class="header-actions">
             <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
@@ -672,12 +880,19 @@
     </div>
 
     <!-- Trait de séparation -->
-    <hr class="separator">
+    <hr class="separator no-print">
 
     <div class="section-title" style="text-align: center;">Comparaison des Joueurs</div>
 
+    <!-- Bouton d'export PDF -->
+    <div class="pdf-export-bar no-print">
+        <button type="button" id="btnExportPdf" onclick="exporterCartesPDF()" class="pdf-export-btn">
+            <i class="fa-solid fa-file-pdf"></i> Générer le PDF des cartes
+        </button>
+    </div>
+
     <!-- Filtres d'affichage sur 2 lignes -->
-    <div class="filters-wrapper">
+    <div class="filters-wrapper no-print">
         <!-- 1ère Ligne : Position -->
         <div class="filter-container">
             <button id="btn-all" onclick="filterPlayers('all')" class="filter-btn active">Tous</button>
@@ -711,7 +926,7 @@
         </section>
 
         <!-- Section Classement Pôle (Uniquement joueurs du Pôle / locaux) -->
-        <section id="section-classement-pole" style="display: none; margin-top: 5px;">
+        <section id="section-classement-pole" class="no-print" style="display: none; margin-top: 5px;">
             <div class="section-title" style="text-align: center; margin-bottom: 12px;"><i class="fa-solid fa-trophy mr-1"></i> Classement Pôle Performance</div>
             
             <div style="margin-bottom: 18px;">
@@ -726,7 +941,7 @@
         </section>
 
         <!-- Section Classement Tous Joueurs (Pôle + Firebase) -->
-        <section id="section-classement-tous" style="display: none; margin-top: 5px;">
+        <section id="section-classement-tous" class="no-print" style="display: none; margin-top: 5px;">
             <div class="section-title" style="text-align: center; margin-bottom: 12px;"><i class="fa-solid fa-medal mr-1"></i> Classement Général</div>
             
             <div style="margin-bottom: 18px;">
@@ -767,6 +982,7 @@
     const db = getFirestore(app);
     window.matchsCloudCharges = [];
     window.joueursFirebaseCharges = [];
+    window.filtreActif = 'all';
 
     // Gestion du thème sombre/clair
     const savedTheme = localStorage.getItem('cesta_theme') || 'dark';
@@ -1351,6 +1567,7 @@
     }
 
     window.filterPlayers = function(type) {
+        window.filtreActif = type;
         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.getElementById(`btn-${type}`);
         if (activeBtn) activeBtn.classList.add('active');
@@ -1379,6 +1596,17 @@
             if(sectionClassementTous) sectionClassementTous.style.display = 'block';
             genererClassementTous();
         }
+    };
+
+    window.exporterCartesPDF = function() {
+        const ancienTitre = document.title;
+        const filtre = window.filtreActif || 'all';
+        const dateJour = new Date().toISOString().slice(0, 10);
+        document.title = `Comparaison_Joueurs_PPC_${filtre}_${dateJour}`;
+        window.print();
+        setTimeout(() => {
+            document.title = ancienTitre;
+        }, 500);
     };
 
     function genererClassementPole() {
