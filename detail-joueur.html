@@ -403,19 +403,16 @@
             border-bottom: none;
         }
 
-        .collector-metric-stacked {
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: center;
-            gap: 1.5px;
+        .collector-metric-aligned-top {
+            align-items: flex-start;
         }
 
-        .collector-metric-stacked .collector-metric-vals {
-            width: 100%;
+        .collector-metric-aligned-top .collector-metric-vals {
             justify-content: flex-end;
             flex-wrap: nowrap;
             white-space: nowrap;
             text-align: right;
+            padding-top: 1px;
         }
 
         .collector-metric-lbl {
@@ -1605,7 +1602,7 @@
                         <span id="collector-rec-pct" class="collector-pill collector-pill-pos">0%</span>
                     </span>
                 </div>
-                <div class="collector-metric-row collector-metric-stacked">
+                <div class="collector-metric-row collector-metric-aligned-top">
                     <div>
                         <span class="collector-metric-lbl">Classique</span>
                         <span class="collector-metric-sub">/ match (Moy / Neutre / + / -)</span>
@@ -1619,7 +1616,7 @@
                         <span class="collector-sep">)</span>
                     </span>
                 </div>
-                <div class="collector-metric-row collector-metric-stacked">
+                <div class="collector-metric-row collector-metric-aligned-top">
                     <div>
                         <span class="collector-metric-lbl">Attaque</span>
                         <span class="collector-metric-sub">/ match (Moy / Neutre / + / -)</span>
@@ -1633,8 +1630,11 @@
                         <span class="collector-sep">)</span>
                     </span>
                 </div>
-                <div class="collector-metric-row">
-                    <span class="collector-metric-lbl">Pts amenés, réc. adv. nég. / match:</span>
+                <div class="collector-metric-row collector-metric-aligned-top">
+                    <div>
+                        <span class="collector-metric-lbl">Dont</span>
+                        <span class="collector-metric-sub">points amenés, rec adv neg</span>
+                    </div>
                     <span class="collector-metric-vals">
                         <strong id="collector-amenes-moy">0</strong>
                         <span id="collector-amenes-pct" class="collector-pill collector-pill-pos">0%</span>
@@ -2712,20 +2712,7 @@
                 + Number(sourceBrute.ereboteNegatif || 0)
                 + Number(sourceBrute.pumpaNegatif || 0);
 
-            const typesFrappesKeys = [
-                ['frappesClassiquesPos', 'frappesClassiquesNeg'],
-                ['frappesAttaquePos', 'frappesAttaqueNeg'],
-                ['picadaPos', 'picadaNeg'],
-                ['dejadaPos', 'dejadaNeg'],
-                ['txikTxakPos', 'txikTxakNeg'],
-                ['txulaPos', 'txulaNeg'],
-                ['cortadaPos', 'cortadaNeg'],
-                ['gaucheGauchePos', 'gaucheGaucheNeg'],
-                ['gaucheDroitePos', 'gaucheDroiteNeg'],
-                ['deuxMursPos', 'deuxMursNeg']
-            ];
-
-            const basesFrappesNeutres = [
+            const basesTypesFrappes = [
                 'frappesClassiques',
                 'frappesAttaque',
                 'picada',
@@ -2738,24 +2725,49 @@
                 'deuxMurs'
             ];
 
-            let frappesPos = 0;
-            let frappesNeg = 0;
-            typesFrappesKeys.forEach(([pKey, nKey]) => {
-                frappesPos += Number(sourceBrute[pKey] || 0);
-                frappesNeg += Number(sourceBrute[nKey] || 0);
+            let claPos = Number(sourceBrute.frappesClassiquesPos || sourceBrute.classiquePos || 0);
+            let claNeu = Number(sourceBrute.frappesClassiquesNeutre || sourceBrute.frappesClassiquesNeutres || sourceBrute.classiqueNeutre || 0);
+            let claNeg = Number(sourceBrute.frappesClassiquesNeg || sourceBrute.classiqueNeg || 0);
+            let claTotBrut = Number(sourceBrute.frappesClassiques || sourceBrute.classique || 0);
+
+            let attPos = Number(sourceBrute.frappesAttaquePos || sourceBrute.attaquePos || 0);
+            let attNeu = Number(sourceBrute.frappesAttaqueNeutre || sourceBrute.frappesAttaqueNeutres || sourceBrute.attaqueNeutre || 0);
+            let attNeg = Number(sourceBrute.frappesAttaqueNeg || sourceBrute.attaqueNeg || 0);
+            let attTotBrut = Number(sourceBrute.frappesAttaque || sourceBrute.attaque || 0);
+
+            let frappesPosDetail = claPos + attPos;
+            let frappesNeuDetail = claNeu + attNeu;
+            let frappesNegDetail = claNeg + attNeg;
+
+            basesTypesFrappes.slice(2).forEach(base => {
+                const p = Number(sourceBrute[`${base}Pos`] || 0);
+                const neu = Number(sourceBrute[`${base}Neutre`] || sourceBrute[`${base}Neutres`] || 0);
+                const neg = Number(sourceBrute[`${base}Neg`] || 0);
+                frappesPosDetail += p;
+                frappesNeuDetail += neu;
+                frappesNegDetail += neg;
             });
 
-            let frappesNeutres = Number(sourceBrute.frappesNeutres || sourceBrute.frappesNeutre || 0);
-            basesFrappesNeutres.forEach(base => {
-                frappesNeutres += Number(sourceBrute[`${base}Neutre`] || sourceBrute[`${base}Neutres`] || 0);
-            });
+            const sommeDetailCoups = frappesPosDetail + frappesNeuDetail + frappesNegDetail;
+            const frappesPosGlob = Number(sourceBrute.frappesPositif || sourceBrute.frappesPos || 0);
+            const frappesNeuGlob = Number(sourceBrute.frappesNeutres || sourceBrute.frappesNeutre || 0);
+            const frappesNegGlob = Number(sourceBrute.frappesNegatif || sourceBrute.frappesNeg || 0);
 
-            const frappesClassiques = Number(sourceBrute.frappesClassiquesPos || 0)
-                + Number(sourceBrute.frappesClassiquesNeutre || 0)
-                + Number(sourceBrute.frappesClassiquesNeg || 0);
-            const frappesAttaque = Number(sourceBrute.frappesAttaquePos || 0)
-                + Number(sourceBrute.frappesAttaqueNeutre || 0)
-                + Number(sourceBrute.frappesAttaqueNeg || 0);
+            const frappesPos = sommeDetailCoups > 0 ? frappesPosDetail : frappesPosGlob;
+            const frappesNeutres = sommeDetailCoups > 0 ? frappesNeuDetail : frappesNeuGlob;
+            const frappesNeg = sommeDetailCoups > 0 ? frappesNegDetail : frappesNegGlob;
+
+            const sommeCla = claPos + claNeu + claNeg;
+            const frappesClassiques = claTotBrut > 0 ? claTotBrut : sommeCla;
+            if (claNeu === 0 && frappesClassiques > (claPos + claNeg)) {
+                claNeu = Math.max(0, frappesClassiques - claPos - claNeg);
+            }
+
+            const sommeAtt = attPos + attNeu + attNeg;
+            const frappesAttaque = attTotBrut > 0 ? attTotBrut : sommeAtt;
+            if (attNeu === 0 && frappesAttaque > (attPos + attNeg)) {
+                attNeu = Math.max(0, frappesAttaque - attPos - attNeg);
+            }
 
             const ptsAmenesRecAdvNeg = Number(
                 sourceBrute.ptsAmenesRecAdvNeg
@@ -2780,6 +2792,9 @@
             const score2Str = s2 !== undefined && s2 !== null && String(s2).trim() !== '' ? String(s2).trim() : '-';
             const scoreAffiche = (score1Str !== '-' || score2Str !== '-') ? `${score1Str} - ${score2Str}` : '-';
 
+            const pelotesJouees = Number(sourceBrute.pelotesJouees || sourceBrute.pelotes || 0);
+            const pelotesTotales = Number(sourceBrute.pelotesTotales || 0);
+
             return {
                 partieId: String(match.id || `partie_${idx}`),
                 competition: competitionNom,
@@ -2794,8 +2809,8 @@
                 banniereTexte: libelles.banniereTexte,
                 resultat,
                 stats: {
-                    pelotesJouees: Number(sourceBrute.pelotesJouees || sourceBrute.pelotes || 0),
-                    pelotesTotales: Number(sourceBrute.pelotesTotales || 100),
+                    pelotesJouees,
+                    pelotesTotales,
                     ptsGagnes: Number(sourceBrute.ptsGagnes || sourceBrute.pointsGagnes || 0),
                     ptsGagnesTotaux: Number(sourceBrute.ptsGagnesTotaux || 50),
                     ptsPerdus: Number(sourceBrute.ptsPerdus || sourceBrute.pointsPerdus || 0),
@@ -2809,7 +2824,13 @@
                     frappesNeutres: frappesNeutres,
                     frappesNegatif: frappesNeg,
                     frappesClassiques: frappesClassiques,
+                    claPositif: claPos,
+                    claNeutres: claNeu,
+                    claNegatif: claNeg,
                     frappesAttaque: frappesAttaque,
+                    attPositif: attPos,
+                    attNeutres: attNeu,
+                    attNegatif: attNeg,
                     ptsAmenesRecAdvNeg: ptsAmenesRecAdvNeg,
                     ptsAmenesRecAdvNegTotal: ptsAmenesRecAdvNegTotal
                 }
@@ -3187,18 +3208,22 @@
         document.getElementById('collector-rec-pct').textContent = `${donnees.pctRecPos}%`;
 
         const cTot = donnees.totalFrappesClassiques;
-        const cNeu = Math.max(0, cTot - donnees.valFrappesPos - donnees.valFrappesNeg);
+        const cNeu = donnees.valClaNeu;
+        const cPos = donnees.valClaPos;
+        const cNeg = donnees.valClaNeg;
         document.getElementById('collector-cla-moy').textContent = divOuZero(cTot, donnees.nbParties);
-        document.getElementById('collector-cla-neu').textContent = divOuZero(cNeu, donnees.nbParties);
-        document.getElementById('collector-cla-pos').textContent = divOuZero(donnees.valFrappesPos, donnees.nbParties);
-        document.getElementById('collector-cla-neg').textContent = divOuZero(donnees.valFrappesNeg, donnees.nbParties);
+        document.getElementById('collector-cla-neu').textContent = `${divOuZero(cNeu, donnees.nbParties)} neutre`;
+        document.getElementById('collector-cla-pos').textContent = `${divOuZero(cPos, donnees.nbParties)}+`;
+        document.getElementById('collector-cla-neg').textContent = `${divOuZero(cNeg, donnees.nbParties)}-`;
 
         const aTot = donnees.valAttaques;
-        const aNeu = Math.max(0, aTot);
+        const aNeu = donnees.valAttNeu;
+        const aPos = donnees.valAttPos;
+        const aNeg = donnees.valAttNeg;
         document.getElementById('collector-att-moy').textContent = divOuZero(aTot, donnees.nbParties);
-        document.getElementById('collector-att-neu').textContent = divOuZero(aNeu, donnees.nbParties);
-        document.getElementById('collector-att-pos').textContent = '0';
-        document.getElementById('collector-att-neg').textContent = '0';
+        document.getElementById('collector-att-neu').textContent = `${divOuZero(aNeu, donnees.nbParties)} neutre`;
+        document.getElementById('collector-att-pos').textContent = `${divOuZero(aPos, donnees.nbParties)}+`;
+        document.getElementById('collector-att-neg').textContent = `${divOuZero(aNeg, donnees.nbParties)}-`;
 
         document.getElementById('collector-amenes-moy').textContent = divOuZero(donnees.valPtsAmenesRecAdvNeg, donnees.nbParties);
         document.getElementById('collector-amenes-pct').textContent = `${donnees.pctPtsAmenesRecAdvNeg}%`;
@@ -3318,7 +3343,8 @@
         let totalButs = 0, butsArriere = 0, butsAvant = 0;
         let totalRecPos = 0, totalRecNeg = 0;
         let totalFrappesPos = 0, totalFrappesNeutres = 0, totalFrappesNeg = 0;
-        let totalFrappesClassiques = 0, totalFrappesAttaque = 0;
+        let totalFrappesClassiques = 0, totalClaPos = 0, totalClaNeu = 0, totalClaNeg = 0;
+        let totalFrappesAttaque = 0, totalAttPos = 0, totalAttNeu = 0, totalAttNeg = 0;
         let totalPtsAmenesRecAdvNeg = 0, totalPtsAmenesRecAdvNegMax = 0;
 
         matchsSelection.forEach(m => {
@@ -3338,7 +3364,13 @@
             totalFrappesNeutres += s.frappesNeutres;
             totalFrappesNeg += s.frappesNegatif;
             totalFrappesClassiques += s.frappesClassiques;
+            totalClaPos += s.claPositif;
+            totalClaNeu += s.claNeutres;
+            totalClaNeg += s.claNegatif;
             totalFrappesAttaque += s.frappesAttaque;
+            totalAttPos += s.attPositif;
+            totalAttNeu += s.attNeutres;
+            totalAttNeg += s.attNegatif;
             totalPtsAmenesRecAdvNeg += s.ptsAmenesRecAdvNeg;
             totalPtsAmenesRecAdvNegMax += s.ptsAmenesRecAdvNegTotal;
         });
@@ -3376,7 +3408,8 @@
         document.getElementById('pts-amenes-rec-adv-neg-val').textContent = `${valPtsAmenesRecAdvNeg}`;
         document.getElementById('pts-amenes-rec-adv-neg-pct').textContent = `(${pctPtsAmenesRecAdvNeg}%)`;
 
-        const pctPelotes = totalPelotesMax > 0 ? Math.min(100, Math.round((totalPelotesJouees / totalPelotesMax) * 100)) : 0;
+        const basePelotesPct = totalPelotesMax > 0 ? totalPelotesMax : Math.max(totalPelotesJouees, totalFrappes);
+        const pctPelotes = basePelotesPct > 0 ? Math.min(100, Math.round((totalPelotesJouees / basePelotesPct) * 100)) : 0;
         const pctGagnes = totalPtsGagnesMax > 0 ? Math.min(100, Math.round((totalPtsGagnes / totalPtsGagnesMax) * 100)) : 0;
         const pctPerdus = totalPtsPerdusMax > 0 ? Math.min(100, Math.round((totalPtsPerdus / totalPtsPerdusMax) * 100)) : 0;
 
@@ -3423,6 +3456,9 @@
             nbDefaites,
             note100,
             totalFrappesClassiques: Math.round(totalFrappesClassiques),
+            valClaPos: Math.round(totalClaPos),
+            valClaNeu: Math.round(totalClaNeu),
+            valClaNeg: Math.round(totalClaNeg),
             valRecTotal,
             valRecPos,
             valRecNeg,
@@ -3449,6 +3485,9 @@
             valPtsPerdus,
             pctPerdus,
             valAttaques,
+            valAttPos: Math.round(totalAttPos),
+            valAttNeu: Math.round(totalAttNeu),
+            valAttNeg: Math.round(totalAttNeg),
             pctAttaques
         };
 
