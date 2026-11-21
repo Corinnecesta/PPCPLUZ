@@ -68,11 +68,72 @@
             cursor: wait;
         }
 
-        /* --- CARTE COLLECTOR AJOUTÉE (STYLE COMPARAISON) --- */
+        /* --- CARTE COLLECTOR (IDENTIQUE À LA PHOTO + FORMAT CARTE BLEUE PORTRAIT AU ZOOM) --- */
         .detail-collector-wrap {
             max-width: 310px;
             width: 100%;
             margin: 0 auto 14px;
+            cursor: zoom-in;
+        }
+
+        .detail-collector-wrap.is-expanded {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            max-width: 100vw;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+            background: rgba(2, 12, 22, 0.88);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            overflow: auto;
+        }
+
+        /* Format carte bancaire / carte bleue en mode portrait : 53.98mm x 85.60mm (~0.6306) */
+        .detail-collector-wrap.is-expanded .collector-card {
+            width: min(420px, calc((100vh - 32px) * 53.98 / 85.6));
+            max-width: 100%;
+            height: min(666px, calc(100vh - 32px));
+            aspect-ratio: 53.98 / 85.6;
+            flex-shrink: 0;
+            padding: 8px 8px 10px;
+            border-radius: 22px;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-card-header {
+            height: 41%;
+            min-height: 165px;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-note {
+            font-size: 1.75rem;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-bilan-val {
+            font-size: 1.08rem;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-metric-lbl {
+            font-size: 0.7rem;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-metric-sub {
+            font-size: 0.62rem;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-metric-vals {
+            font-size: 0.7rem;
+        }
+
+        .detail-collector-wrap.is-expanded .collector-pill,
+        .detail-collector-wrap.is-expanded .collector-sep {
+            font-size: 0.62rem;
         }
 
         .collector-card {
@@ -88,9 +149,10 @@
             color: #fff;
             border: 3px solid #f4fbff;
             border-radius: 20px;
-            padding: 6px 6px 10px;
+            padding: 6px 6px 8px;
             box-shadow: 0 0 0 3px #10334c, 0 10px 22px rgba(0, 0, 0, 0.48);
             background: linear-gradient(165deg, #082c43, #0a7c57 72%, #09522c);
+            transition: width 0.22s ease, height 0.22s ease, padding 0.22s ease;
         }
 
         .collector-card.is-arriere {
@@ -99,7 +161,7 @@
         }
 
         .collector-card-header {
-            height: 155px;
+            height: 146px;
             position: relative;
             display: block;
             margin-bottom: 3px;
@@ -162,9 +224,9 @@
         .collector-photo {
             position: absolute;
             left: 0;
-            bottom: 30px;
+            bottom: 28px;
             width: 55%;
-            height: 70%;
+            height: 72%;
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -182,14 +244,14 @@
 
         .collector-name-row {
             position: absolute;
-            bottom: 24px;
+            bottom: 22px;
             left: 0;
             right: 0;
             z-index: 4;
             display: flex;
             align-items: center;
             transform: skewY(-6deg);
-            padding: 4px 9px;
+            padding: 3px 9px;
             background: linear-gradient(90deg, #082647, #0c5b7e 67%, #082747);
             border-top: 2px solid #e1faff;
             border-bottom: 2px solid var(--collector);
@@ -197,7 +259,7 @@
         }
 
         .collector-name {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-style: italic;
             font-weight: 900;
             color: #fff;
@@ -210,16 +272,16 @@
 
         .collector-club {
             position: absolute;
-            bottom: 7px;
-            left: 45%;
+            bottom: 6px;
+            left: 42%;
             transform: translateX(-50%);
-            max-width: 46%;
+            max-width: 44%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
             color: #fff;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             font-weight: 800;
             font-style: italic;
             text-transform: uppercase;
@@ -238,7 +300,7 @@
             border: 1.5px solid #a7ff56;
             border-radius: 5px;
             padding: 1.5px 7px;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             font-weight: 700;
             text-transform: uppercase;
             text-align: center;
@@ -251,7 +313,7 @@
         .collector-note {
             position: absolute;
             right: 4px;
-            bottom: 34px;
+            bottom: 31px;
             z-index: 6;
             color: #fff;
             background: linear-gradient(125deg, #12253c, #071423);
@@ -259,7 +321,7 @@
             border-radius: 9px;
             transform: skew(-10deg);
             padding: 3px 8px;
-            font-size: 1.45rem;
+            font-size: 1.4rem;
             font-weight: 900;
             line-height: 1;
             text-shadow: 0 2px 3px #000;
@@ -272,7 +334,7 @@
 
         .collector-note span {
             color: #fff;
-            font-size: 0.58rem;
+            font-size: 0.56rem;
             font-weight: 600;
         }
 
@@ -284,7 +346,7 @@
             background: #062440;
             border: 2px solid #e3f6ff;
             border-radius: 11px;
-            padding: 3px 4px;
+            padding: 2px 4px;
             margin: 2px 2px 3px;
         }
 
@@ -299,7 +361,7 @@
         .collector-bilan-label {
             display: block;
             color: #f6fbff;
-            font-size: 0.56rem;
+            font-size: 0.54rem;
             font-weight: 700;
             font-style: italic;
             text-transform: uppercase;
@@ -308,13 +370,13 @@
 
         .collector-bilan-val {
             display: block;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 900;
             line-height: 1.1;
         }
 
         .collector-metrics {
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             background: linear-gradient(120deg, #c2e3ec, #f0f8fc 52%, #b9dfed);
             color: #071c35;
             border-radius: 13px;
@@ -322,6 +384,8 @@
             box-shadow: inset 0 0 0 1px #f5ffff;
             display: flex;
             flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
         }
 
         .collector-metric-row {
@@ -332,6 +396,7 @@
             padding: 1.5px 2px;
             border-bottom: 1px solid #9cc4d4;
             gap: 3px;
+            flex: 1;
         }
 
         .collector-metric-row:last-child {
@@ -341,28 +406,41 @@
         .collector-metric-stacked {
             flex-direction: column;
             align-items: stretch;
+            justify-content: center;
+            gap: 1.5px;
         }
 
         .collector-metric-stacked .collector-metric-vals {
             width: 100%;
-            justify-content: space-between;
+            justify-content: flex-end;
             flex-wrap: nowrap;
+            white-space: nowrap;
+            text-align: right;
         }
 
         .collector-metric-lbl {
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             color: #071c35;
             font-weight: 800;
+            line-height: 1.05;
+        }
+
+        .collector-metric-sub {
+            display: block;
+            font-size: 0.52rem;
+            color: #163a52;
+            font-weight: 700;
             line-height: 1.05;
         }
 
         .collector-metric-vals {
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             color: #071c35;
             font-weight: 800;
             line-height: 1.05;
             display: inline-flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            white-space: nowrap;
             justify-content: flex-end;
             align-items: center;
             gap: 2px;
@@ -370,14 +448,15 @@
 
         .collector-pill {
             display: inline-block;
-            padding: 0.5px 4px;
+            padding: 0.5px 3.5px;
             border-radius: 20px;
             font-weight: 800;
-            font-size: 0.55rem;
+            font-size: 0.52rem;
             background: #d9e7ed;
             color: #16435b;
             border: 1px solid #b4cbd6;
             line-height: 1.05;
+            white-space: nowrap;
         }
 
         .collector-pill-pos {
@@ -395,7 +474,8 @@
         .collector-sep {
             color: #537182;
             font-weight: 600;
-            font-size: 0.55rem;
+            font-size: 0.52rem;
+            white-space: nowrap;
         }
 
         /* --- AJUSTEMENTS SPÉCIAUX EXPORT PDF (MODE CLAIR / FOND BLANC) --- */
@@ -408,7 +488,9 @@
 
         .pdf-exporting .top-header,
         .pdf-exporting .separator,
+        .pdf-exporting .back-links-stack,
         .pdf-exporting .back-link,
+        .pdf-exporting .detail-collector-wrap.is-expanded,
         .pdf-exporting .parties-tabs-box,
         .pdf-exporting .pdf-download-btn,
         .pdf-exporting .coach-editor-controls,
@@ -484,9 +566,9 @@
         }
 
         .pdf-exporting .player-profile-card {
-            padding: 12px 14px !important;
+            padding: 6px 10px !important;
             margin-bottom: 8px !important;
-            gap: 14px !important;
+            gap: 10px !important;
         }
 
         .pdf-exporting .partie-detail-card,
@@ -504,13 +586,14 @@
         }
 
         .pdf-exporting .player-photo {
-            width: 72px !important;
-            height: 72px !important;
+            width: 42px !important;
+            height: 42px !important;
+            min-height: 42px !important;
             background: #f1f5f9 !important;
         }
 
         .pdf-exporting .note-badge {
-            font-size: 1.7rem !important;
+            font-size: 1.15rem !important;
         }
 
         .pdf-exporting .chart-box {
@@ -583,7 +666,9 @@
         @media print {
             .top-header,
             .separator,
+            .back-links-stack,
             .back-link,
+            .detail-collector-wrap.is-expanded,
             .parties-tabs-box,
             .pdf-download-btn,
             .coach-editor-controls,
@@ -592,24 +677,34 @@
             }
         }
 
+        /* --- BANDEAU TITRE JOUEUR COMPACT (PEU HAUT) --- */
         .player-profile-card {
             background: var(--card-bg);
-            border: 2px solid var(--card-border);
-            border-radius: 14px;
-            padding: 22px 16px;
+            border: 1.5px solid var(--card-border);
+            border-radius: 11px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
-            gap: 18px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 10px rgba(23, 184, 144, 0.15);
+            gap: 10px;
+            margin-bottom: 12px;
+            min-height: 54px;
+            box-shadow: 0 2px 8px rgba(23, 184, 144, 0.12);
+        }
+
+        #player-photo-container {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .player-photo {
-            width: 90px;
-            height: 90px;
-            border-radius: 0px;
+            width: 40px;
+            height: 40px;
+            min-height: 40px;
+            border-radius: 8px;
             object-fit: cover;
-            border: 2px solid var(--accent-color);
+            object-position: center top;
+            border: 1.5px solid var(--accent-color);
             background: rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
@@ -617,28 +712,29 @@
             color: var(--accent-color);
             font-weight: bold;
             flex-shrink: 0;
-            font-size: 1.2rem;
+            font-size: 0.85rem;
         }
 
         .player-details-vertical {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             overflow: hidden;
             width: 100%;
-            gap: 6px;
+            gap: 2px;
         }
         .player-name-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 8px;
+            gap: 6px;
+            min-width: 0;
         }
-        .player-name { font-weight: bold; font-size: 1.1rem; color: var(--container-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-name { font-weight: 800; font-size: 0.92rem; color: var(--container-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
         .player-source-tag {
-            font-size: 0.58rem;
+            font-size: 0.52rem;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 2px 6px;
+            padding: 1px 5px;
             border-radius: 4px;
             flex-shrink: 0;
             border: 1px solid var(--accent-color);
@@ -650,19 +746,27 @@
             color: var(--text-muted);
             background: rgba(148, 163, 184, 0.12);
         }
-        .player-club { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
         
         .player-bottom-row {
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
-            gap: 6px;
-            margin-top: 2px;
+            gap: 8px;
         }
-        .player-poste { font-size: 0.8rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-meta-inline {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 0;
+            overflow: hidden;
+            font-size: 0.65rem;
+        }
+        .player-club { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-sep { color: var(--text-muted); flex-shrink: 0; }
+        .player-poste { color: var(--accent-color); font-weight: 700; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
         
-        .note-badge { font-size: 2.2rem; font-weight: 800; color: var(--accent-color); line-height: 1; flex-shrink: 0; text-align: right; }
-        .note-badge span { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; }
+        .note-badge { font-size: 1.25rem; font-weight: 900; color: var(--accent-color); line-height: 1; flex-shrink: 0; text-align: right; }
+        .note-badge span { font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
 
         .parties-tabs-box {
             background: var(--card-bg);
@@ -1348,6 +1452,14 @@
             color: #34d399;
         }
 
+        .back-links-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -1356,7 +1468,6 @@
             color: var(--accent-color);
             text-decoration: none;
             font-weight: 600;
-            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -1374,7 +1485,10 @@
 
     <hr class="separator">
 
-    <a href="comparaison.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour comparaison</a>
+    <div class="back-links-stack">
+        <a href="comparaison.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Retour comparaison</a>
+        <a href="cartes.html" id="backStatsTousJoueursLink" class="back-link" style="display: none;"><i class="fa-solid fa-arrow-left"></i> Retour stats tous joueurs</a>
+    </div>
 
     <div class="section-header-row">
         <div class="section-title">Profil et Analyses</div>
@@ -1383,6 +1497,7 @@
         </button>
     </div>
 
+    <!-- Bandeau titre joueur compact -->
     <div class="player-profile-card">
         <div id="player-photo-container"></div>
         <div class="player-details-vertical">
@@ -1390,16 +1505,19 @@
                 <div id="player-name" class="player-name">Chargement...</div>
                 <span id="player-source-badge" class="player-source-tag" style="display: none;">Pôle</span>
             </div>
-            <div id="player-club" class="player-club">...</div>
             <div class="player-bottom-row">
-                <div id="player-poste" class="player-poste">...</div>
+                <div class="player-meta-inline">
+                    <span id="player-club" class="player-club">...</span>
+                    <span class="player-sep">•</span>
+                    <span id="player-poste" class="player-poste">...</span>
+                </div>
                 <span class="note-badge note-100">0<span>/100</span></span>
             </div>
         </div>
     </div>
 
-    <!-- Carte Collector (même design que comparaison) -->
-    <div class="detail-collector-wrap">
+    <!-- Carte Collector (mise en page identique à la photo + format carte bleue portrait au clic) -->
+    <div class="detail-collector-wrap" title="Cliquer pour agrandir la carte">
         <div id="collector-card" class="collector-card">
             <div class="collector-card-header">
                 <img src="ICP.png" alt="Logo ICP" class="collector-logo-icp">
@@ -1476,7 +1594,7 @@
                     </span>
                 </div>
                 <div class="collector-metric-row">
-                    <span class="collector-metric-lbl">Réceptions (Moy/Pos/Nég/%):</span>
+                    <span class="collector-metric-lbl">Réceptions<br><span class="collector-metric-sub">(Moy/Pos/Nég/%):</span></span>
                     <span class="collector-metric-vals">
                         <strong id="collector-rec-moy">0</strong>
                         <span class="collector-sep">(</span>
@@ -1488,7 +1606,10 @@
                     </span>
                 </div>
                 <div class="collector-metric-row collector-metric-stacked">
-                    <span class="collector-metric-lbl">Classique / match (Moy / Neutre / + / -) :</span>
+                    <div>
+                        <span class="collector-metric-lbl">Classique</span>
+                        <span class="collector-metric-sub">/ match (Moy / Neutre / + / -)</span>
+                    </div>
                     <span class="collector-metric-vals">
                         <strong id="collector-cla-moy">0</strong>
                         <span class="collector-sep">(</span>
@@ -1499,7 +1620,10 @@
                     </span>
                 </div>
                 <div class="collector-metric-row collector-metric-stacked">
-                    <span class="collector-metric-lbl">Attaque / match (Moy / Neutre / + / -) :</span>
+                    <div>
+                        <span class="collector-metric-lbl">Attaque</span>
+                        <span class="collector-metric-sub">/ match (Moy / Neutre / + / -)</span>
+                    </div>
                     <span class="collector-metric-vals">
                         <strong id="collector-att-moy">0</strong>
                         <span class="collector-sep">(</span>
@@ -1805,6 +1929,12 @@
         return r === 'admin' || r === 'administrateur' || r === 'entraineurplus';
     }
 
+    function mettreAJourVisibiliteLienStatsTousJoueurs() {
+        const lienEl = document.getElementById('backStatsTousJoueursLink');
+        if (!lienEl) return;
+        lienEl.style.display = estCoachOuAdmin ? 'inline-flex' : 'none';
+    }
+
     function obtenirCleAnalyseCoach() {
         if (!joueurActif) return '';
         const jKey = normaliserNom(joueurActif.id || `${joueurActif.prenom || ''}_${joueurActif.nom || ''}`) || 'joueur';
@@ -2009,6 +2139,7 @@
         }
 
         estCoachOuAdmin = verifierRoleCoachOuAdmin(roleEffectif);
+        mettreAJourVisibiliteLienStatsTousJoueurs();
         rendreBlocAnalyseCoach();
     });
 
@@ -2100,6 +2231,7 @@
         }
 
         estExportPdf = true;
+        document.querySelector('.detail-collector-wrap')?.classList.remove('is-expanded');
         htmlElement.setAttribute('data-theme', 'light');
         document.body.classList.add('pdf-exporting');
         rendreVueStats();
@@ -2969,6 +3101,24 @@
     }
 
     initialiserEvenementsOnglets();
+
+    function initialiserZoomCarteCollector() {
+        const wrapEl = document.querySelector('.detail-collector-wrap');
+        if (!wrapEl) return;
+
+        wrapEl.addEventListener('click', () => {
+            if (estExportPdf) return;
+            wrapEl.classList.toggle('is-expanded');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && wrapEl.classList.contains('is-expanded')) {
+                wrapEl.classList.remove('is-expanded');
+            }
+        });
+    }
+
+    initialiserZoomCarteCollector();
 
     function mettreAJourCarteCollector(donnees) {
         const cardEl = document.getElementById('collector-card');
