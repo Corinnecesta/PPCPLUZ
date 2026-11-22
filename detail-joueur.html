@@ -8,7 +8,7 @@
     <!-- Polices & Icônes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Fichier de styles global -->
@@ -68,7 +68,7 @@
             cursor: wait;
         }
 
-        /* --- CARTE COLLECTOR (IDENTIQUE À LA PHOTO + FORMAT CARTE BLEUE PORTRAIT AU ZOOM) --- */
+        /* --- CARTE COLLECTOR (MÊME FORMAT QUE CARTES.HTML + ZOOM PORTRAIT) --- */
         .detail-collector-wrap {
             max-width: 310px;
             width: 100%;
@@ -95,7 +95,6 @@
             overflow: auto;
         }
 
-        /* Format carte bancaire / carte bleue en mode portrait : 53.98mm x 85.60mm (~0.6306) */
         .detail-collector-wrap.is-expanded .collector-card {
             width: min(420px, calc((100vh - 32px) * 53.98 / 85.6));
             max-width: 100%;
@@ -119,18 +118,12 @@
             font-size: 1.08rem;
         }
 
-        .detail-collector-wrap.is-expanded .collector-metric-lbl {
-            font-size: 0.7rem;
-        }
-
+        .detail-collector-wrap.is-expanded .collector-metric-lbl,
         .detail-collector-wrap.is-expanded .collector-metric-sub {
-            font-size: 0.62rem;
+            font-size: 0.66rem;
         }
 
-        .detail-collector-wrap.is-expanded .collector-metric-vals {
-            font-size: 0.7rem;
-        }
-
+        .detail-collector-wrap.is-expanded .collector-metric-vals,
         .detail-collector-wrap.is-expanded .collector-pill,
         .detail-collector-wrap.is-expanded .collector-sep {
             font-size: 0.62rem;
@@ -148,9 +141,9 @@
             box-sizing: border-box;
             color: #fff;
             border: 3px solid #f4fbff;
-            border-radius: 20px;
-            padding: 6px 6px 8px;
-            box-shadow: 0 0 0 3px #10334c, 0 10px 22px rgba(0, 0, 0, 0.48);
+            border-radius: 22px;
+            padding: 7px 7px 10px;
+            box-shadow: 0 0 0 3px #10334c, 0 12px 24px rgba(0, 0, 0, 0.52);
             background: linear-gradient(165deg, #082c43, #0a7c57 72%, #09522c);
             transition: width 0.22s ease, height 0.22s ease, padding 0.22s ease;
         }
@@ -161,7 +154,7 @@
         }
 
         .collector-card-header {
-            height: 146px;
+            height: 152px;
             position: relative;
             display: block;
             margin-bottom: 3px;
@@ -174,15 +167,33 @@
             background-repeat: no-repeat, no-repeat;
         }
 
-        .collector-card-header::before {
-            content: '';
+        .collector-cancha-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center center;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .collector-header-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(2,25,42,0) 58%, rgba(3,34,54,.9) 92%, #062b45 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .collector-logo-ce {
             position: absolute;
             top: 0;
             left: 5px;
-            width: 25px;
-            height: 16px;
-            background: url('logoce.png') center / contain no-repeat;
-            z-index: 3;
+            width: 27px;
+            height: 17px;
+            object-fit: contain;
+            z-index: 5;
             filter: drop-shadow(0 2px 3px rgba(0,0,0,.55));
             pointer-events: none;
         }
@@ -190,16 +201,16 @@
         .collector-card-header::after {
             content: "Cesta Punta";
             position: absolute;
-            top: -3px;
-            left: 38px;
-            right: 38px;
-            height: 18px;
+            top: -4px;
+            left: 43px;
+            right: 43px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
             color: #fff;
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 900;
             font-style: italic;
             letter-spacing: 0.2px;
@@ -213,8 +224,8 @@
             z-index: 5;
             right: 5px;
             top: 0;
-            width: 25px;
-            height: 16px;
+            width: 27px;
+            height: 17px;
             object-fit: contain;
             border-radius: 3px;
             filter: drop-shadow(0 2px 3px #0018);
@@ -224,9 +235,9 @@
         .collector-photo {
             position: absolute;
             left: 0;
-            bottom: 28px;
+            bottom: 34px;
             width: 55%;
-            height: 72%;
+            height: 69%;
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -244,14 +255,14 @@
 
         .collector-name-row {
             position: absolute;
-            bottom: 22px;
+            bottom: 27px;
             left: 0;
             right: 0;
             z-index: 4;
             display: flex;
             align-items: center;
             transform: skewY(-6deg);
-            padding: 3px 9px;
+            padding: 4px 9px;
             background: linear-gradient(90deg, #082647, #0c5b7e 67%, #082747);
             border-top: 2px solid #e1faff;
             border-bottom: 2px solid var(--collector);
@@ -259,7 +270,7 @@
         }
 
         .collector-name {
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-style: italic;
             font-weight: 900;
             color: #fff;
@@ -272,8 +283,8 @@
 
         .collector-club {
             position: absolute;
-            bottom: 6px;
-            left: 42%;
+            bottom: 8px;
+            left: 45%;
             transform: translateX(-50%);
             max-width: 44%;
             white-space: nowrap;
@@ -281,7 +292,7 @@
             text-overflow: ellipsis;
             text-align: center;
             color: #fff;
-            font-size: 0.58rem;
+            font-size: 0.6rem;
             font-weight: 800;
             font-style: italic;
             text-transform: uppercase;
@@ -291,7 +302,7 @@
 
         .collector-poste {
             position: absolute;
-            bottom: 4px;
+            bottom: 5px;
             right: 5px;
             max-width: 34%;
             z-index: 8;
@@ -300,7 +311,7 @@
             border: 1.5px solid #a7ff56;
             border-radius: 5px;
             padding: 1.5px 7px;
-            font-size: 0.58rem;
+            font-size: 0.6rem;
             font-weight: 700;
             text-transform: uppercase;
             text-align: center;
@@ -313,7 +324,7 @@
         .collector-note {
             position: absolute;
             right: 4px;
-            bottom: 31px;
+            bottom: 35px;
             z-index: 6;
             color: #fff;
             background: linear-gradient(125deg, #12253c, #071423);
@@ -321,7 +332,7 @@
             border-radius: 9px;
             transform: skew(-10deg);
             padding: 3px 8px;
-            font-size: 1.4rem;
+            font-size: 1.45rem;
             font-weight: 900;
             line-height: 1;
             text-shadow: 0 2px 3px #000;
@@ -334,7 +345,7 @@
 
         .collector-note span {
             color: #fff;
-            font-size: 0.56rem;
+            font-size: 0.58rem;
             font-weight: 600;
         }
 
@@ -345,9 +356,9 @@
             text-align: center;
             background: #062440;
             border: 2px solid #e3f6ff;
-            border-radius: 11px;
+            border-radius: 12px;
             padding: 2px 4px;
-            margin: 2px 2px 3px;
+            margin: 2px 2px 4px;
         }
 
         .collector-bilan-grid > div {
@@ -361,7 +372,7 @@
         .collector-bilan-label {
             display: block;
             color: #f6fbff;
-            font-size: 0.54rem;
+            font-size: 0.56rem;
             font-weight: 700;
             font-style: italic;
             text-transform: uppercase;
@@ -370,17 +381,17 @@
 
         .collector-bilan-val {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 900;
             line-height: 1.1;
         }
 
         .collector-metrics {
-            font-size: 0.6rem;
+            font-size: 0.62rem;
             background: linear-gradient(120deg, #c2e3ec, #f0f8fc 52%, #b9dfed);
             color: #071c35;
-            border-radius: 13px;
-            padding: 3px 6px 4px;
+            border-radius: 14px;
+            padding: 3px 6px 5px;
             box-shadow: inset 0 0 0 1px #f5ffff;
             display: flex;
             flex-direction: column;
@@ -392,7 +403,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 15px;
+            min-height: 16px;
             padding: 1.5px 2px;
             border-bottom: 1px solid #9cc4d4;
             gap: 3px;
@@ -403,35 +414,50 @@
             border-bottom: none;
         }
 
-        .collector-metric-aligned-top {
-            align-items: flex-start;
+        .collector-metric-stacked {
+            flex-direction: column;
+            align-items: stretch;
         }
 
-        .collector-metric-aligned-top .collector-metric-vals {
-            justify-content: flex-end;
+        .collector-metric-stacked .collector-metric-vals {
+            width: 100%;
+            justify-content: space-between;
             flex-wrap: nowrap;
-            white-space: nowrap;
+        }
+
+        #collector-buts-row.collector-metric-row {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+        }
+
+        #collector-buts-row .collector-metric-vals {
+            width: auto;
+            margin-left: auto;
+            justify-content: flex-end;
             text-align: right;
-            padding-top: 1px;
+            flex-wrap: nowrap;
         }
 
         .collector-metric-lbl {
-            font-size: 0.58rem;
+            font-size: 0.6rem;
             color: #071c35;
             font-weight: 800;
             line-height: 1.05;
         }
 
         .collector-metric-sub {
-            display: block;
-            font-size: 0.52rem;
-            color: #163a52;
-            font-weight: 700;
+            color: #071c35;
+            font-weight: 800;
+            font-size: 0.56rem;
             line-height: 1.05;
+            text-align: left;
+            white-space: nowrap;
         }
 
         .collector-metric-vals {
-            font-size: 0.58rem;
+            font-size: 0.6rem;
             color: #071c35;
             font-weight: 800;
             line-height: 1.05;
@@ -443,12 +469,17 @@
             gap: 2px;
         }
 
+        .collector-moy-bold {
+            color: #071c35;
+            font-weight: 900;
+        }
+
         .collector-pill {
             display: inline-block;
-            padding: 0.5px 3.5px;
+            padding: 0.5px 4px;
             border-radius: 20px;
             font-weight: 800;
-            font-size: 0.52rem;
+            font-size: 0.54rem;
             background: #d9e7ed;
             color: #16435b;
             border: 1px solid #b4cbd6;
@@ -471,31 +502,31 @@
         .collector-sep {
             color: #537182;
             font-weight: 600;
-            font-size: 0.52rem;
+            font-size: 0.54rem;
             white-space: nowrap;
         }
 
-        /* --- AJUSTEMENTS SPÉCIAUX EXPORT PDF (MODE CLAIR / FOND BLANC) --- */
-        body.pdf-exporting,
-        .pdf-exporting .mobile-container {
-            background: #ffffff !important;
-            background-color: #ffffff !important;
-            color: #0f172a !important;
+        /* --- EXPORT PDF 100% MODE FONCÉ --- */
+        body.pdf-exporting-dark,
+        body.pdf-exporting-dark .mobile-container {
+            background: #071423 !important;
+            background-color: #071423 !important;
+            color: #ffffff !important;
         }
 
-        .pdf-exporting .top-header,
-        .pdf-exporting .separator,
-        .pdf-exporting .back-links-stack,
-        .pdf-exporting .back-link,
-        .pdf-exporting .detail-collector-wrap.is-expanded,
-        .pdf-exporting .parties-tabs-box,
-        .pdf-exporting .pdf-download-btn,
-        .pdf-exporting .coach-editor-controls,
-        .pdf-exporting .coach-status-msg {
+        body.pdf-exporting-dark .top-header,
+        body.pdf-exporting-dark .separator,
+        body.pdf-exporting-dark .back-links-stack,
+        body.pdf-exporting-dark .back-link,
+        body.pdf-exporting-dark .detail-collector-wrap.is-expanded,
+        body.pdf-exporting-dark .parties-tabs-box,
+        body.pdf-exporting-dark .pdf-download-btn,
+        body.pdf-exporting-dark .coach-editor-controls,
+        body.pdf-exporting-dark .coach-status-msg {
             display: none !important;
         }
 
-        .pdf-exporting .mobile-container {
+        body.pdf-exporting-dark .mobile-container {
             max-width: 680px !important;
             width: 680px !important;
             margin: 0 auto !important;
@@ -503,160 +534,108 @@
             gap: 6px !important;
         }
 
-        .pdf-exporting .section-title {
+        body.pdf-exporting-dark .section-title {
             font-size: 0.72rem !important;
             margin-bottom: 5px !important;
-            color: #0f766e !important;
         }
 
-        .pdf-exporting .section-header-row {
+        body.pdf-exporting-dark .section-header-row {
             margin-bottom: 5px !important;
         }
 
-        .pdf-exporting .player-profile-card,
-        .pdf-exporting .partie-detail-card,
-        .pdf-exporting .ia-analyse-card,
-        .pdf-exporting .coach-analyse-card,
-        .pdf-exporting .chart-box,
-        .pdf-exporting .pn-card,
-        .pdf-exporting .single-stat-banner {
-            background: #ffffff !important;
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1.5px solid #cbd5e1 !important;
-            box-shadow: none !important;
-        }
-
-        .pdf-exporting .pn-box,
-        .pdf-exporting .eff-stat-box,
-        .pdf-exporting .perf-stat-box,
-        .pdf-exporting .buts-stat-box,
-        .pdf-exporting .bilan-stat-box,
-        .pdf-exporting .partie-matchup-row {
-            background: #f8fafc !important;
-            background-color: #f8fafc !important;
-            border: 1px solid #cbd5e1 !important;
-            color: #0f172a !important;
-        }
-
-        .pdf-exporting .player-name,
-        .pdf-exporting .partie-detail-name,
-        .pdf-exporting .partie-side,
-        .pdf-exporting .ia-analyse-texte,
-        .pdf-exporting .coach-analyse-rendered,
-        .pdf-exporting .pn-card-header,
-        .pdf-exporting .buts-stat-value,
-        .pdf-exporting .single-stat-label {
-            color: #0f172a !important;
-        }
-
-        .pdf-exporting .player-club,
-        .pdf-exporting .partie-detail-date,
-        .pdf-exporting .pn-label,
-        .pdf-exporting .eff-stat-label,
-        .pdf-exporting .perf-stat-label,
-        .pdf-exporting .perf-stat-sublabel,
-        .pdf-exporting .buts-stat-label,
-        .pdf-exporting .bilan-stat-label,
-        .pdf-exporting .note-badge span,
-        .pdf-exporting .coach-meta-badge {
-            color: #475569 !important;
-        }
-
-        .pdf-exporting .player-profile-card {
+        body.pdf-exporting-dark .player-profile-card {
             padding: 6px 10px !important;
             margin-bottom: 8px !important;
             gap: 10px !important;
         }
 
-        .pdf-exporting .partie-detail-card,
-        .pdf-exporting .ia-analyse-card,
-        .pdf-exporting .coach-analyse-card {
+        body.pdf-exporting-dark .partie-detail-card,
+        body.pdf-exporting-dark .ia-analyse-card,
+        body.pdf-exporting-dark .coach-analyse-card {
             padding: 10px 12px !important;
             margin-bottom: 8px !important;
             gap: 6px !important;
         }
 
-        .pdf-exporting .ia-analyse-texte,
-        .pdf-exporting .coach-analyse-rendered {
+        body.pdf-exporting-dark .ia-analyse-texte,
+        body.pdf-exporting-dark .coach-analyse-rendered {
             font-size: 0.72rem !important;
             line-height: 1.42 !important;
         }
 
-        .pdf-exporting .player-photo {
+        body.pdf-exporting-dark .player-photo {
             width: 42px !important;
             height: 42px !important;
             min-height: 42px !important;
-            background: #f1f5f9 !important;
         }
 
-        .pdf-exporting .note-badge {
+        body.pdf-exporting-dark .note-badge {
             font-size: 1.15rem !important;
         }
 
-        .pdf-exporting .chart-box {
+        body.pdf-exporting-dark .chart-box {
             padding: 10px 12px !important;
             margin-bottom: 8px !important;
         }
 
-        .pdf-exporting .pn-grid {
+        body.pdf-exporting-dark .pn-grid {
             gap: 8px !important;
             margin-bottom: 6px !important;
         }
 
-        .pdf-exporting .single-stat-banner {
+        body.pdf-exporting-dark .single-stat-banner {
             padding: 8px 12px !important;
             margin-bottom: 8px !important;
         }
 
-        .pdf-exporting .pn-card {
+        body.pdf-exporting-dark .pn-card {
             padding: 10px 12px !important;
             gap: 6px !important;
         }
 
-        .pdf-exporting .pn-box,
-        .pdf-exporting .eff-stat-box,
-        .pdf-exporting .perf-stat-box,
-        .pdf-exporting .buts-stat-box,
-        .pdf-exporting .bilan-stat-box {
+        body.pdf-exporting-dark .pn-box,
+        body.pdf-exporting-dark .eff-stat-box,
+        body.pdf-exporting-dark .perf-stat-box,
+        body.pdf-exporting-dark .buts-stat-box,
+        body.pdf-exporting-dark .bilan-stat-box {
             padding: 5px 6px !important;
         }
 
-        .pdf-exporting .eff-stats-grid,
-        .pdf-exporting .perf-stats-grid,
-        .pdf-exporting .buts-stats-grid {
+        body.pdf-exporting-dark .eff-stats-grid,
+        body.pdf-exporting-dark .perf-stats-grid,
+        body.pdf-exporting-dark .buts-stats-grid {
             margin-bottom: 8px !important;
             gap: 6px !important;
         }
 
-        .pdf-exporting .bilan-chart-wrapper {
+        body.pdf-exporting-dark .bilan-chart-wrapper {
             height: 118px !important;
         }
 
-        .pdf-exporting #butsChart {
+        body.pdf-exporting-dark #butsChart {
             height: 120px !important;
             max-height: 120px !important;
         }
 
-        .pdf-exporting #efficaciteChart {
+        body.pdf-exporting-dark #efficaciteChart {
             height: 165px !important;
             max-height: 165px !important;
         }
 
-        .pdf-exporting #horizontalBarChart {
+        body.pdf-exporting-dark #horizontalBarChart {
             height: 320px !important;
             max-height: 320px !important;
         }
 
-        .pdf-exporting .chart-box,
-        .pdf-exporting .pn-card,
-        .pdf-exporting .single-stat-banner,
-        .pdf-exporting .player-profile-card,
-        .pdf-exporting .detail-collector-wrap,
-        .pdf-exporting .partie-detail-card,
-        .pdf-exporting .ia-analyse-card,
-        .pdf-exporting .coach-analyse-card,
-        .pdf-exporting .section-header-row {
+        body.pdf-exporting-dark .chart-box,
+        body.pdf-exporting-dark .pn-card,
+        body.pdf-exporting-dark .single-stat-banner,
+        body.pdf-exporting-dark .player-profile-card,
+        body.pdf-exporting-dark .detail-collector-wrap,
+        body.pdf-exporting-dark .partie-detail-card,
+        body.pdf-exporting-dark .ia-analyse-card,
+        body.pdf-exporting-dark .coach-analyse-card,
+        body.pdf-exporting-dark .section-header-row {
             break-inside: avoid;
             page-break-inside: avoid;
         }
@@ -1001,7 +980,6 @@
             white-space: nowrap;
         }
 
-        /* Bloc Analyse de la partie / Synthèse globale */
         .ia-analyse-card,
         .coach-analyse-card {
             background: var(--card-bg);
@@ -1522,10 +1500,13 @@
         </div>
     </div>
 
-    <!-- Carte Collector (mise en page identique à la photo + format carte bleue portrait au clic) -->
+    <!-- Carte Collector -->
     <div class="detail-collector-wrap" title="Cliquer pour agrandir la carte">
         <div id="collector-card" class="collector-card">
             <div class="collector-card-header">
+                <img src="cancha_haut_sans_inscriptions.jpg" alt="" class="collector-cancha-bg">
+                <div class="collector-header-gradient"></div>
+                <img src="logoce.png" alt="Logo CE" class="collector-logo-ce">
                 <img src="ICP.png" alt="Logo ICP" class="collector-logo-icp">
                 <div id="collector-photo-container"></div>
                 <div class="collector-name-row">
@@ -1555,7 +1536,7 @@
                 <div class="collector-metric-row">
                     <span class="collector-metric-lbl">Pelotes (Moy/Tot/%):</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-pelotes-moy">0</strong>
+                        <strong id="collector-pelotes-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span><span id="collector-pelotes-tot" class="collector-pill">0</span><span class="collector-sep">)</span>
                         <span id="collector-pelotes-pct" class="collector-pill collector-pill-pos">0%</span>
                     </span>
@@ -1563,7 +1544,7 @@
                 <div class="collector-metric-row">
                     <span class="collector-metric-lbl">Pts gagnés (Moy/Tot/%):</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-gagnes-moy">0</strong>
+                        <strong id="collector-gagnes-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span><span id="collector-gagnes-tot" class="collector-pill collector-pill-pos">0</span><span class="collector-sep">)</span>
                         <span id="collector-gagnes-pct" class="collector-pill collector-pill-pos">0%</span>
                     </span>
@@ -1571,7 +1552,7 @@
                 <div class="collector-metric-row">
                     <span class="collector-metric-lbl">Pts perdus (Moy/Tot/%):</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-perdus-moy">0</strong>
+                        <strong id="collector-perdus-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span><span id="collector-perdus-tot" class="collector-pill collector-pill-neg">0</span><span class="collector-sep">)</span>
                         <span id="collector-perdus-pct" class="collector-pill collector-pill-neg">0%</span>
                     </span>
@@ -1579,18 +1560,17 @@
                 <div id="collector-buts-row" class="collector-metric-row">
                     <span class="collector-metric-lbl">Buts (Moy / Arr / Av):</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-buts-moy">0</strong>
-                        <span class="collector-sep">(</span>
-                        <span id="collector-buts-arr-pct" class="collector-pill collector-pill-pos">0%</span>
+                        <strong id="collector-buts-moy" class="collector-moy-bold">0</strong>
+                        <span class="collector-sep">•</span>
+                        <span>Av: <strong id="collector-buts-av-moy">0</strong> <span id="collector-buts-av-pct">(0%)</span></span>
                         <span class="collector-sep">/</span>
-                        <span id="collector-buts-av-pct" class="collector-pill collector-pill-pos">0%</span>
-                        <span class="collector-sep">)</span>
+                        <span>Arr: <strong id="collector-buts-arr-moy">0</strong> <span id="collector-buts-arr-pct">(0%)</span></span>
                     </span>
                 </div>
                 <div class="collector-metric-row">
                     <span class="collector-metric-lbl">Frappes (Moy/Pos/Nég/%):</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-frappes-moy">0</strong>
+                        <strong id="collector-frappes-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span>
                         <span id="collector-frappes-pos" class="collector-pill collector-pill-pos">0</span>
                         <span class="collector-sep">/</span>
@@ -1600,9 +1580,9 @@
                     </span>
                 </div>
                 <div class="collector-metric-row">
-                    <span class="collector-metric-lbl">Réceptions<br><span class="collector-metric-sub">(Moy/Pos/Nég/%):</span></span>
+                    <span class="collector-metric-lbl">Réceptions<br>(Moy/Pos/Nég/%):</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-rec-moy">0</strong>
+                        <strong id="collector-rec-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span>
                         <span id="collector-rec-pos" class="collector-pill collector-pill-pos">0</span>
                         <span class="collector-sep">/</span>
@@ -1611,13 +1591,11 @@
                         <span id="collector-rec-pct" class="collector-pill collector-pill-pos">0%</span>
                     </span>
                 </div>
-                <div class="collector-metric-row collector-metric-aligned-top">
-                    <div>
-                        <span class="collector-metric-lbl">Classique</span>
-                        <span class="collector-metric-sub">/ match (Moy / Neutre / + / -)</span>
-                    </div>
+                <div class="collector-metric-row collector-metric-stacked">
+                    <span class="collector-metric-lbl">Classique</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-cla-moy">0</strong>
+                        <span class="collector-metric-sub">/ match (Moy / Neutre / + / -) :</span>
+                        <strong id="collector-cla-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span>
                         <span class="collector-pill"><span id="collector-cla-neu">0</span> neutre</span>
                         <span class="collector-pill collector-pill-pos"><span id="collector-cla-pos">0</span>+</span>
@@ -1625,13 +1603,11 @@
                         <span class="collector-sep">)</span>
                     </span>
                 </div>
-                <div class="collector-metric-row collector-metric-aligned-top">
-                    <div>
-                        <span class="collector-metric-lbl">Attaque</span>
-                        <span class="collector-metric-sub">/ match (Moy / Neutre / + / -)</span>
-                    </div>
+                <div class="collector-metric-row collector-metric-stacked">
+                    <span class="collector-metric-lbl">Attaque</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-att-moy">0</strong>
+                        <span class="collector-metric-sub">/ match (Moy / Neutre / + / -) :</span>
+                        <strong id="collector-att-moy" class="collector-moy-bold">0</strong>
                         <span class="collector-sep">(</span>
                         <span class="collector-pill"><span id="collector-att-neu">0</span> neutre</span>
                         <span class="collector-pill collector-pill-pos"><span id="collector-att-pos">0</span>+</span>
@@ -1639,13 +1615,10 @@
                         <span class="collector-sep">)</span>
                     </span>
                 </div>
-                <div class="collector-metric-row collector-metric-aligned-top">
-                    <div>
-                        <span class="collector-metric-lbl">Dont</span>
-                        <span class="collector-metric-sub">points amenés, rec adv neg</span>
-                    </div>
+                <div class="collector-metric-row">
+                    <span class="collector-metric-lbl">Pts amenés, réc. adv. nég. / match:</span>
                     <span class="collector-metric-vals">
-                        <strong id="collector-amenes-moy">0</strong>
+                        <strong id="collector-amenes-moy" class="collector-moy-bold">0</strong>
                         <span id="collector-amenes-pct" class="collector-pill collector-pill-pos">0%</span>
                     </span>
                 </div>
@@ -2161,7 +2134,7 @@
 
             const isHorizontal = chart.config.options.indexAxis === 'y';
             const suffix = pluginOptions.suffix || '';
-            const labelColor = pluginOptions.color || '#0f172a';
+            const labelColor = pluginOptions.color || '#f8fafc';
             const fontSize = pluginOptions.fontSize || 10;
 
             ctx.save();
@@ -2241,9 +2214,18 @@
 
         estExportPdf = true;
         document.querySelector('.detail-collector-wrap')?.classList.remove('is-expanded');
-        htmlElement.setAttribute('data-theme', 'light');
-        document.body.classList.add('pdf-exporting');
+        htmlElement.setAttribute('data-theme', 'dark');
+        document.body.classList.add('pdf-exporting-dark');
         rendreVueStats();
+
+        const imagesCarte = Array.from(container.querySelectorAll('.detail-collector-wrap img'));
+        await Promise.all(imagesCarte.map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(res => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+            });
+        }));
 
         Object.values(chartsInstances).forEach(chart => {
             if (chart) {
@@ -2280,7 +2262,8 @@
             html2canvas: {
                 scale: 2,
                 useCORS: true,
-                backgroundColor: '#ffffff'
+                allowTaint: true,
+                backgroundColor: '#071423'
             },
             jsPDF: {
                 unit: 'mm',
@@ -2297,7 +2280,7 @@
             window.print();
         } finally {
             estExportPdf = false;
-            document.body.classList.remove('pdf-exporting');
+            document.body.classList.remove('pdf-exporting-dark');
             htmlElement.setAttribute('data-theme', themeAvantPdf);
             rendreVueStats();
 
@@ -3200,8 +3183,10 @@
         }
         if (!estArriere) {
             document.getElementById('collector-buts-moy').textContent = divOuZero(donnees.valButs, donnees.nbParties);
-            document.getElementById('collector-buts-arr-pct').textContent = `${donnees.pctArriere}%`;
-            document.getElementById('collector-buts-av-pct').textContent = `${donnees.pctAvant}%`;
+            document.getElementById('collector-buts-av-moy').textContent = divOuZero(donnees.valButsAvant, donnees.nbParties);
+            document.getElementById('collector-buts-av-pct').textContent = `(${donnees.pctAvant}%)`;
+            document.getElementById('collector-buts-arr-moy').textContent = divOuZero(donnees.valButsArriere, donnees.nbParties);
+            document.getElementById('collector-buts-arr-pct').textContent = `(${donnees.pctArriere}%)`;
         }
 
         const fTot = donnees.valFrappesTotal;
@@ -3221,18 +3206,18 @@
         const cPos = donnees.valClaPos;
         const cNeg = donnees.valClaNeg;
         document.getElementById('collector-cla-moy').textContent = divOuZero(cTot, donnees.nbParties);
-        document.getElementById('collector-cla-neu').textContent = `${divOuZero(cNeu, donnees.nbParties)} neutre`;
-        document.getElementById('collector-cla-pos').textContent = `${divOuZero(cPos, donnees.nbParties)}+`;
-        document.getElementById('collector-cla-neg').textContent = `${divOuZero(cNeg, donnees.nbParties)}-`;
+        document.getElementById('collector-cla-neu').textContent = divOuZero(cNeu, donnees.nbParties);
+        document.getElementById('collector-cla-pos').textContent = divOuZero(cPos, donnees.nbParties);
+        document.getElementById('collector-cla-neg').textContent = divOuZero(cNeg, donnees.nbParties);
 
         const aTot = donnees.valAttaques;
         const aNeu = donnees.valAttNeu;
         const aPos = donnees.valAttPos;
         const aNeg = donnees.valAttNeg;
         document.getElementById('collector-att-moy').textContent = divOuZero(aTot, donnees.nbParties);
-        document.getElementById('collector-att-neu').textContent = `${divOuZero(aNeu, donnees.nbParties)} neutre`;
-        document.getElementById('collector-att-pos').textContent = `${divOuZero(aPos, donnees.nbParties)}+`;
-        document.getElementById('collector-att-neg').textContent = `${divOuZero(aNeg, donnees.nbParties)}-`;
+        document.getElementById('collector-att-neu').textContent = divOuZero(aNeu, donnees.nbParties);
+        document.getElementById('collector-att-pos').textContent = divOuZero(aPos, donnees.nbParties);
+        document.getElementById('collector-att-neg').textContent = divOuZero(aNeg, donnees.nbParties);
 
         document.getElementById('collector-amenes-moy').textContent = divOuZero(donnees.valPtsAmenesRecAdvNeg, donnees.nbParties);
         document.getElementById('collector-amenes-pct').textContent = `${donnees.pctPtsAmenesRecAdvNeg}%`;
@@ -3530,17 +3515,11 @@
             }
         });
 
-        const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+        const currentTheme = estExportPdf ? 'dark' : (htmlElement.getAttribute('data-theme') || 'dark');
         const accentColor = '#17b890';
-        const textColor = estExportPdf
-            ? '#0f172a'
-            : (currentTheme === 'dark' ? '#ffffff' : '#1e293b');
-        const barLabelColor = estExportPdf
-            ? '#0f172a'
-            : (currentTheme === 'dark' ? '#f8fafc' : '#0f172a');
-        const gridColor = estExportPdf
-            ? 'rgba(15, 23, 42, 0.14)'
-            : (currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+        const textColor = currentTheme === 'dark' ? '#ffffff' : '#1e293b';
+        const barLabelColor = currentTheme === 'dark' ? '#f8fafc' : '#0f172a';
+        const gridColor = currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
         const tickFontSize = estExportPdf ? 10 : 9;
         const barValFontSize = estExportPdf ? 10 : 9;
 
