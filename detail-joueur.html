@@ -534,6 +534,43 @@
             gap: 6px !important;
         }
 
+        /* --- CARTE COLLECTOR : FORMAT PORTRAIT ÉQUILIBRÉ & PHOTO AU BON RATIO --- */
+        body.pdf-exporting-dark .detail-collector-wrap {
+            max-width: 340px !important;
+            width: 340px !important;
+            margin: 0 auto 12px !important;
+        }
+
+        body.pdf-exporting-dark .detail-collector-wrap .collector-card {
+            width: 340px !important;
+            min-width: 340px !important;
+            max-width: 340px !important;
+            aspect-ratio: 53.98 / 85.6 !important;
+            padding: 7px 7px 10px !important;
+            border-radius: 22px !important;
+        }
+
+        body.pdf-exporting-dark .detail-collector-wrap .collector-card-header {
+            height: 175px !important;
+            min-height: 175px !important;
+        }
+
+        body.pdf-exporting-dark .detail-collector-wrap .collector-cancha-bg {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center center !important;
+        }
+
+        body.pdf-exporting-dark .detail-collector-wrap .collector-photo {
+            left: 6px !important;
+            bottom: 28px !important;
+            width: 155px !important;
+            height: 145px !important;
+            object-fit: contain !important;
+            object-position: left bottom !important;
+        }
+
         body.pdf-exporting-dark .section-title {
             font-size: 0.72rem !important;
             margin-bottom: 5px !important;
@@ -2261,6 +2298,7 @@
             image: { type: 'jpeg', quality: 0.96 },
             html2canvas: {
                 scale: 2,
+                windowWidth: 720,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#071423'
