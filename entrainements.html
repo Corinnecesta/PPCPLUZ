@@ -342,17 +342,28 @@
         themeToggleBtn.innerHTML = (theme === 'light') ? '☀️' : '🌙';
     }
 
+    function normaliserRole(role) {
+        return String(role || '')
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\s_-]+/g, "")
+            .trim();
+    }
+
+    function mettreAJourVisibiliteActionsAdmin() {
+        const roleNorm = normaliserRole(localStorage.getItem('cesta_user_role'));
+        const adminSection = document.getElementById('adminActionSection');
+        const autorise = ['admin', 'administrateur', 'entraineur', 'entraineurplus'].includes(roleNorm);
+
+        if (adminSection) {
+            adminSection.style.display = autorise ? 'block' : 'none';
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         effacerBadgeEntrainements();
-
-        const role = localStorage.getItem('cesta_user_role');
-        const adminSection = document.getElementById('adminActionSection');
-        
-        if (role === 'admin' || role === 'entraineur') {
-            if (adminSection) adminSection.style.display = 'block';
-        } else {
-            if (adminSection) adminSection.style.display = 'none';
-        }
+        mettreAJourVisibiliteActionsAdmin();
         chargerCalendrierFirebase();
     });
 
