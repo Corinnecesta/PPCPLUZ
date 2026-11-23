@@ -71,32 +71,6 @@
             width: 100%;
         }
 
-        .menu-center-deco {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.9rem; /* Plus grand */
-            background: #0d1b2a;
-            border: 2px solid #17b890;
-            border-radius: 50%;
-            width: 46px;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            pointer-events: none;
-            user-select: none;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-        }
-
-        [data-theme="light"] .menu-center-deco {
-            background: #ffffff;
-            border-color: #cbd5e1;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-        }
-
         .mobile-container { 
             max-width: 420px; 
             width: 100%; 
@@ -550,7 +524,7 @@
     </section>
 
     <div class="hero-banner full-width-block">
-        <img src="titrenoel.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
+        <img src="titre.png" alt="Illustration Pôle Performance Cesta Punta" class="hero-img">
     </div>
 
     <!-- CONTENEUR SUR UNE SEULE LIGNE : Échanges + AIA (Admin/Entraîneurs/JoueurPlus) + Prochain entraînement -->
@@ -598,9 +572,8 @@
     </nav>
 
     <nav aria-label="Navigation principale" style="display: flex; flex-direction: column; gap: 12px;">
-        <!-- 4 PREMIERS GROS BLOCS AVEC SAPIN AGRANDI AU MILIEU -->
+        <!-- 4 PREMIERS GROS BLOCS -->
         <div class="menu-group-wrapper">
-            <span class="menu-center-deco" aria-hidden="true">🎄</span>
             <div class="menu-grid">
                 <!-- Bouton Entraînements avec chistera et haltères -->
                 <a href="entrainements.html" onclick="localStorage.setItem('dernier_clic_entrainements', Date.now())" class="menu-card active-primary">
@@ -630,9 +603,8 @@
             </div>
         </div>
 
-        <!-- 4 GROS BLOCS DU DESSOUS AVEC CADEAU AGRANDI AU MILIEU -->
+        <!-- 4 GROS BLOCS DU DESSOUS -->
         <div class="menu-group-wrapper">
-            <span class="menu-center-deco" aria-hidden="true">🎁</span>
             <div class="menu-grid">
                 <a href="comparaison.html" class="menu-card">
                     <div class="menu-icon-wrapper" aria-hidden="true">🏆</div>
@@ -668,24 +640,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js"></script>
 
 <script>
-    // --- DISSUASION LÉGÈRE SUR PC (CLIC DROIT & RACCOURCIS COURANTS) ---
-    document.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-    });
-
-    document.addEventListener('keydown', (e) => {
-        const keyUpper = e.key ? e.key.toUpperCase() : '';
-        const isDevShortcut =
-            e.key === 'F12' ||
-            (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(keyUpper)) ||
-            (e.metaKey && e.altKey && ['I', 'J', 'C'].includes(keyUpper)) ||
-            ((e.ctrlKey || e.metaKey) && ['U', 'S'].includes(keyUpper));
-
-        if (isDevShortcut) {
-            e.preventDefault();
-        }
-    });
-
     const firebaseConfig = {
         apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
         authDomain: "ppcestapunta64500.firebaseapp.com",
@@ -852,46 +806,17 @@
     }
 
     function normaliserRole(role) {
-        if (Array.isArray(role)) {
-            return role.map(r => normaliserRole(r)).filter(Boolean).join(',');
-        }
-        if (role && typeof role === 'object') {
-            return normaliserRole(role.role || role.name || role.type || '');
-        }
         return String(role || '')
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .replace(/\+/g, 'plus')
-            .replace(/[^a-z0-9,]+/g, '')
+            .replace(/[\s_-]+/g, '')
             .trim();
     }
 
-    function extraireRoleStocke() {
-        const clesPotentielles = ['cesta_user_role', 'user_role', 'role', 'cesta_role'];
-        for (const cle of clesPotentielles) {
-            const val = localStorage.getItem(cle);
-            if (val) return val;
-        }
-        try {
-            const userJson = localStorage.getItem('cesta_user') || localStorage.getItem('user');
-            if (userJson) {
-                const parsed = JSON.parse(userJson);
-                if (parsed && (parsed.role || parsed.roles || parsed.type)) {
-                    return parsed.role || parsed.roles || parsed.type;
-                }
-            }
-        } catch (e) {}
-        return '';
-    }
-
-    function aRoleCible(roleBrut, cibles) {
-        const tokens = normaliserRole(roleBrut).split(',').filter(Boolean);
-        return tokens.some(tok => cibles.includes(tok));
-    }
-
     function appliquerDroitsAcces() {
-        const roleBrut = extraireRoleStocke();
+        const roleNormalise = normaliserRole(localStorage.getItem('cesta_user_role') || '');
         const userEmail = (localStorage.getItem('cesta_user_email') || '').toLowerCase();
         
         let isStaffMember = false;
@@ -899,11 +824,10 @@
             isStaffMember = staffData.some(s => s.email && s.email.toLowerCase() === userEmail);
         }
 
-        const isAdmin = aRoleCible(roleBrut, ['admin', 'administrateur', 'superadmin']);
-        const isEntraineurPlus = aRoleCible(roleBrut, ['entraineurplus', 'coachplus', 'superentraineur', 'entraineur2', 'entraineuravance']);
-        const isEntraineur = aRoleCible(roleBrut, ['entraineur', 'coach', 'staff']);
-        const isJoueurPlus = aRoleCible(roleBrut, ['joueurplus', 'playerplus']);
-        const isEntraineurOrAdmin = (isAdmin || isEntraineurPlus || isEntraineur || isStaffMember);
+        const isAdmin = (roleNormalise === 'admin' || roleNormalise === 'administrateur');
+        const isEntraineurPlus = (roleNormalise === 'entraineurplus');
+        const isJoueurPlus = (roleNormalise === 'joueurplus');
+        const isEntraineurOrAdmin = (isAdmin || isEntraineurPlus || roleNormalise === 'entraineur' || roleNormalise === 'coach' || isStaffMember);
 
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => {
@@ -949,12 +873,8 @@
             }
             try {
                 const userDoc = await db.collection("users").doc(user.uid).get();
-                if (userDoc.exists) {
-                    const data = userDoc.data() || {};
-                    const roleFirestore = data.role || data.roles || data.type || data.statut;
-                    if (roleFirestore) {
-                        localStorage.setItem('cesta_user_role', typeof roleFirestore === 'string' ? roleFirestore : JSON.stringify(roleFirestore));
-                    }
+                if (userDoc.exists && userDoc.data().role) {
+                    localStorage.setItem('cesta_user_role', userDoc.data().role);
                     appliquerDroitsAcces();
                 }
             } catch (e) {}
