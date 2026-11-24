@@ -40,6 +40,15 @@
         /* Masqué par défaut, affiché via JS si admin/entraîneur */
         .add-player-btn { display: none; background: var(--accent-color); color: #000; font-weight: bold; text-align: center; padding: 8px 12px; border-radius: 10px; text-decoration: none; font-size: 0.8rem; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
         .add-player-btn:hover { opacity: 0.9; }
+
+        /* Pied de page droits d'auteur */
+        .copyright-footer {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            padding: 14px 8px 6px;
+        }
     </style>
 </head>
 <body>
@@ -76,6 +85,13 @@
     <div class="players-list" id="playersContainer">
         <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.85rem;">Chargement des joueurs et des statistiques...</div>
     </div>
+
+    <!-- Mention légale / Droits d'auteur -->
+    <footer class="copyright-footer">
+        <div>Copyright (c) 2026 Corinne Elissalde — Pôle Performance (PPCPLUZ).</div>
+        <div>Tous droits réservés.</div>
+        <div>Reproduction, copie ou diffusion interdites sans autorisation écrite.</div>
+    </footer>
 </div>
 
 <!-- Fichier local de secours -->
