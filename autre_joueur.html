@@ -511,8 +511,8 @@
                 listeMatchsJoueur.push(matchData);
                 statsParMatchGlobal[matchId] = statsTrouvees || matchData.stats || {};
 
-                const score1 = matchData.scoreEquipe1 !== undefined ? matchData.scoreEquipe1 : (matchData.equipe1Score ?? match.score1 ?? 0);
-                const score2 = matchData.scoreEquipe2 !== undefined ? matchData.scoreEquipe2 : (matchData.equipe2Score ?? match.score2 ?? 0);
+                const score1 = matchData.scoreEquipe1 !== undefined ? matchData.scoreEquipe1 : (matchData.equipe1Score ?? matchData.score1 ?? 0);
+                const score2 = matchData.scoreEquipe2 !== undefined ? matchData.scoreEquipe2 : (matchData.equipe2Score ?? matchData.score2 ?? 0);
                 
                 const vainqueur = determinerVainqueur(score1, score2);
                 const equipeJoueur = getEquipeJoueur(matchData);
@@ -719,6 +719,9 @@
         const totalPartieGagnes = Number(stats.ptsGagnesTotaux || 50);
         const pointsPerdus = Number(stats.ptsPerdus || stats.pointsPerdus || 0);
         const totalPartiePerdus = Number(stats.ptsPerdusTotaux || 50);
+        const ptsAmenesRecAdvNeg = Number(stats.ptsAmenesRecAdvNeg || 0);
+        const totalPartieAmenesRecAdvNeg = Number(stats.ptsAmenesRecAdvNegTotal || 0);
+        const denomPartieAmenes = totalPartieAmenesRecAdvNeg > 0 ? totalPartieAmenesRecAdvNeg : pointsGagnes;
 
         const butsTotal = Number(stats.butsTotal || 0);
         const butsArriere = Number(stats.butsSurArriere || 0);
@@ -779,6 +782,7 @@
                         <tr><td><strong>Pelotes jouées</strong></td><td>${pelotesJouees}</td><td>${totalPartiePelotes}</td><td><strong>${calcPct(pelotesJouees, totalPartiePelotes)}</strong></td></tr>
                         <tr><td><strong>Points gagnés</strong></td><td style="color:#10B981;">${pointsGagnes}</td><td>${totalPartieGagnes}</td><td style="color:#10B981;"><strong>${calcPct(pointsGagnes, totalPartieGagnes)}</strong></td></tr>
                         <tr><td><strong>Points perdus</strong></td><td style="color:#EF4444;">${pointsPerdus}</td><td>${totalPartiePerdus}</td><td style="color:#EF4444;"><strong>${calcPct(pointsPerdus, totalPartiePerdus)}</strong></td></tr>
+                        <tr><td><strong>Points amenés (récep. adv. nég.)</strong></td><td style="color:var(--accent-color);">${ptsAmenesRecAdvNeg}</td><td>${denomPartieAmenes}</td><td style="color:var(--accent-color);"><strong>${calcPct(ptsAmenesRecAdvNeg, denomPartieAmenes)}</strong></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -948,6 +952,10 @@
                     <div><label>Points perdus :</label><input type="number" id="editPtsPerdus" value="${stats.ptsPerdus || stats.pointsPerdus || 0}"></div>
                     <div><label>Pts Perdus Totaux :</label><input type="number" id="editPtsPerdusTotaux" value="${stats.ptsPerdusTotaux || 50}"></div>
                 </div>
+                <div class="edit-grid-2">
+                    <div><label>Pts amenés (récep. adv. nég.) :</label><input type="number" id="editPtsAmenesRecAdvNeg" value="${stats.ptsAmenesRecAdvNeg || 0}"></div>
+                    <div><label>Total réf. pts amenés :</label><input type="number" id="editPtsAmenesRecAdvNegTotal" value="${stats.ptsAmenesRecAdvNegTotal || 0}"></div>
+                </div>
 
                 <h5>Buts</h5>
                 <div class="edit-grid-3">
@@ -1091,6 +1099,8 @@
             ptsGagnesTotaux: Number(document.getElementById('editPtsGagnesTotaux').value || 50),
             ptsPerdus: Number(document.getElementById('editPtsPerdus').value || 0),
             ptsPerdusTotaux: Number(document.getElementById('editPtsPerdusTotaux').value || 50),
+            ptsAmenesRecAdvNeg: Number(document.getElementById('editPtsAmenesRecAdvNeg').value || 0),
+            ptsAmenesRecAdvNegTotal: Number(document.getElementById('editPtsAmenesRecAdvNegTotal').value || 0),
             
             butsTotal: Number(document.getElementById('editButsTotal').value || 0),
             butsSurArriere: Number(document.getElementById('editButsSurArriere').value || 0),
@@ -1192,7 +1202,7 @@
     };
 
     function calculerEtAfficherTotales() {
-        let tp = 0, tpt = 0, tg = 0, tgt = 0, tpv = 0, tpvt = 0, bTot = 0, cdSum = 0;
+        let tp = 0, tpt = 0, tg = 0, tgt = 0, tpv = 0, tpvt = 0, tAmen = 0, tAmenTot = 0, bTot = 0, cdSum = 0;
         let aireTot = 0, airePos = 0, aireNeg = 0;
         let boteTot = 0, botePos = 0, boteNeg = 0;
         let boteCorridoTot = 0, boteCorridoPos = 0, boteCorridoNeg = 0;
@@ -1223,6 +1233,8 @@
             tgt += Number(st.ptsGagnesTotaux || 50);
             tpv += Number(st.ptsPerdus || st.pointsPerdus || 0);
             tpvt += Number(st.ptsPerdusTotaux || 50);
+            tAmen += Number(st.ptsAmenesRecAdvNeg || 0);
+            tAmenTot += Number(st.ptsAmenesRecAdvNegTotal || 0);
             bTot += Number(st.butsTotal || 0);
             cdSum += Number(st.receptionsCoupDroitPct || st.coupDroitPct || 50);
 
@@ -1288,6 +1300,7 @@
                         <tr><td><strong>Pelotes jouées</strong></td><td>${tp}</td><td>${tpt}</td><td><strong>${calcPct(tp, tpt)}</strong></td></tr>
                         <tr><td><strong>Points gagnés</strong></td><td style="color:#10B981;">${tg}</td><td>${tgt}</td><td style="color:#10B981;"><strong>${calcPct(tg, tgt)}</strong></td></tr>
                         <tr><td><strong>Points perdus</strong></td><td style="color:#EF4444;">${tpv}</td><td>${tpvt}</td><td style="color:#EF4444;"><strong>${calcPct(tpv, tpvt)}</strong></td></tr>
+                        <tr><td><strong>Points amenés (récep. adv. nég.)</strong></td><td style="color:var(--accent-color);">${tAmen}</td><td>${tAmenTot > 0 ? tAmenTot : tg}</td><td style="color:var(--accent-color);"><strong>${calcPct(tAmen, tAmenTot > 0 ? tAmenTot : tg)}</strong></td></tr>
                     </tbody>
                 </table>
             </div>
