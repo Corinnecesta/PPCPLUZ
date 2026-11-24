@@ -1,7 +1,7 @@
 {
   "name": "Pôle Performance Cesta Punta",
   "short_name": "Pôle Performance",
-  "description": "Pôle Performance Cesta Punta (PPCPLUZ) — © 2026 Corinne Elissalde. Tous droits réservés.",
+  "description": "Copyright (c) 2026 Corinne Elissalde — Pôle Performance (PPCPLUZ). Tous droits réservés. Reproduction, copie ou diffusion interdites sans autorisation écrite.",
   "start_url": "/PPCPLUZ/index.html",
   "display": "standalone",
   "background_color": "#0a192f",
@@ -19,10 +19,6 @@
     }
   ]
 }
-```[cite: 5]
 
-### Ce qu'il faut retenir pour cette mise à jour
-* **Aucune réinstallation exigée :** Garder `"start_url": "/PPCPLUZ/index.html"`, `"display": "standalone"` et les mêmes icônes `pole.png` garantit la continuité de votre PWA existante[cite: 5].
-* **JSON valide :** Veillez à bien garder la virgule après `"short_name"` (ou après `"name"`) pour que le fichier reste syntaxiquement valide.
 
-Souhaitez-vous que l'on passe ensuite à la résolution de l'accès aux collections `entrainements` et `parties_rapides` dans Firestore ?
+Dites-moi si vous souhaitez ensuite qu'on débloque vos collections `entrainements` et `parties_rapides` dans Firestore[cite: 1].
