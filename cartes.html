@@ -683,6 +683,15 @@
   }
 }
 
+        /* Pied de page droits d'auteur */
+        .copyright-footer {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            padding: 14px 8px 6px;
+        }
+
         /* Styles dédiés à l'export / impression PDF : format carte bleue PORTRAIT (54mm x 85.6mm) */
         @media print {
             @page {
@@ -923,6 +932,13 @@
             </section>
         </main>
     </div>
+
+    <!-- Mention légale / Droits d'auteur -->
+    <footer class="copyright-footer no-print">
+        <div>Copyright (c) 2026 Corinne Elissalde — Pôle Performance (PPCPLUZ).</div>
+        <div>Tous droits réservés.</div>
+        <div>Reproduction, copie ou diffusion interdites sans autorisation écrite.</div>
+    </footer>
 </div>
 
 <!-- Scripts de données -->
