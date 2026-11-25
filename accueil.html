@@ -321,7 +321,7 @@
             white-space: nowrap;
         }
 
-        /* --- BLOC SUR UNE SEULE LIGNE : STATISTIQUES TOUS JOUEURS --- */
+        /* --- BLOCS SUR UNE SEULE LIGNE : STATISTIQUES TOUS JOUEURS & PARIS --- */
         .stats-all-players-card {
             padding: 10px 14px;
             text-decoration: none;
@@ -342,6 +342,9 @@
             font-size: 1rem;
             line-height: 1;
             flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
         }
         .stats-all-players-label {
             font-size: 0.72rem;
@@ -572,6 +575,12 @@
     <a href="cartes.html" id="statsAllPlayersCard" class="stats-all-players-card full-width-block" aria-label="Statistiques tous joueurs" style="display: none;">
         <span class="stats-all-players-icon" aria-hidden="true">📊</span>
         <span class="stats-all-players-label">Statistiques tous joueurs</span>
+    </a>
+
+    <!-- BLOC SUR UNE SEULE LIGNE : Paris (visible uniquement par admin, fifi et fred) -->
+    <a href="paris.html" id="parisAccessCard" class="stats-all-players-card full-width-block" aria-label="Accéder à l'espace Paris" style="display: none;">
+        <span class="stats-all-players-icon" aria-hidden="true">🎟️✏️</span>
+        <span class="stats-all-players-label">Paris</span>
     </a>
 
     <nav class="admin-actions-grid admin-only" aria-label="Actions administrateur" style="display: none;">
@@ -840,7 +849,42 @@
             .trim();
     }
 
-    function appliquerDroitsAcces() {
+    const IDENTIFIANTS_PARIS_AUTORISES = ['admin', 'administrateur', 'fifi', 'fred'];
+
+    function correspondIdentifiantParis(valeur) {
+        const clean = normaliserRole(valeur);
+        if (!clean) return false;
+        const prefixeEmail = clean.split('@')[0];
+        return IDENTIFIANTS_PARIS_AUTORISES.some((cible) =>
+            clean === cible ||
+            prefixeEmail === cible ||
+            clean.startsWith(cible)
+        );
+    }
+
+    function peutVoirBlocParis(isAdmin, userDocData) {
+        if (isAdmin) return true;
+
+        const authUser = firebase.auth().currentUser;
+        const candidats = [
+            localStorage.getItem('cesta_user_role'),
+            localStorage.getItem('cesta_user_id'),
+            localStorage.getItem('cesta_user_name'),
+            localStorage.getItem('cesta_user_email'),
+            authUser && authUser.email,
+            authUser && authUser.displayName,
+            userDocData && userDocData.role,
+            userDocData && userDocData.pseudo,
+            userDocData && userDocData.username,
+            userDocData && userDocData.prenom,
+            userDocData && userDocData.nom,
+            userDocData && userDocData.email
+        ];
+
+        return candidats.some(correspondIdentifiantParis);
+    }
+
+    function appliquerDroitsAcces(userDocData = null) {
         const roleNormalise = normaliserRole(localStorage.getItem('cesta_user_role') || '');
         const userEmail = (localStorage.getItem('cesta_user_email') || '').toLowerCase();
         
@@ -862,6 +906,11 @@
         const statsCard = document.getElementById('statsAllPlayersCard');
         if (statsCard) {
             statsCard.style.display = (isAdmin || isEntraineurPlus) ? 'flex' : 'none';
+        }
+
+        const parisCard = document.getElementById('parisAccessCard');
+        if (parisCard) {
+            parisCard.style.display = peutVoirBlocParis(isAdmin, userDocData) ? 'flex' : 'none';
         }
 
         const aiaCard = document.getElementById('aiaAccessCard');
@@ -898,11 +947,16 @@
             }
             try {
                 const userDoc = await db.collection("users").doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().role) {
-                    localStorage.setItem('cesta_user_role', userDoc.data().role);
-                    appliquerDroitsAcces();
+                const docData = userDoc.exists ? userDoc.data() : null;
+                if (docData && docData.role) {
+                    localStorage.setItem('cesta_user_role', docData.role);
                 }
-            } catch (e) {}
+                appliquerDroitsAcces(docData);
+            } catch (e) {
+                appliquerDroitsAcces();
+            }
+        } else {
+            appliquerDroitsAcces();
         }
     });
 

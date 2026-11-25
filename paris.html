@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pôle Performance - Paris & Stats Joueurs</title>
+
+    <!-- Configuration PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f4c5c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pôle Performance">
+    <link rel="apple-touch-icon" href="pole.png">
+
+    <!-- Police Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- SDK Firebase (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0a192f 0%, #0f4c5c 50%, #17b890 100%);
+            --container-text: #f8fafc;
+            --card-bg: linear-gradient(135deg, #0d1b2a 0%, #0f4c5c 100%);
+            --card-border: #17b890;
+            --card-hover-bg: linear-gradient(135deg, #132238 0%, #125c6e 100%);
+            --accent-color: #00f2fe;
+            --text-muted: #94a3b8;
+            --btn-gradient: linear-gradient(135deg, #0f4c5c 0%, #125c6e 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #125c6e 0%, #17b890 100%);
+
+            /* Couleurs de classement parieurs */
+            --rank-top-border: #22c55e;
+            --rank-top-bg: rgba(34, 197, 94, 0.14);
+            --rank-top-text: #4ade80;
+
+            --rank-mid-border: #f59e0b;
+            --rank-mid-bg: rgba(245, 158, 11, 0.14);
+            --rank-mid-text: #fbbf24;
+
+            --rank-low-border: #ef4444;
+            --rank-low-bg: rgba(239, 68, 68, 0.14);
+            --rank-low-text: #f87171;
+        }
+
+        [data-theme="light"] {
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --container-text: #0f172a;
+            --card-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            --card-border: #cbd5e1;
+            --card-hover-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --accent-color: #0284c7;
+            --text-muted: #64748b;
+            --btn-gradient: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            --btn-hover-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+
+            --rank-top-border: #16a34a;
+            --rank-top-bg: rgba(22, 163, 74, 0.12);
+            --rank-top-text: #15803d;
+
+            --rank-mid-border: #d97706;
+            --rank-mid-bg: rgba(217, 119, 6, 0.12);
+            --rank-mid-text: #b45309;
+
+            --rank-low-border: #dc2626;
+            --rank-low-bg: rgba(220, 38, 38, 0.12);
+            --rank-low-text: #b91c1c;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--container-text);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .mobile-container {
+            max-width: 420px;
+            width: 100%;
+            box-sizing: border-box;
+            padding-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .hidden-access {
+            display: none !important;
+        }
+
+        .access-gate-card {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .access-gate-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 0 0 8px 0;
+        }
+
+        .access-gate-text {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin: 0 0 14px 0;
+            line-height: 1.5;
+        }
+
+        .access-gate-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 46px;
+            object-fit: contain;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn, .logout-btn {
+            background: var(--btn-gradient);
+            border: 1px solid var(--card-border);
+            color: var(--container-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .icon-btn:hover, .logout-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--btn-hover-gradient);
+        }
+
+        .separator {
+            border: none;
+            height: 1px;
+            background-color: var(--card-border);
+            margin: 2px 0;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.18);
+            box-sizing: border-box;
+        }
+
+        .page-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 0 0 4px 0;
+            text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin: 0;
+            text-align: center;
+        }
+
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .section-heading {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .count-pill {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--container-text);
+            background: rgba(23, 184, 144, 0.22);
+            border: 1px solid var(--card-border);
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .active-scope-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.16);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 10px;
+            padding: 6px 10px;
+            margin-bottom: 10px;
+        }
+
+        [data-theme="light"] .active-scope-bar {
+            background: rgba(255, 255, 255, 0.65);
+        }
+
+        .active-scope-text strong {
+            color: var(--accent-color);
+        }
+
+        .reset-filters-btn {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--container-text);
+            border-radius: 8px;
+            padding: 3px 8px;
+            font-size: 0.66rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .reset-filters-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .legend-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-size: 0.68rem;
+            font-weight: 600;
+        }
+
+        .legend-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+        }
+
+        .legend-chip.top {
+            background: var(--rank-top-bg);
+            border-color: var(--rank-top-border);
+            color: var(--rank-top-text);
+        }
+
+        .legend-chip.mid {
+            background: var(--rank-mid-bg);
+            border-color: var(--rank-mid-border);
+            color: var(--rank-mid-text);
+        }
+
+        .legend-chip.low {
+            background: var(--rank-low-bg);
+            border-color: var(--rank-low-border);
+            color: var(--rank-low-text);
+        }
+
+        .filter-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .filter-tab-btn {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--container-text);
+            border-radius: 10px;
+            padding: 7px 6px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .filter-tab-btn.active {
+            background: var(--btn-hover-gradient);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .filters-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .search-input, .filter-select {
+            width: 100%;
+            background: var(--card-hover-bg);
+            border: 2px solid var(--card-border);
+            color: var(--container-text);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            box-sizing: border-box;
+            outline: none;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .search-input:focus, .filter-select:focus {
+            border-color: var(--accent-color);
+        }
+
+        .filter-select option {
+            background: #0d1b2a;
+            color: #f8fafc;
+        }
+
+        [data-theme="light"] .filter-select option {
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        .players-odds-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 460px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .player-odd-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border: 1.5px solid var(--card-border);
+            border-radius: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .player-odd-row.tier-top {
+            border-color: var(--rank-top-border);
+            background: var(--rank-top-bg);
+        }
+
+        .player-odd-row.tier-mid {
+            border-color: var(--rank-mid-border);
+            background: var(--rank-mid-bg);
+        }
+
+        .player-odd-row.tier-low {
+            border-color: var(--rank-low-border);
+            background: var(--rank-low-bg);
+        }
+
+        .player-odd-row:hover {
+            filter: brightness(1.06);
+            transform: translateY(-1px);
+        }
+
+        .player-odd-row.selected {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.32);
+            outline: 2px solid var(--accent-color);
+        }
+
+        .player-top-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .player-avatar-wrap {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid var(--card-border);
+            background: rgba(15, 76, 92, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--container-text);
+        }
+
+        .player-odd-row.tier-top .player-avatar-wrap {
+            border-color: var(--rank-top-border);
+        }
+
+        .player-odd-row.tier-mid .player-avatar-wrap {
+            border-color: var(--rank-mid-border);
+        }
+
+        .player-odd-row.tier-low .player-avatar-wrap {
+            border-color: var(--rank-low-border);
+        }
+
+        .player-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .player-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .odd-badge {
+            background: rgba(13, 27, 42, 0.78);
+            border: 1px solid currentColor;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 6px 10px;
+            border-radius: 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        [data-theme="light"] .odd-badge {
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .tier-top .odd-badge {
+            color: var(--rank-top-text);
+        }
+
+        .tier-mid .odd-badge {
+            color: var(--rank-mid-text);
+        }
+
+        .tier-low .odd-badge {
+            color: var(--rank-low-text);
+        }
+
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px 8px;
+            background: rgba(0, 0, 0, 0.18);
+            border-radius: 9px;
+            padding: 7px 9px;
+            font-size: 0.68rem;
+            line-height: 1.3;
+        }
+
+        [data-theme="light"] .player-stats-grid {
+            background: rgba(255, 255, 255, 0.65);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+        }
+
+        .stat-val {
+            font-weight: 700;
+            color: var(--container-text);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--card-hover-bg);
+            border: 2px solid var(--card-border);
+            color: var(--container-text);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .summary-box {
+            background: rgba(0, 0, 0, 0.14);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--btn-gradient);
+            color: var(--container-text);
+            border: 2px solid var(--card-border);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .btn-submit:hover {
+            background: var(--btn-hover-gradient);
+            border-color: var(--accent-color);
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        }
+
+        .btn-clear:hover {
+            color: var(--container-text);
+            border-color: var(--accent-color);
+        }
+
+        .ticket-item {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+            padding: 8px 0;
+            font-size: 0.76rem;
+            line-height: 1.4;
+        }
+
+        .ticket-item:last-child {
+            border-bottom: none;
+        }
+
+        .notice-box {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .feedback-msg {
+            font-size: 0.78rem;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .feedback-msg.error {
+            background: rgba(239, 68, 68, 0.16);
+            border: 1px solid #ef4444;
+            color: #f87171;
+        }
+
+        .feedback-msg.success {
+            background: rgba(23, 184, 144, 0.18);
+            border: 1px solid #17b890;
+            color: #34d399;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <header class="top-header">
+        <img src="logoce.png" alt="Logo Pôle Performance" class="logo-img">
+        <div class="header-actions">
+            <button type="button" class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <button type="button" class="logout-btn" onclick="deconnexion()">Déconnexion</button>
+        </div>
+    </header>
+
+    <hr class="separator">
+
+    <!-- Écran affiché tant que l'accès n'est pas vérifié ou si l'utilisateur n'est pas autorisé -->
+    <section class="card access-gate-card" id="accessGateCard">
+        <h1 class="access-gate-title">Vérification de l'accès...</h1>
+        <p class="access-gate-text" id="accessGateMessage">
+            Contrôle de vos droits d'accès à l'espace Paris.
+        </p>
+        <div class="access-gate-actions hidden-access" id="accessGateActions">
+            <button type="button" class="btn-submit" style="width: auto; padding: 10px 16px;" onclick="window.location.href='index.html'">Retour à l'accueil</button>
+            <button type="button" class="btn-clear" style="padding: 10px 14px;" onclick="deconnexion()">Changer de compte</button>
+        </div>
+    </section>
+
+    <!-- Contenu complet de la page (masqué par défaut jusqu'à autorisation) -->
+    <div id="authorizedContent" class="hidden-access" style="display: flex; flex-direction: column; gap: 12px;">
+        <section class="card">
+            <h1 class="page-title">Espace Paris — Stats & Cotes Joueurs</h1>
+            <p class="page-subtitle">Chiffres et cotes mis à jour selon le lieu et/ou la compétition</p>
+        </section>
+
+        <section class="card">
+            <div class="section-header-row">
+                <h2 class="section-heading">1. Cotes & Stats Joueurs</h2>
+                <span class="count-pill" id="playersCountBadge">0 joueur</span>
+            </div>
+
+            <div class="legend-bar" aria-label="Légende des niveaux de classement">
+                <span class="legend-chip top">● Mieux classés</span>
+                <span class="legend-chip mid">● Moyens</span>
+                <span class="legend-chip low">● Moins bons</span>
+            </div>
+
+            <div class="filter-tabs" role="tablist">
+                <button type="button" class="filter-tab-btn active" id="tabAll" onclick="changerFiltre('all')">Tous</button>
+                <button type="button" class="filter-tab-btn" id="tabAvants" onclick="changerFiltre('avants')">Avants</button>
+                <button type="button" class="filter-tab-btn" id="tabArrieres" onclick="changerFiltre('arrieres')">Arrières</button>
+            </div>
+
+            <div class="filters-stack">
+                <input type="text" id="playerSearchInput" class="search-input" placeholder="Rechercher par nom de joueur..." oninput="rendreListeJoueurs()">
+                <div class="filters-row">
+                    <select id="lieuSelect" class="filter-select" aria-label="Filtrer par lieu" onchange="rendreListeJoueurs()">
+                        <option value="">📍 Tous les lieux</option>
+                    </select>
+                    <select id="competitionSelect" class="filter-select" aria-label="Filtrer par compétition" onchange="rendreListeJoueurs()">
+                        <option value="">🏆 Toutes compétitions</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="active-scope-bar">
+                <span class="active-scope-text" id="activeScopeText">Périmètre : <strong>Tous lieux • Toutes compétitions</strong></span>
+                <button type="button" class="reset-filters-btn" onclick="reinitialiserFiltresLieuComp()">Réinitialiser</button>
+            </div>
+
+            <div id="playersOddsList" class="players-odds-list">
+                <div class="notice-box">Chargement des joueurs et statistiques...</div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="section-heading">2. Ticket</h2>
+            <div id="betFeedback" class="feedback-msg"></div>
+
+            <div class="summary-box" id="selectionSummary">
+                Cliquez sur un joueur (ou deux joueurs) dans la liste ci-dessus pour préparer un ticket.
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="stakeInput">Mise (en €)</label>
+                <input type="number" id="stakeInput" class="form-input" min="1" step="1" placeholder="ex: 10" oninput="mettreAJourResumeTicket()">
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn-submit" onclick="enregistrerTicket()">Valider le ticket</button>
+                <button type="button" class="btn-clear" onclick="effacerSelection()">Vider</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="section-heading">3. Mes tickets</h2>
+            <div id="ticketsList">
+                <div class="notice-box">Aucun ticket enregistré pour le moment.</div>
+            </div>
+        </section>
+
+        <section class="card notice-box">
+            <strong>Cadre et jeu responsable :</strong> Les statistiques, notes /100, cotes et niveaux de classement (vert : mieux classés, orange : moyens, rouge : moins bons) sont calculés à partir des données enregistrées dans le cadre de cet espace dédié. L'exploitation de paris sportifs officiels en ligne est soumise à la réglementation et aux autorisations requises. Jouer comporte des risques (endettement, dépendance).
+        </section>
+    </div>
+</div>
+
+<script src="joueurs-data.js?v=7"></script>
+<script src="statsdata.js"></script>
+<script src="matchs-data.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBTujsGZneEGx1_V27zgRNf9-qM9zFFHQA",
+        authDomain: "ppcestapunta64500.firebaseapp.com",
+        projectId: "ppcestapunta64500",
+        storageBucket: "ppcestapunta64500.firebasestorage.app",
+        messagingSenderId: "80945272911",
+        appId: "1:80945272911:web:154437e054b190e7ebb23a",
+        measurementId: "G-SCYGWMW7VF"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Comptes / rôles / identifiants autorisés (à ajuster selon vos vrais comptes si besoin)
+    const IDENTIFIANTS_AUTORISES = [
+        "admin",
+        "fifi",
+        "fred"
+    ];
+
+    let pageDejaInitialisee = false;
+
+    function normaliserTexte(val) {
+        return String(val || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+    }
+
+    function estIdentifiantAutorise(candidat) {
+        const clean = normaliserTexte(candidat);
+        if (!clean) return false;
+        const prefixeEmail = clean.split("@")[0];
+        return IDENTIFIANTS_AUTORISES.some((autorise) =>
+            clean === autorise ||
+            prefixeEmail === autorise ||
+            clean.startsWith(autorise + ".") ||
+            clean.startsWith(autorise + "_") ||
+            clean.startsWith(autorise + "-") ||
+            clean.startsWith(autorise + " ")
+        );
+    }
+
+    function verifierDroitsUtilisateur(user, userDocData) {
+        const roleLocal = localStorage.getItem("cesta_user_role") || "";
+        const uidLocal = localStorage.getItem("cesta_user_uid") || "";
+        const idLocal = localStorage.getItem("cesta_user_id") || "";
+        const nomLocal = localStorage.getItem("cesta_user_name") || localStorage.getItem("cesta_user_email") || "";
+
+        const candidats = [
+            roleLocal,
+            uidLocal,
+            idLocal,
+            nomLocal,
+            user && user.email,
+            user && user.displayName,
+            user && user.uid,
+            userDocData && userDocData.role,
+            userDocData && userDocData.statut,
+            userDocData && userDocData.pseudo,
+            userDocData && userDocData.username,
+            userDocData && userDocData.prenom,
+            userDocData && userDocData.nom,
+            userDocData && userDocData.email
+        ];
+
+        return candidats.some(estIdentifiantAutorise);
+    }
+
+    function afficherAccesRefuse(raison) {
+        const gateCard = document.getElementById("accessGateCard");
+        const gateTitle = document.querySelector(".access-gate-title");
+        const gateMsg = document.getElementById("accessGateMessage");
+        const gateActions = document.getElementById("accessGateActions");
+        const content = document.getElementById("authorizedContent");
+
+        if (content) content.classList.add("hidden-access");
+        if (gateCard) gateCard.classList.remove("hidden-access");
+        if (gateTitle) gateTitle.textContent = "Accès restreint";
+        if (gateMsg) {
+            gateMsg.textContent = raison || "Cette page est réservée à l'administrateur, à Fifi et à Fred.";
+        }
+        if (gateActions) gateActions.classList.remove("hidden-access");
+    }
+
+    function afficherAccesAutorise() {
+        const gateCard = document.getElementById("accessGateCard");
+        const content = document.getElementById("authorizedContent");
+
+        if (gateCard) gateCard.classList.add("hidden-access");
+        if (content) content.classList.remove("hidden-access");
+
+        if (!pageDejaInitialisee) {
+            pageDejaInitialisee = true;
+            chargerDonneesFirebase();
+        }
+    }
+
+    async function verifierAccesPage() {
+        auth.onAuthStateChanged(async (user) => {
+            let userDocData = null;
+
+            if (user && user.uid) {
+                try {
+                    const snap = await db.collection("users").doc(user.uid).get();
+                    if (snap.exists) {
+                        userDocData = snap.data();
+                    }
+                } catch (e) {
+                    console.warn("Lecture profil utilisateur impossible :", e);
+                }
+            }
+
+            if (verifierDroitsUtilisateur(user, userDocData)) {
+                afficherAccesAutorise();
+            } else if (!user && !localStorage.getItem("cesta_user_role") && !localStorage.getItem("cesta_user_id")) {
+                afficherAccesRefuse("Veuillez vous connecter avec un compte autorisé (admin, Fifi ou Fred) pour consulter cette page.");
+            } else {
+                afficherAccesRefuse("Votre compte n'est pas autorisé à accéder à cet espace pour le moment.");
+            }
+        });
+    }
+
+    function determinerVainqueur(s1, s2) {
+        if (s1 === undefined || s2 === undefined || s1 === null || s2 === null) return 0;
+        const str1 = String(s1).trim();
+        const str2 = String(s2).trim();
+
+        const sets1 = str1.split(/[\/\s-]+/).map(Number).filter((n) => !isNaN(n));
+        const sets2 = str2.split(/[\/\s-]+/).map(Number).filter((n) => !isNaN(n));
+
+        if (sets1.length > 0 && sets2.length > 0) {
+            let wins1 = 0;
+            let wins2 = 0;
+            for (let i = 0; i < Math.min(sets1.length, sets2.length); i++) {
+                if (sets1[i] > sets2[i]) wins1++;
+                else if (sets2[i] > sets1[i]) wins2++;
+            }
+            if (wins1 > wins2) return 1;
+            if (wins2 > wins1) return 2;
+
+            const sum1 = sets1.reduce((a, b) => a + b, 0);
+            const sum2 = sets2.reduce((a, b) => a + b, 0);
+            if (sum1 > sum2) return 1;
+            if (sum2 > sum1) return 2;
+        }
+
+        const num1 = parseFloat(str1);
+        const num2 = parseFloat(str2);
+        if (!isNaN(num1) && !isNaN(num2)) {
+            if (num1 > num2) return 1;
+            if (num2 > num1) return 2;
+        }
+        return 0;
+    }
+
+    function extraireFrappesMatch(sourceBrute) {
+        const basesTypesFrappes = [
+            "frappesClassiques",
+            "frappesAttaque",
+            "picada",
+            "dejada",
+            "txikTxak",
+            "txula",
+            "cortada",
+            "gaucheGauche",
+            "gaucheDroite",
+            "deuxMurs"
+        ];
+
+        const claPos = Number(sourceBrute.frappesClassiquesPos || sourceBrute.classiquePos || 0);
+        const claNeu = Number(sourceBrute.frappesClassiquesNeutre || sourceBrute.frappesClassiquesNeutres || sourceBrute.classiqueNeutre || 0);
+        const claNeg = Number(sourceBrute.frappesClassiquesNeg || sourceBrute.classiqueNeg || 0);
+
+        const attPos = Number(sourceBrute.frappesAttaquePos || sourceBrute.attaquePos || 0);
+        const attNeu = Number(sourceBrute.frappesAttaqueNeutre || sourceBrute.frappesAttaqueNeutres || sourceBrute.attaqueNeutre || 0);
+        const attNeg = Number(sourceBrute.frappesAttaqueNeg || sourceBrute.attaqueNeg || 0);
+
+        let detailPos = claPos + attPos;
+        let detailNeu = claNeu + attNeu;
+        let detailNeg = claNeg + attNeg;
+
+        basesTypesFrappes.slice(2).forEach((base) => {
+            detailPos += Number(sourceBrute[`${base}Pos`] || 0);
+            detailNeu += Number(sourceBrute[`${base}Neutre`] || sourceBrute[`${base}Neutres`] || 0);
+            detailNeg += Number(sourceBrute[`${base}Neg`] || 0);
+        });
+
+        const globPos = Number(sourceBrute.frappesPositif ?? sourceBrute.frappesPos ?? 0);
+        const globNeu = Number(sourceBrute.frappesNeutres ?? sourceBrute.frappesNeutre ?? 0);
+        const globNeg = Number(sourceBrute.frappesNegatif ?? sourceBrute.frappesNeg ?? 0);
+
+        const frappesPos = globPos > 0 ? globPos : detailPos;
+        const frappesNeutres = globNeu > 0 ? globNeu : detailNeu;
+        const frappesNeg = globNeg > 0 ? globNeg : detailNeg;
+
+        return {
+            frappesPositif: Math.max(0, frappesPos),
+            frappesNeutres: Math.max(0, frappesNeutres),
+            frappesNegatif: Math.max(0, frappesNeg)
+        };
+    }
+
+    function extraireMatchJoueurEnrichi(joueurObj, match) {
+        const idsCandidats = [
+            joueurObj.id,
+            joueurObj.firebaseId,
+            joueurObj.docId
+        ].filter(Boolean).map((v) => String(v).trim().toLowerCase());
+
+        const nomJoueur = String(joueurObj.nom || "").trim().toLowerCase();
+        const prenomJoueur = String(joueurObj.prenom || "").trim().toLowerCase();
+        const nomComplet = `${prenomJoueur} ${nomJoueur}`.trim();
+
+        let sourceBrute = {};
+        const dico = match.statsParJoueur || match.statsJoueurs || null;
+
+        if (dico && typeof dico === "object") {
+            const foundKey = Object.keys(dico).find((k) => {
+                const keyLower = String(k).trim().toLowerCase();
+                return (
+                    idsCandidats.includes(keyLower) ||
+                    (nomJoueur && (keyLower === nomJoueur || keyLower.includes(nomJoueur))) ||
+                    (prenomJoueur && keyLower === prenomJoueur) ||
+                    (nomComplet && keyLower === nomComplet)
+                );
+            });
+            if (foundKey && dico[foundKey] && typeof dico[foundKey] === "object") {
+                sourceBrute = dico[foundKey];
+            }
+        }
+
+        if (!Object.keys(sourceBrute).length) {
+            sourceBrute = { ...(match.stats || {}), ...match };
+        }
+
+        const e1 = String(match.equipe1 || "").toLowerCase();
+        const e2 = String(match.equipe2 || "").toLowerCase();
+        const estConcerne =
+            Boolean(dico && Object.keys(dico).some((k) => {
+                const keyLower = String(k).trim().toLowerCase();
+                return idsCandidats.includes(keyLower) || (nomJoueur && keyLower.includes(nomJoueur));
+            })) ||
+            (match.joueurId && idsCandidats.includes(String(match.joueurId).trim().toLowerCase())) ||
+            (nomJoueur && (e1.includes(nomJoueur) || e2.includes(nomJoueur))) ||
+            (prenomJoueur && (e1.includes(prenomJoueur) || e2.includes(prenomJoueur)));
+
+        if (!estConcerne) return null;
+
+        let eqJoueur = 1;
+        if ((nomJoueur && e2.includes(nomJoueur)) || (prenomJoueur && e2.includes(prenomJoueur))) {
+            eqJoueur = 2;
+        }
+
+        const s1 = match.scoreEquipe1 !== undefined ? match.scoreEquipe1 : match.equipe1Score;
+        const s2 = match.scoreEquipe2 !== undefined ? match.scoreEquipe2 : match.equipe2Score;
+        const vainqueur = determinerVainqueur(s1, s2);
+        let resultat = "N";
+        if (vainqueur !== 0) {
+            resultat = vainqueur === eqJoueur ? "V" : "D";
+        }
+
+        const recPos = Number(sourceBrute.airePositif || 0)
+            + Number(sourceBrute.botePositif || 0)
+            + Number(sourceBrute.boteCorridoPositif || 0)
+            + Number(sourceBrute.boteProntoPositif || 0)
+            + Number(sourceBrute.erebotePositif || 0)
+            + Number(sourceBrute.pumpaPositif || 0);
+
+        const recNeg = Number(sourceBrute.aireNegatif || 0)
+            + Number(sourceBrute.boteNegatif || 0)
+            + Number(sourceBrute.boteCorridoNegatif || 0)
+            + Number(sourceBrute.boteProntoNegatif || 0)
+            + Number(sourceBrute.ereboteNegatif || 0)
+            + Number(sourceBrute.pumpaNegatif || 0);
+
+        const frappes = extraireFrappesMatch(sourceBrute);
+
+        const ptsAmenesRecAdvNeg = Number(
+            sourceBrute.ptsAmenesRecAdvNeg
+            ?? sourceBrute.pointsAmenesRecAdvNeg
+            ?? sourceBrute.ptsAmenesReceptionAdverseNeg
+            ?? sourceBrute.recAdverseNeg
+            ?? 0
+        );
+
+        const butsSurArriere = Number(sourceBrute.butsSurArriere || sourceBrute.butsArriere || sourceBrute.arriere || 0);
+        const butsSurAvant = Number(sourceBrute.butsSurAvant || sourceBrute.butsAvant || sourceBrute.avant || 0);
+        const butsTotal = Math.max(
+            Number(sourceBrute.butsTotal || sourceBrute.buts || 0),
+            butsSurArriere + butsSurAvant
+        );
+
+        return {
+            resultat,
+            lieu: String(
+                match.lieu
+                || sourceBrute.lieu
+                || sourceBrute.ville
+                || sourceBrute.fronton
+                || sourceBrute.terrain
+                || ""
+            ).trim(),
+            competition: String(match.competition || match.titre || "").trim(),
+            ptsGagnes: Number(sourceBrute.ptsGagnes || sourceBrute.pointsGagnes || 0),
+            ptsGagnesTotaux: Number(sourceBrute.ptsGagnesTotaux || 50),
+            ptsPerdus: Number(sourceBrute.ptsPerdus || sourceBrute.pointsPerdus || 0),
+            butsTotal,
+            recPositif: recPos,
+            recNegatif: recNeg,
+            frappesPositif: frappes.frappesPositif,
+            frappesNeutres: frappes.frappesNeutres,
+            frappesNegatif: frappes.frappesNegatif,
+            ptsAmenesRecAdvNeg: Math.max(0, ptsAmenesRecAdvNeg)
+        };
+    }
+
+    function detecterPoste(data) {
+        const textePoste = [
+            data.poste, data.position, data.specialite, data.role, data.categorie
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        if (textePoste.includes("avant") || textePoste.includes("delantero")) {
+            return "avants";
+        }
+        if (textePoste.includes("arriere") || textePoste.includes("zaguero")) {
+            return "arrieres";
+        }
+        return "autre";
+    }
+
+    function agregerStatsSurMatchs(joueurBase, matchsFiltresJoueur) {
+        const estArriere = joueurBase.posteGroupe === "arrieres";
+        let partiesJouees = 0;
+        let victoires = 0;
+        let defaites = 0;
+        let pointsGagnes = 0;
+        let ptsGagnesMax = 0;
+        let pointsPerdus = 0;
+        let butsTotal = 0;
+        let recPos = 0;
+        let recNeg = 0;
+        let frappesPos = 0;
+        let frappesNeu = 0;
+        let frappesNeg = 0;
+        let ptsAmenesRecAdvNeg = 0;
+
+        (matchsFiltresJoueur || []).forEach((st) => {
+            partiesJouees += 1;
+            if (st.resultat === "V") victoires += 1;
+            else if (st.resultat === "D") defaites += 1;
+
+            pointsGagnes += st.ptsGagnes;
+            ptsGagnesMax += st.ptsGagnesTotaux;
+            pointsPerdus += st.ptsPerdus;
+            butsTotal += st.butsTotal;
+            recPos += st.recPositif;
+            recNeg += st.recNegatif;
+            frappesPos += st.frappesPositif;
+            frappesNeu += st.frappesNeutres;
+            frappesNeg += st.frappesNegatif;
+            ptsAmenesRecAdvNeg += st.ptsAmenesRecAdvNeg;
+        });
+
+        const totalRec = recPos + recNeg;
+        const pctRecPos = totalRec > 0 ? Math.min(100, Math.round((recPos / totalRec) * 100)) : 0;
+
+        const totalFrappes = frappesPos + frappesNeu + frappesNeg;
+        const pctFrappesPos = totalFrappes > 0 ? Math.min(100, Math.round((frappesPos / totalFrappes) * 100)) : 0;
+
+        if (partiesJouees <= 0) {
+            return {
+                partiesJouees: 0,
+                victoires: 0,
+                defaites: 0,
+                pointsGagnes: 0,
+                ptsGagnesMax: 0,
+                pointsPerdus: 0,
+                butsTotal: 0,
+                recPos: 0,
+                recNeg: 0,
+                totalRec: 0,
+                pctRecPos: 0,
+                frappesPos: 0,
+                frappesNeu: 0,
+                frappesNeg: 0,
+                totalFrappes: 0,
+                pctFrappesPos: 0,
+                ptsAmenesRecAdvNeg: 0,
+                note100: 0,
+                cote: 2.00
+            };
+        }
+
+        const pctGagnes = ptsGagnesMax > 0
+            ? Math.min(100, Math.round((pointsGagnes / ptsGagnesMax) * 100))
+            : 0;
+
+        const noteBrute = Math.round((victoires / partiesJouees) * 60 + pctGagnes * 0.4 + 15);
+        const bonusArriere = estArriere ? 8 : 0;
+        const note100 = Math.min(100, Math.max(40, noteBrute + bonusArriere));
+
+        const ratioVictoires = victoires / partiesJouees;
+        const totalPts = pointsGagnes + pointsPerdus;
+        const ratioPts = totalPts > 0 ? (pointsGagnes / totalPts) : 0.5;
+
+        const totalFrappesActives = frappesPos + frappesNeg;
+        const ratioFrappes = totalFrappesActives > 0 ? (frappesPos / totalFrappesActives) : 0.5;
+
+        const ratioRec = totalRec > 0 ? (recPos / totalRec) : 0.5;
+
+        const bonusOffensif = estArriere
+            ? Math.min(0.1, (ptsAmenesRecAdvNeg / partiesJouees) * 0.02)
+            : Math.min(0.12, ((butsTotal + ptsAmenesRecAdvNeg) / partiesJouees) * 0.025);
+
+        const scorePerformance = Math.min(
+            1,
+            Math.max(
+                0,
+                (ratioVictoires * 0.42) +
+                (ratioPts * 0.23) +
+                (ratioFrappes * 0.15) +
+                (ratioRec * 0.12) +
+                ((note100 / 100) * 0.08) +
+                bonusOffensif
+            )
+        );
+
+        const cote = Number(Math.min(3.85, Math.max(1.25, 3.85 - (scorePerformance * 2.60))).toFixed(2));
+
+        return {
+            partiesJouees,
+            victoires,
+            defaites,
+            pointsGagnes,
+            ptsGagnesMax,
+            pointsPerdus,
+            butsTotal,
+            recPos,
+            recNeg,
+            totalRec,
+            pctRecPos,
+            frappesPos,
+            frappesNeu,
+            frappesNeg,
+            totalFrappes,
+            pctFrappesPos,
+            ptsAmenesRecAdvNeg,
+            note100,
+            cote
+        };
+    }
+
+    function obtenirInitiales(nomComplet) {
+        const parties = String(nomComplet || "").trim().split(/\s+/).filter(Boolean);
+        if (parties.length === 0) return "?";
+        if (parties.length === 1) return parties[0].slice(0, 2).toUpperCase();
+        return (parties[0][0] + parties[parties.length - 1][0]).toUpperCase();
+    }
+
+    function attribuerNiveauxClassement(liste) {
+        if (!Array.isArray(liste) || liste.length === 0) return [];
+
+        const joueursAvecMatchs = liste.filter((j) => j.partiesJouees > 0);
+        if (joueursAvecMatchs.length === 0) {
+            return liste.map((j) => ({ ...j, tier: "mid", tierLabel: "Sans match" }));
+        }
+
+        const triesParNiveau = [...joueursAvecMatchs].sort((a, b) => {
+            if (a.cote !== b.cote) return a.cote - b.cote;
+            return a.nomComplet.localeCompare(b.nomComplet, "fr", { sensitivity: "base" });
+        });
+
+        const total = triesParNiveau.length;
+        const carteNiveau = new Map();
+
+        triesParNiveau.forEach((joueur, idx) => {
+            const ratioRang = total === 1 ? 0 : idx / (total - 1);
+            let tier = "mid";
+            let tierLabel = "Moyen";
+
+            if (ratioRang < 0.34) {
+                tier = "top";
+                tierLabel = "Mieux classé";
+            } else if (ratioRang >= 0.67) {
+                tier = "low";
+                tierLabel = "Moins bon";
+            }
+
+            carteNiveau.set(joueur.id, { tier, tierLabel });
+        });
+
+        return liste.map((j) => {
+            if (j.partiesJouees <= 0) {
+                return { ...j, tier: "mid", tierLabel: "Sans match" };
+            }
+            const infoTier = carteNiveau.get(j.id) || { tier: "mid", tierLabel: "Moyen" };
+            return { ...j, tier: infoTier.tier, tierLabel: infoTier.tierLabel };
+        });
+    }
+
+    let joueursDeBase = [];
+    let joueursAffichesCourants = [];
+    let filtreActuel = "all";
+    let joueursSelectionnesIds = [];
+    const tickets = [];
+
+    function mettreAJourSelectsFiltres(listeJoueurs) {
+        const selectLieu = document.getElementById("lieuSelect");
+        const selectComp = document.getElementById("competitionSelect");
+
+        const lieuPrecedent = selectLieu.value;
+        const compPrecedente = selectComp.value;
+
+        const lieuxUniques = new Set();
+        const compsUniques = new Set();
+
+        (listeJoueurs || []).forEach((j) => {
+            (j.lieux || []).forEach((l) => {
+                if (l && String(l).trim()) lieuxUniques.add(String(l).trim());
+            });
+            (j.competitions || []).forEach((c) => {
+                if (c && String(c).trim()) compsUniques.add(String(c).trim());
+            });
+        });
+
+        const lieuxTries = Array.from(lieuxUniques).sort((a, b) =>
+            a.localeCompare(b, "fr", { sensitivity: "base" })
+        );
+        const compsTriees = Array.from(compsUniques).sort((a, b) =>
+            a.localeCompare(b, "fr", { sensitivity: "base" })
+        );
+
+        selectLieu.innerHTML = '<option value="">📍 Tous les lieux</option>' + lieuxTries
+            .map((lieu) => `<option value="${lieu.replace(/"/g, "&quot;")}">📍 ${lieu}</option>`)
+            .join("");
+
+        selectComp.innerHTML = '<option value="">🏆 Toutes compétitions</option>' + compsTriees
+            .map((comp) => `<option value="${comp.replace(/"/g, "&quot;")}">🏆 ${comp}</option>`)
+            .join("");
+
+        if (lieuPrecedent && lieuxTries.includes(lieuPrecedent)) {
+            selectLieu.value = lieuPrecedent;
+        }
+        if (compPrecedente && compsTriees.includes(compPrecedente)) {
+            selectComp.value = compPrecedente;
+        }
+    }
+
+    function construireJoueursDeBase(listeJoueursBruts, listeMatchsBruts) {
+        const carteJoueurs = new Map();
+
+        (listeJoueursBruts || []).forEach((raw, idx) => {
+            if (!raw || typeof raw !== "object") return;
+            if (raw.statut === "retraite" || raw.retraite === true) return;
+
+            const prenom = raw.prenom || raw.firstName || "";
+            const nom = raw.nom || raw.lastName || "";
+            const nomComplet = `${prenom} ${nom}`.trim() || raw.nomComplet || raw.joueur || raw.name || "";
+            if (!nomComplet) return;
+
+            const cle = nomComplet.toLowerCase().trim().replace(/\s+/g, " ");
+            const posteGroupe = detecterPoste(raw);
+            const photo = raw.photo || raw.photoUrl || raw.avatar || raw.image || "";
+
+            if (!carteJoueurs.has(cle)) {
+                carteJoueurs.set(cle, {
+                    id: String(raw.id || raw.firebaseId || raw.docId || `j-${idx}-${cle.replace(/[^a-z0-9]+/g, "-")}`),
+                    firebaseId: raw.firebaseId,
+                    docId: raw.docId,
+                    prenom,
+                    nom,
+                    nomComplet,
+                    initiales: obtenirInitiales(nomComplet),
+                    photo,
+                    posteGroupe,
+                    poste: raw.poste || raw.position || raw.specialite || "",
+                    matchsEnrichis: [],
+                    lieux: [],
+                    competitions: []
+                });
+            } else {
+                const existant = carteJoueurs.get(cle);
+                if (!existant.photo && photo) existant.photo = photo;
+                if (!existant.poste && (raw.poste || raw.position || raw.specialite)) {
+                    existant.poste = raw.poste || raw.position || raw.specialite;
+                }
+                if (existant.posteGroupe === "autre" && posteGroupe !== "autre") {
+                    existant.posteGroupe = posteGroupe;
+                }
+            }
+        });
+
+        const joueursList = Array.from(carteJoueurs.values());
+
+        joueursList.forEach((j) => {
+            const lieuxSet = new Set();
+            const compsSet = new Set();
+            const matchsJoueur = [];
+
+            (listeMatchsBruts || []).forEach((match) => {
+                const st = extraireMatchJoueurEnrichi(j, match);
+                if (!st) return;
+                matchsJoueur.push(st);
+                if (st.lieu) lieuxSet.add(st.lieu);
+                if (st.competition) compsSet.add(st.competition);
+            });
+
+            j.matchsEnrichis = matchsJoueur;
+            j.lieux = Array.from(lieuxSet).filter(Boolean);
+            j.competitions = Array.from(compsSet).filter(Boolean);
+        });
+
+        joueursList.sort((a, b) => a.nomComplet.localeCompare(b.nomComplet, "fr", { sensitivity: "base" }));
+        joueursDeBase = joueursList;
+        mettreAJourSelectsFiltres(joueursDeBase);
+        rendreListeJoueurs();
+    }
+
+    async function chargerDonneesFirebase() {
+        const secoursLocal = (typeof joueursData !== "undefined" && Array.isArray(joueursData))
+            ? joueursData
+            : [];
+
+        let listeJoueurs = [];
+        let listeMatchs = [];
+
+        try {
+            const joueursSnap = await db.collection("joueurs").get();
+            joueursSnap.forEach((doc) => {
+                listeJoueurs.push({ docId: doc.id, id: doc.id, ...doc.data() });
+            });
+        } catch (err) {
+            console.warn("Erreur lecture collection 'joueurs' :", err);
+        }
+
+        if (listeJoueurs.length === 0) {
+            listeJoueurs = secoursLocal;
+        } else {
+            const nomsConnus = new Set(
+                listeJoueurs.map((j) => `${j.prenom || ""} ${j.nom || ""}`.trim().toLowerCase())
+            );
+            secoursLocal.forEach((j) => {
+                const full = `${j.prenom || ""} ${j.nom || ""}`.trim().toLowerCase();
+                if (full && !nomsConnus.has(full)) {
+                    listeJoueurs.push(j);
+                }
+            });
+        }
+
+        try {
+            const matchsSnap = await db.collection("matchs").get();
+            matchsSnap.forEach((doc) => {
+                const data = doc.data();
+                listeMatchs.push({
+                    id: doc.id,
+                    competition: data.competition || data.titre || "",
+                    lieu: data.lieu || data.ville || data.fronton || data.terrain || "",
+                    date: data.date || "",
+                    equipe1: data.equipe1 || "",
+                    equipe2: data.equipe2 || "",
+                    scoreEquipe1: data.scoreEquipe1 !== undefined ? data.scoreEquipe1 : data.equipe1Score,
+                    scoreEquipe2: data.scoreEquipe2 !== undefined ? data.scoreEquipe2 : data.equipe2Score,
+                    joueurId: data.joueurId || null,
+                    statsParJoueur: data.statsParJoueur || null,
+                    stats: data.stats || data
+                });
+            });
+        } catch (err) {
+            console.warn("Erreur lecture collection 'matchs' :", err);
+        }
+
+        construireJoueursDeBase(listeJoueurs, listeMatchs);
+    }
+
+    function changerFiltre(nouveauFiltre) {
+        filtreActuel = nouveauFiltre;
+        document.getElementById("tabAll").classList.toggle("active", nouveauFiltre === "all");
+        document.getElementById("tabAvants").classList.toggle("active", nouveauFiltre === "avants");
+        document.getElementById("tabArrieres").classList.toggle("active", nouveauFiltre === "arrieres");
+        rendreListeJoueurs();
+    }
+
+    function reinitialiserFiltresLieuComp() {
+        document.getElementById("lieuSelect").value = "";
+        document.getElementById("competitionSelect").value = "";
+        document.getElementById("playerSearchInput").value = "";
+        rendreListeJoueurs();
+    }
+
+    function obtenirJoueursSelectionnesActifs() {
+        return joueursSelectionnesIds
+            .map((id) => joueursAffichesCourants.find((j) => j.id === id))
+            .filter(Boolean);
+    }
+
+    function obtenirCoteSelection() {
+        const sel = obtenirJoueursSelectionnesActifs();
+        if (sel.length === 0) return 0;
+        if (sel.length === 1) return sel[0].cote;
+        return Number((sel[0].cote * sel[1].cote * 0.92).toFixed(2));
+    }
+
+    function basculerJoueur(playerId) {
+        const indexExistant = joueursSelectionnesIds.indexOf(playerId);
+        if (indexExistant !== -1) {
+            joueursSelectionnesIds.splice(indexExistant, 1);
+        } else {
+            if (joueursSelectionnesIds.length >= 2) {
+                joueursSelectionnesIds.shift();
+            }
+            joueursSelectionnesIds.push(playerId);
+        }
+
+        rendreListeJoueurs();
+        mettreAJourResumeTicket();
+    }
+
+    function effacerSelection() {
+        joueursSelectionnesIds = [];
+        document.getElementById("stakeInput").value = "";
+        rendreListeJoueurs();
+        mettreAJourResumeTicket();
+    }
+
+    function rendreAvatarHtml(joueur) {
+        if (joueur.photo) {
+            return `
+                <div class="player-avatar-wrap">
+                    <img src="${joueur.photo.replace(/"/g, "&quot;")}" alt="${joueur.nomComplet.replace(/"/g, "&quot;")}" class="player-avatar-img" onerror="this.style.display='none'; this.parentElement.textContent='${joueur.initiales}';">
+                </div>
+            `;
+        }
+        return `<div class="player-avatar-wrap">${joueur.initiales}</div>`;
+    }
+
+    function formaterRatioParties(j) {
+        if (j.partiesJouees <= 0) return "0V - 0D (0p)";
+        const pct = Math.round((j.victoires / j.partiesJouees) * 100);
+        return `${j.victoires}V - ${j.defaites}D • ${pct}% (${j.partiesJouees}p)`;
+    }
+
+    function rendreListeJoueurs() {
+        const container = document.getElementById("playersOddsList");
+        const badge = document.getElementById("playersCountBadge");
+        const scopeText = document.getElementById("activeScopeText");
+
+        const rechercheNom = normaliserTexte(document.getElementById("playerSearchInput").value || "");
+        const lieuBrut = document.getElementById("lieuSelect").value || "";
+        const compBrute = document.getElementById("competitionSelect").value || "";
+        const lieuSelectionne = lieuBrut.toLowerCase().trim();
+        const compSelectionnee = compBrute.toLowerCase().trim();
+
+        const libelleLieu = lieuBrut || "Tous lieux";
+        const libelleComp = compBrute || "Toutes compétitions";
+        if (scopeText) {
+            scopeText.innerHTML = `Périmètre stats & cotes : <strong>${libelleLieu} • ${libelleComp}</strong>`;
+        }
+
+        const aFiltreLieuOuComp = Boolean(lieuSelectionne || compSelectionnee);
+
+        const joueursRecalcules = joueursDeBase
+            .filter((j) => {
+                if (filtreActuel === "avants" && j.posteGroupe !== "avants") return false;
+                if (filtreActuel === "arrieres" && j.posteGroupe !== "arrieres") return false;
+                if (lieuSelectionne && !j.lieux.some((l) => l.toLowerCase() === lieuSelectionne)) return false;
+                if (compSelectionnee && !j.competitions.some((c) => c.toLowerCase() === compSelectionnee)) return false;
+                if (!rechercheNom) return true;
+                return normaliserTexte(j.nom).includes(rechercheNom);
+            })
+            .map((j) => {
+                const matchsCorrespondants = j.matchsEnrichis.filter((m) => {
+                    if (lieuSelectionne && m.lieu.toLowerCase() !== lieuSelectionne) return false;
+                    if (compSelectionnee && m.competition.toLowerCase() !== compSelectionnee) return false;
+                    return true;
+                });
+                const statsCalculees = agregerStatsSurMatchs(j, matchsCorrespondants);
+                return {
+                    ...j,
+                    ...statsCalculees
+                };
+            })
+            .filter((j) => {
+                if (aFiltreLieuOuComp && j.partiesJouees <= 0) return false;
+                return true;
+            });
+
+        joueursAffichesCourants = attribuerNiveauxClassement(joueursRecalcules);
+
+        badge.textContent = `${joueursAffichesCourants.length} joueur${joueursAffichesCourants.length > 1 ? "s" : ""}`;
+
+        if (joueursAffichesCourants.length === 0) {
+            container.innerHTML = '<div class="notice-box">Aucun joueur trouvé pour ce nom ou ce périmètre.</div>';
+            mettreAJourResumeTicket();
+            return;
+        }
+
+        container.innerHTML = joueursAffichesCourants.map((j) => {
+            const estSelectionne = joueursSelectionnesIds.includes(j.id);
+            const posteAffichage = j.poste || (j.posteGroupe === "avants" ? "Avant" : j.posteGroupe === "arrieres" ? "Arrière" : "Joueur");
+
+            return `
+                <div class="player-odd-row tier-${j.tier} ${estSelectionne ? "selected" : ""}" onclick="basculerJoueur('${j.id.replace(/'/g, "\\'")}')">
+                    <div class="player-top-line">
+                        ${rendreAvatarHtml(j)}
+                        <div class="player-info">
+                            <div class="player-name">${j.nomComplet}</div>
+                            <div class="player-meta">${j.tierLabel} • ${posteAffichage} • Note ${j.note100}/100</div>
+                        </div>
+                        <div class="odd-badge">${j.cote.toFixed(2)}</div>
+                    </div>
+
+                    <div class="player-stats-grid">
+                        <div><span class="stat-label">Parties : </span><span class="stat-val">${formaterRatioParties(j)}</span></div>
+                        <div><span class="stat-label">Pts G/P : </span><span class="stat-val">${Math.round(j.pointsGagnes)} / ${Math.round(j.pointsPerdus)}</span></div>
+                        <div><span class="stat-label">Frappes + : </span><span class="stat-val">${Math.round(j.frappesPos)} / ${Math.round(j.totalFrappes)} (${j.pctFrappesPos}%)</span></div>
+                        <div><span class="stat-label">Récep. + : </span><span class="stat-val">${Math.round(j.recPos)} / ${Math.round(j.totalRec)} (${j.pctRecPos}%)</span></div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        mettreAJourResumeTicket();
+    }
+
+    function mettreAJourResumeTicket() {
+        const summary = document.getElementById("selectionSummary");
+        const mise = parseFloat(document.getElementById("stakeInput").value);
+        const sel = obtenirJoueursSelectionnesActifs();
+
+        if (sel.length === 0) {
+            summary.textContent = "Cliquez sur un joueur (ou deux joueurs) dans la liste ci-dessus pour préparer un ticket.";
+            return;
+        }
+
+        const noms = sel.map((j) => `${j.nomComplet} (${j.cote.toFixed(2)})`).join(" + ");
+        const coteFinale = obtenirCoteSelection();
+        const typeTicket = sel.length === 2 ? "Paire (cote combinée)" : "Joueur simple";
+
+        if (!isNaN(mise) && mise > 0) {
+            const gainEstime = (mise * coteFinale).toFixed(2);
+            summary.innerHTML = `<strong>${typeTicket} :</strong> ${noms}<br>Cote retenue : <strong>${coteFinale.toFixed(2)}</strong><br>Gain potentiel estimé : <strong>${gainEstime} €</strong>`;
+        } else {
+            summary.innerHTML = `<strong>${typeTicket} :</strong> ${noms}<br>Cote retenue : <strong>${coteFinale.toFixed(2)}</strong><br>Saisissez une mise pour estimer le retour.`;
+        }
+    }
+
+    function afficherMessage(texte, type) {
+        const el = document.getElementById("betFeedback");
+        el.textContent = texte;
+        el.className = `feedback-msg ${type}`;
+        el.style.display = "block";
+    }
+
+    function enregistrerTicket() {
+        const feedback = document.getElementById("betFeedback");
+        feedback.style.display = "none";
+
+        const sel = obtenirJoueursSelectionnesActifs();
+        const mise = parseFloat(document.getElementById("stakeInput").value);
+        if (sel.length === 0) {
+            afficherMessage("Veuillez sélectionner au moins un joueur.", "error");
+            return;
+        }
+        if (isNaN(mise) || mise <= 0) {
+            afficherMessage("Veuillez saisir une mise valide supérieure à 0.", "error");
+            return;
+        }
+
+        const lieuBrut = document.getElementById("lieuSelect").value || "Tous lieux";
+        const compBrute = document.getElementById("competitionSelect").value || "Toutes compétitions";
+        const coteFinale = obtenirCoteSelection();
+
+        tickets.unshift({
+            selection: sel.map((j) => j.nomComplet).join(" / "),
+            contexte: `${lieuBrut} • ${compBrute}`,
+            cote: coteFinale,
+            mise: mise.toFixed(2),
+            gainEstime: (mise * coteFinale).toFixed(2)
+        });
+
+        effacerSelection();
+        rendreTickets();
+        afficherMessage("Ticket ajouté à votre liste.", "success");
+    }
+
+    function rendreTickets() {
+        const list = document.getElementById("ticketsList");
+        if (tickets.length === 0) {
+            list.innerHTML = '<div class="notice-box">Aucun ticket enregistré pour le moment.</div>';
+            return;
+        }
+
+        list.innerHTML = tickets.map((t) => `
+            <div class="ticket-item">
+                <strong>${t.selection}</strong> (@ ${t.cote.toFixed(2)})<br>
+                <span style="color: var(--text-muted); font-size: 0.68rem;">${t.contexte}</span><br>
+                Mise : ${t.mise} € • Gain potentiel : <strong>${t.gainEstime} €</strong>
+            </div>
+        `).join("");
+    }
+
+    async function deconnexion() {
+        try {
+            await auth.signOut();
+        } catch (e) {}
+        localStorage.removeItem("cesta_user_role");
+        localStorage.removeItem("cesta_user_uid");
+        localStorage.removeItem("cesta_user_id");
+        localStorage.removeItem("cesta_user_name");
+        localStorage.removeItem("cesta_user_email");
+        window.location.href = "index.html";
+    }
+
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const savedTheme = localStorage.getItem("cesta_theme");
+    if (savedTheme) {
+        htmlElement.setAttribute("data-theme", savedTheme);
+        themeToggleBtn.textContent = savedTheme === "light" ? "☀️" : "🌙";
+    }
+
+    function toggleTheme() {
+        const current = htmlElement.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        htmlElement.setAttribute("data-theme", next);
+        localStorage.setItem("cesta_theme", next);
+        themeToggleBtn.textContent = next === "light" ? "☀️" : "🌙";
+    }
+
+    verifierAccesPage();
+</script>
+
+</body>
+</html>
