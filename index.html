@@ -239,23 +239,11 @@
             text-decoration: underline;
         }
 
-        /* Messages d'alerte */
+        /* Message d'erreur */
         .error-message {
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid #ef4444;
             color: #f87171;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            margin-bottom: 14px;
-            display: none;
-            text-align: center;
-        }
-
-        .success-message {
-            background: rgba(23, 184, 144, 0.18);
-            border: 1px solid #17b890;
-            color: #34d399;
             padding: 10px;
             border-radius: 8px;
             font-size: 0.8rem;
@@ -285,51 +273,6 @@
             border-color: var(--accent-color);
             transform: translateY(-2px);
             box-shadow: 0 6px 18px rgba(0, 242, 254, 0.3);
-        }
-
-        .btn-secondary-link {
-            background: transparent;
-            border: none;
-            color: var(--accent-color);
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-            padding: 4px;
-        }
-
-        .btn-secondary-link:hover {
-            opacity: 0.85;
-            text-decoration: underline;
-        }
-
-        .login-footer {
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .sub-panel {
-            display: none;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .sub-panel-title {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--accent-color);
-            margin-bottom: 6px;
-            text-align: center;
-        }
-
-        .sub-panel-desc {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            text-align: center;
-            line-height: 1.4;
         }
 
         /* Pied de page droits d'auteur */
@@ -374,11 +317,10 @@
             <div class="login-subtitle">Entrez votre identifiant ou téléphone</div>
         </div>
 
-        <!-- Alertes -->
+        <!-- Alerte d'erreur -->
         <div id="errorAlert" class="error-message"></div>
-        <div id="successAlert" class="success-message"></div>
 
-        <!-- Formulaire de connexion principal -->
+        <!-- Formulaire de connexion -->
         <form id="loginForm">
             <div class="form-group">
                 <label class="form-label" for="userInput">Identifiant ou Téléphone</label>
@@ -404,24 +346,6 @@
                 Se connecter
             </button>
         </form>
-
-        <div class="login-footer">
-            <button type="button" class="btn-secondary-link" onclick="ouvrirPanneauReset()">Mot de passe oublié ?</button>
-        </div>
-
-        <!-- Panneau de réinitialisation par e-mail -->
-        <div id="resetPanel" class="sub-panel">
-            <div class="sub-panel-title">Réinitialiser le mot de passe</div>
-            <div class="sub-panel-desc">Saisissez votre identifiant ou adresse e-mail pour recevoir un lien de réinitialisation.</div>
-            <div class="form-group">
-                <label class="form-label" for="resetUserInput">Identifiant ou E-mail</label>
-                <input class="form-input" type="text" id="resetUserInput" placeholder="ex: j.dupont ou nom@exemple.fr">
-            </div>
-            <button type="button" class="btn-submit" id="sendResetBtn" onclick="envoyerLienReinitialisation()">Envoyer le lien</button>
-            <div style="text-align: center; margin-top: 8px;">
-                <button type="button" class="btn-secondary-link" onclick="fermerPanneauReset()">Annuler</button>
-            </div>
-        </div>
     </div>
 
     <!-- Mention légale / Droits d'auteur -->
@@ -466,23 +390,10 @@
     const db = firebase.firestore();
 
     const errorAlert = document.getElementById('errorAlert');
-    const successAlert = document.getElementById('successAlert');
-
-    function masquerAlertes() {
-        errorAlert.style.display = 'none';
-        successAlert.style.display = 'none';
-    }
 
     function afficherErreur(msg) {
-        successAlert.style.display = 'none';
         errorAlert.textContent = msg;
         errorAlert.style.display = 'block';
-    }
-
-    function afficherSucces(msg) {
-        errorAlert.style.display = 'none';
-        successAlert.textContent = msg;
-        successAlert.style.display = 'block';
     }
 
     function convertirEnEmail(saisie) {
@@ -500,47 +411,6 @@
         } else {
             input.type = 'password';
             btn.textContent = '👁️';
-        }
-    }
-
-    function ouvrirPanneauReset() {
-        masquerAlertes();
-        const resetPanel = document.getElementById('resetPanel');
-        const mainInputVal = document.getElementById('userInput').value.trim();
-        resetPanel.style.display = 'block';
-        if (mainInputVal && !document.getElementById('resetUserInput').value.trim()) {
-            document.getElementById('resetUserInput').value = mainInputVal;
-        }
-    }
-
-    function fermerPanneauReset() {
-        masquerAlertes();
-        document.getElementById('resetPanel').style.display = 'none';
-    }
-
-    async function envoyerLienReinitialisation() {
-        masquerAlertes();
-        const saisie = document.getElementById('resetUserInput').value.trim();
-        if (!saisie) {
-            afficherErreur("Veuillez saisir votre identifiant ou votre adresse e-mail.");
-            return;
-        }
-
-        const btn = document.getElementById('sendResetBtn');
-        btn.disabled = true;
-        btn.textContent = 'Envoi en cours...';
-
-        const emailCible = convertirEnEmail(saisie);
-
-        try {
-            await auth.sendPasswordResetEmail(emailCible);
-            afficherSucces(`Un e-mail de réinitialisation a été envoyé à ${emailCible}.`);
-        } catch (err) {
-            console.error("Erreur réinitialisation mot de passe :", err);
-            afficherErreur("Impossible d'envoyer l'e-mail. Vérifiez l'identifiant ou l'adresse saisie.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Envoyer le lien';
         }
     }
 
@@ -586,7 +456,7 @@
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        masquerAlertes();
+        errorAlert.style.display = 'none';
 
         if (!acceptTermsCheckbox.checked) {
             afficherErreur("Veuillez accepter les Conditions Générales d'Utilisation pour vous connecter.");
