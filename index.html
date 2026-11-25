@@ -306,10 +306,7 @@
 
         .login-footer {
             margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            text-align: center;
         }
 
         .sub-panel {
@@ -409,11 +406,10 @@
         </form>
 
         <div class="login-footer">
-            <button type="button" class="btn-secondary-link" onclick="ouvrirPanneau('reset')">Mot de passe oublié ?</button>
-            <button type="button" class="btn-secondary-link" onclick="ouvrirPanneau('change')">Modifier mon mot de passe</button>
+            <button type="button" class="btn-secondary-link" onclick="ouvrirPanneauReset()">Mot de passe oublié ?</button>
         </div>
 
-        <!-- Panneau 1 : Réinitialisation par e-mail -->
+        <!-- Panneau de réinitialisation par e-mail -->
         <div id="resetPanel" class="sub-panel">
             <div class="sub-panel-title">Réinitialiser le mot de passe</div>
             <div class="sub-panel-desc">Saisissez votre identifiant ou adresse e-mail pour recevoir un lien de réinitialisation.</div>
@@ -423,35 +419,7 @@
             </div>
             <button type="button" class="btn-submit" id="sendResetBtn" onclick="envoyerLienReinitialisation()">Envoyer le lien</button>
             <div style="text-align: center; margin-top: 8px;">
-                <button type="button" class="btn-secondary-link" onclick="fermerPanneaux()">Annuler</button>
-            </div>
-        </div>
-
-        <!-- Panneau 2 : Modification directe du mot de passe -->
-        <div id="changePanel" class="sub-panel">
-            <div class="sub-panel-title">Modifier mon mot de passe</div>
-            <div class="sub-panel-desc">Indiquez votre identifiant, votre mot de passe actuel et votre nouveau mot de passe (6 caractères min.).</div>
-            <div class="form-group">
-                <label class="form-label" for="changeUserInput">Identifiant ou E-mail</label>
-                <input class="form-input" type="text" id="changeUserInput" placeholder="ex: j.dupont ou 0612345678">
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="currentPassword">Mot de passe actuel</label>
-                <div class="password-wrapper">
-                    <input class="form-input" type="password" id="currentPassword" placeholder="Mot de passe actuel">
-                    <button type="button" class="toggle-password-btn" id="toggleCurrentPassword" onclick="togglePasswordVisibility('currentPassword', 'toggleCurrentPassword')" aria-label="Afficher ou masquer le mot de passe actuel" title="Afficher ou masquer">👁️</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label" for="newPassword">Nouveau mot de passe</label>
-                <div class="password-wrapper">
-                    <input class="form-input" type="password" id="newPassword" placeholder="Nouveau mot de passe">
-                    <button type="button" class="toggle-password-btn" id="toggleNewPassword" onclick="togglePasswordVisibility('newPassword', 'toggleNewPassword')" aria-label="Afficher ou masquer le nouveau mot de passe" title="Afficher ou masquer">👁️</button>
-                </div>
-            </div>
-            <button type="button" class="btn-submit" id="saveNewPasswordBtn" onclick="modifierMotDePasse()">Enregistrer le nouveau mot de passe</button>
-            <div style="text-align: center; margin-top: 8px;">
-                <button type="button" class="btn-secondary-link" onclick="fermerPanneaux()">Annuler</button>
+                <button type="button" class="btn-secondary-link" onclick="fermerPanneauReset()">Annuler</button>
             </div>
         </div>
     </div>
@@ -535,35 +503,19 @@
         }
     }
 
-    function ouvrirPanneau(type) {
+    function ouvrirPanneauReset() {
         masquerAlertes();
         const resetPanel = document.getElementById('resetPanel');
-        const changePanel = document.getElementById('changePanel');
         const mainInputVal = document.getElementById('userInput').value.trim();
-
-        if (type === 'reset') {
-            resetPanel.style.display = 'block';
-            changePanel.style.display = 'none';
-            if (mainInputVal && !document.getElementById('resetUserInput').value.trim()) {
-                document.getElementById('resetUserInput').value = mainInputVal;
-            }
-        } else if (type === 'change') {
-            changePanel.style.display = 'block';
-            resetPanel.style.display = 'none';
-            if (mainInputVal && !document.getElementById('changeUserInput').value.trim()) {
-                document.getElementById('changeUserInput').value = mainInputVal;
-            }
-            const mainPassVal = document.getElementById('password').value;
-            if (mainPassVal && !document.getElementById('currentPassword').value) {
-                document.getElementById('currentPassword').value = mainPassVal;
-            }
+        resetPanel.style.display = 'block';
+        if (mainInputVal && !document.getElementById('resetUserInput').value.trim()) {
+            document.getElementById('resetUserInput').value = mainInputVal;
         }
     }
 
-    function fermerPanneaux() {
+    function fermerPanneauReset() {
         masquerAlertes();
         document.getElementById('resetPanel').style.display = 'none';
-        document.getElementById('changePanel').style.display = 'none';
     }
 
     async function envoyerLienReinitialisation() {
@@ -589,52 +541,6 @@
         } finally {
             btn.disabled = false;
             btn.textContent = 'Envoyer le lien';
-        }
-    }
-
-    async function modifierMotDePasse() {
-        masquerAlertes();
-        const saisie = document.getElementById('changeUserInput').value.trim();
-        const ancienMdp = document.getElementById('currentPassword').value;
-        const nouveauMdp = document.getElementById('newPassword').value;
-
-        if (!saisie || !ancienMdp || !nouveauMdp) {
-            afficherErreur("Veuillez remplir l'identifiant, le mot de passe actuel et le nouveau mot de passe.");
-            return;
-        }
-
-        if (nouveauMdp.length < 6) {
-            afficherErreur("Le nouveau mot de passe doit contenir au moins 6 caractères.");
-            return;
-        }
-
-        const btn = document.getElementById('saveNewPasswordBtn');
-        btn.disabled = true;
-        btn.textContent = 'Mise à jour...';
-
-        const emailCible = convertirEnEmail(saisie);
-
-        try {
-            let user = auth.currentUser;
-            if (!user || (user.email && user.email.toLowerCase() !== emailCible.toLowerCase())) {
-                const cred = await auth.signInWithEmailAndPassword(emailCible, ancienMdp);
-                user = cred.user;
-            } else {
-                const credential = firebase.auth.EmailAuthProvider.credential(user.email, ancienMdp);
-                await user.reauthenticateWithCredential(credential);
-            }
-
-            await user.updatePassword(nouveauMdp);
-            document.getElementById('password').value = nouveauMdp;
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            afficherSucces("Votre mot de passe a bien été modifié. Vous pouvez maintenant vous connecter.");
-        } catch (err) {
-            console.error("Erreur modification mot de passe :", err);
-            afficherErreur("Modification impossible : vérifiez votre identifiant et votre mot de passe actuel.");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Enregistrer le nouveau mot de passe';
         }
     }
 
