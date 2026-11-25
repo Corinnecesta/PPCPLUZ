@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pôle Performance - Mentions Légales & CGU</title>
+
+    <!-- Polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fichier de styles global -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .legal-header-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
+        }
+        .legal-main-title {
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 0 0 4px 0;
+            letter-spacing: 0.4px;
+        }
+        .legal-subtitle {
+            font-size: 0.78rem;
+            color: var(--container-text);
+            font-weight: 600;
+            margin: 0;
+        }
+        .legal-update {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .legal-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(23, 184, 144, 0.15);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: var(--container-text);
+        }
+        .legal-card h2 {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            margin: 0 0 8px 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .legal-card p {
+            margin: 0 0 8px 0;
+        }
+        .legal-card p:last-child {
+            margin-bottom: 0;
+        }
+        .legal-card ul {
+            margin: 4px 0 0 0;
+            padding-left: 18px;
+        }
+        .legal-card li {
+            margin-bottom: 5px;
+        }
+        .legal-card li:last-child {
+            margin-bottom: 0;
+        }
+        .legal-card a {
+            color: var(--accent-color);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .copyright-footer {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            padding: 12px 8px 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <div class="top-header">
+        <img src="logoce.png" alt="Logo Cesta Punta" class="logo-img">
+        <div class="header-actions">
+            <a href="accueil.html" class="home-btn" title="Retour Accueil">🏠</a>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+            <a href="parametres.html" class="profile-btn" title="Mon Compte">👤</a>
+        </div>
+    </div>
+
+    <hr class="separator" style="margin-bottom: 10px;">
+
+    <a href="accueil.html" class="back-link">◀ Retour à l'accueil</a>
+
+    <div class="legal-header-card">
+        <h1 class="legal-main-title">Conditions Générales d'Utilisation & Mentions Légales</h1>
+        <p class="legal-subtitle">Application : Cesta Punta — Pôle Performance (PPCPLUZ)</p>
+        <div class="legal-update">Dernière mise à jour : 25/11/2026</div>
+    </div>
+
+    <div class="legal-card">
+        <h2>1. Éditeur de l'application</h2>
+        <p>L'application est éditée par <strong>Corinne Elissalde</strong>, exerçant sous le statut de micro-entrepreneur.</p>
+        <ul>
+            <li><strong>Siège / Adresse professionnelle :</strong> 17 allée Léon Dongaitz - 64500 Saint Jean de Luz</li>
+            <li><strong>Numéro SIRET :</strong> 394 877 534 00021</li>
+            <li><strong>Contact :</strong> <a href="mailto:koko.elissalde@gmail.com">koko.elissalde@gmail.com</a></li>
+            <li><strong>Hébergement :</strong> GitHub Pages / Google Firebase</li>
+        </ul>
+    </div>
+
+    <div class="legal-card">
+        <h2>2. Objet de l'application</h2>
+        <p>L'application a pour objet le suivi sportif, technique et physique des joueurs, la gestion des présences aux entraînements ainsi que l'analyse des statistiques de matchs de Cesta Punta.</p>
+        <p>L'accès et l'utilisation de l'application impliquent l'acceptation sans réserve des présentes conditions d'utilisation.</p>
+    </div>
+
+    <div class="legal-card">
+        <h2>3. Accès et gestion des comptes</h2>
+        <p>L'accès à l'application est strictement réservé aux personnes autorisées (joueurs, entraîneurs, membres du staff et administrateurs).</p>
+        <ul>
+            <li>Chaque utilisateur s'engage à préserver la confidentialité de ses identifiants de connexion et à ne pas les communiquer à des tiers.</li>
+            <li>Les droits d'accès et de modification varient selon le profil attribué (joueur, entraîneur ou administrateur).</li>
+        </ul>
+    </div>
+
+    <div class="legal-card">
+        <h2>4. Propriété intellectuelle</h2>
+        <p>L'ensemble des éléments composant l'application — notamment son architecture, son code source, son interface graphique, ses fonctionnalités, ses textes, bases de données et logotypes — est la propriété exclusive de <strong>Corinne Elissalde — Pôle Performance (PPCPLUZ)</strong> et est protégé par le Code de la propriété intellectuelle (dépôt d'antériorité e-Soleau INPI enregistré).</p>
+        <ul>
+            <li>L'utilisateur bénéficie uniquement d'un droit d'utilisation personnel, non exclusif et non cessible, strictement limité au cadre sportif prévu.</li>
+            <li>Toute reproduction, copie, modification, extraction de données, diffusion ou exploitation commerciale, totale ou partielle, sans autorisation écrite préalable de l'éditeur est strictement interdite.</li>
+        </ul>
+    </div>
+
+    <div class="legal-card">
+        <h2>5. Données personnelles et confidentialité (RGPD)</h2>
+        <p>Dans le cadre du suivi sportif, certaines données personnelles sont collectées et traitées (identité, photo, club, poste, statistiques de matchs, présences, évaluations physiques et techniques).</p>
+        <ul>
+            <li><strong>Finalité :</strong> Ces données sont utilisées exclusivement pour l'accompagnement sportif, l'organisation des séances et l'analyse de performance.</li>
+            <li><strong>Confidentialité :</strong> Les évaluations individuelles du staff et données de suivi ne sont accessibles qu'aux personnes habilitées selon leur rôle. Aucune donnée n'est vendue ou cédée à des tiers à des fins commerciales.</li>
+            <li><strong>Droits des utilisateurs :</strong> Conformément au Règlement Général sur la Protection des Données (RGPD), chaque utilisateur dispose d'un droit d'accès, de rectification et de suppression des données le concernant, qu'il peut exercer en contactant l'éditeur à l'adresse : <a href="mailto:koko.elissalde@gmail.com">koko.elissalde@gmail.com</a>.</li>
+        </ul>
+    </div>
+
+    <div class="legal-card">
+        <h2>6. Responsabilité et disponibilité</h2>
+        <p>L'éditeur s'efforce d'assurer le bon fonctionnement et la mise à jour régulière de l'application, sans pouvoir garantir une disponibilité permanente sans interruption technique. Les statistiques et indicateurs affichés constituent des outils d'aide au suivi sportif.</p>
+    </div>
+
+    <div class="legal-card">
+        <h2>7. Droit applicable</h2>
+        <p>Les présentes conditions d'utilisation sont soumises au droit français.</p>
+    </div>
+
+    <footer class="copyright-footer">
+        <div>Copyright (c) 2026 Corinne Elissalde — Pôle Performance (PPCPLUZ).</div>
+        <div>Tous droits réservés.</div>
+        <div>Reproduction, copie ou diffusion interdites sans autorisation écrite.</div>
+    </footer>
+</div>
+
+<script>
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+    const savedTheme = localStorage.getItem('cesta_theme');
+    if (savedTheme) {
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggleBtn.innerHTML = savedTheme === 'light' ? '☀️' : '🌙';
+    }
+
+    window.toggleTheme = function() {
+        const currentTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('cesta_theme', newTheme);
+        themeToggleBtn.innerHTML = newTheme === 'light' ? '☀️' : '🌙';
+    }
+</script>
+
+</body>
+</html>

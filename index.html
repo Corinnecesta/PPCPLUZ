@@ -178,6 +178,36 @@
             box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
         }
 
+        /* Case d'acceptation des conditions */
+        .terms-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 0.75rem;
+            color: var(--container-text);
+            line-height: 1.4;
+        }
+
+        .terms-group input[type="checkbox"] {
+            margin-top: 2px;
+            accent-color: #17b890;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .terms-group label {
+            cursor: pointer;
+        }
+
+        .terms-group a {
+            color: var(--accent-color);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
         /* Message d'erreur */
         .error-message {
             background: rgba(239, 68, 68, 0.15);
@@ -202,7 +232,7 @@
             font-weight: 700;
             font-size: 0.85rem;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 6px;
             transition: all 0.25s ease;
             box-shadow: 0 4px 12px rgba(23, 184, 144, 0.2);
         }
@@ -240,6 +270,15 @@
             line-height: 1.45;
             padding: 4px 8px;
         }
+
+        .legal-link-footer {
+            display: inline-block;
+            margin-top: 6px;
+            color: var(--accent-color);
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 0.74rem;
+        }
     </style>
 </head>
 <body>
@@ -275,9 +314,16 @@
                 <input class="form-input" type="text" id="userInput" name="userInput" required placeholder="ex: j.dupont ou 0612345678">
             </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 16px;">
                 <label class="form-label" for="password">Mot de passe</label>
                 <input class="form-input" type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+
+            <div class="terms-group">
+                <input type="checkbox" id="acceptTerms" required>
+                <label for="acceptTerms">
+                    J'ai lu et j'accepte les <a href="Mentions-legales.html">Conditions Générales d'Utilisation et Mentions Légales</a>.
+                </label>
             </div>
 
             <button class="btn-submit" type="submit" id="submitBtn">
@@ -295,6 +341,7 @@
         <div>Copyright (c) 2026 Corinne Elissalde — Pôle Performance (PPCPLUZ).</div>
         <div>Tous droits réservés.</div>
         <div>Reproduction, copie ou diffusion interdites sans autorisation écrite.</div>
+        <div><a href="Mentions-legales.html" class="legal-link-footer">Conditions d'utilisation & Mentions légales</a></div>
     </footer>
 </div>
 
@@ -330,6 +377,12 @@
     }
     const auth = firebase.auth();
     const db = firebase.firestore();
+
+    // Pré-cocher la case si l'utilisateur a déjà accepté les CGU sur cet appareil
+    const acceptTermsCheckbox = document.getElementById('acceptTerms');
+    if (localStorage.getItem('cesta_cgu_accepted') === 'true') {
+        acceptTermsCheckbox.checked = true;
+    }
 
     // --- FONCTION DE SYNCHRONISATION DU JETON FCM LORS DE LA CONNEXION ---
     async function synchroniserJetonFCM(userUid, userEmail) {
@@ -369,6 +422,13 @@
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorAlert.style.display = 'none';
+
+        if (!acceptTermsCheckbox.checked) {
+            errorAlert.textContent = "Veuillez accepter les Conditions Générales d'Utilisation pour vous connecter.";
+            errorAlert.style.display = 'block';
+            return;
+        }
+
         submitBtn.textContent = 'Connexion en cours...';
         submitBtn.disabled = true;
 
@@ -387,6 +447,7 @@
                 const userData = userDoc.data();
                 const role = userData.role || 'joueur';
 
+                localStorage.setItem('cesta_cgu_accepted', 'true');
                 localStorage.setItem('cesta_user_role', role);
                 localStorage.setItem('cesta_user_email', user.email);
                 localStorage.setItem('cesta_user_uid', user.uid);
