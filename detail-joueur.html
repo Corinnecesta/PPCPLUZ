@@ -534,7 +534,6 @@
             gap: 6px !important;
         }
 
-        /* --- CARTE COLLECTOR : FORMAT PORTRAIT ÉQUILIBRÉ & PHOTO AU BON RATIO --- */
         body.pdf-exporting-dark .detail-collector-wrap {
             max-width: 340px !important;
             width: 340px !important;
@@ -691,7 +690,7 @@
             }
         }
 
-        /* --- BANDEAU TITRE JOUEUR COMPACT (PEU HAUT) --- */
+        /* --- BANDEAU TITRE JOUEUR COMPACT --- */
         .player-profile-card {
             background: var(--card-bg);
             border: 1.5px solid var(--card-border);
@@ -2337,85 +2336,255 @@
         }
     };
 
-    function genererAnalyseEtSynthesePartie(joueur, partie, sGraph) {
-        const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
-        const scoreStr = partie.scoreAffiche && partie.scoreAffiche !== '-' ? ` (${partie.scoreAffiche})` : '';
-        const issue = partie.resultat === 'V'
-            ? `une victoire${scoreStr}`
-            : (partie.resultat === 'D' ? `une défaite${scoreStr}` : `une rencontre disputée${scoreStr}`);
+    /* --- MOTEUR D'ANALYSE PERSONNALISÉE PAR JOUEUR --- */
+    function hashGraine(str) {
+        let h = 2166136261;
+        const s = String(str || '');
+        for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+        }
+        return Math.abs(h);
+    }
 
-        const soldePoints = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
-        const lecturePoints = soldePoints > 0
-            ? 'avec un ascendant net dans le gain des échanges'
-            : (soldePoints < 0 ? 'dans une partie où les échanges perdus ont pesé sur la fin de manche' : 'au coude à coude dans l’échange des points');
+    function choisirVariante(liste, graine) {
+        if (!Array.isArray(liste) || !liste.length) return '';
+        return liste[hashGraine(graine) % liste.length];
+    }
 
-        const lectureReception = sGraph.valRecTotal === 0
-            ? ''
-            : (sGraph.pctRecPos >= 75
-                ? 'La tenue de balle en réception est très fiable et permet de lancer le jeu proprement.'
-                : (sGraph.pctRecPos >= 55
-                    ? 'La réception reste globalement maîtrisée malgré quelques balles délicates à ajuster.'
-                    : 'La réception a subi la pression adverse, obligeant à jouer sous contrainte.'));
+    function calculerProfilReferenceJoueur(matchsJoueur) {
+        const liste = Array.isArray(matchsJoueur) ? matchsJoueur : [];
+        const nb = liste.length;
+        if (!nb) {
+            return {
+                nb: 0,
+                tauxVictoires: 0,
+                moyPelotes: 0,
+                moyPtsGagnes: 0,
+                moyPtsPerdus: 0,
+                moyButs: 0,
+                moyAttaques: 0,
+                moyPtsAmenes: 0,
+                pctRecRef: 0,
+                pctFrappesRef: 0
+            };
+        }
 
-        const lectureFrappe = sGraph.valFrappesTotal === 0
-            ? ''
-            : (sGraph.pctFrappesPos >= 70
-                ? 'L’exécution à la frappe est tranchante et impose du rythme.'
-                : (sGraph.pctFrappesPos >= 50
-                    ? 'Les frappes alternent entre séquences efficaces et fautes à canaliser.'
-                    : 'Le rendement offensif à la frappe manque encore de justesse dans les temps forts.'));
+        let vic = 0, pel = 0, pg = 0, pp = 0, buts = 0, att = 0, amenes = 0;
+        let recPos = 0, recTot = 0, frapPos = 0, frapTot = 0;
 
-        let lectureButs = '';
-        if (!sGraph.estArriere && sGraph.valButs > 0) {
-            if (sGraph.pctAvant >= 65) {
-                lectureButs = 'La finition s’appuie majoritairement sur un jeu orienté vers l’avant.';
-            } else if (sGraph.pctArriere >= 65) {
-                lectureButs = 'La finition passe surtout par un travail de profondeur et d’occupation sur l’arrière.';
-            } else {
-                lectureButs = 'La finition est bien répartie entre le jeu vers l’avant et le jeu sur l’arrière.';
+        liste.forEach(m => {
+            if (m.resultat === 'V') vic++;
+            const s = m.stats || {};
+            pel += Number(s.pelotesJouees || 0);
+            pg += Number(s.ptsGagnes || 0);
+            pp += Number(s.ptsPerdus || 0);
+            buts += Number(s.butsTotal || 0);
+            att += Number(s.frappesAttaque || 0);
+            amenes += Number(s.ptsAmenesRecAdvNeg || 0);
+
+            const rP = Number(s.recPositif || 0);
+            const rN = Number(s.recNegatif || 0);
+            recPos += rP;
+            recTot += rP + rN;
+
+            const fP = Number(s.frappesPositif || 0);
+            const fNeu = Number(s.frappesNeutres || 0);
+            const fNeg = Number(s.frappesNegatif || 0);
+            frapPos += fP;
+            frapTot += fP + fNeu + fNeg;
+        });
+
+        return {
+            nb,
+            tauxVictoires: Math.round((vic / nb) * 100),
+            moyPelotes: +(pel / nb).toFixed(1),
+            moyPtsGagnes: +(pg / nb).toFixed(1),
+            moyPtsPerdus: +(pp / nb).toFixed(1),
+            moyButs: +(buts / nb).toFixed(1),
+            moyAttaques: +(att / nb).toFixed(1),
+            moyPtsAmenes: +(amenes / nb).toFixed(1),
+            pctRecRef: recTot > 0 ? Math.round((recPos / recTot) * 100) : 0,
+            pctFrappesRef: frapTot > 0 ? Math.round((frapPos / frapTot) * 100) : 0
+        };
+    }
+
+    function comparerRelatif(valeurActuelle, valeurRef, seuilRelatif = 10) {
+        if (!valeurRef || valeurRef <= 0) return 'neutre';
+        const ecartPct = ((valeurActuelle - valeurRef) / valeurRef) * 100;
+        if (ecartPct >= seuilRelatif) return 'haut';
+        if (ecartPct <= -seuilRelatif) return 'bas';
+        return 'standard';
+    }
+
+    function moyennerTauxRec(matchs) {
+        let pos = 0, tot = 0;
+        matchs.forEach(m => {
+            const s = m.stats || {};
+            pos += Number(s.recPositif || 0);
+            tot += Number(s.recPositif || 0) + Number(s.recNegatif || 0);
+        });
+        return tot > 0 ? Math.round((pos / tot) * 100) : 0;
+    }
+
+    function moyennerTauxFrappe(matchs) {
+        let pos = 0, tot = 0;
+        matchs.forEach(m => {
+            const s = m.stats || {};
+            pos += Number(s.frappesPositif || 0);
+            tot += Number(s.frappesPositif || 0) + Number(s.frappesNeutres || 0) + Number(s.frappesNegatif || 0);
+        });
+        return tot > 0 ? Math.round((pos / tot) * 100) : 0;
+    }
+
+    function analyserDynamiqueJoueur(matchsJoueur) {
+        const liste = Array.isArray(matchsJoueur) ? matchsJoueur : [];
+        if (liste.length < 3) return '';
+
+        const tries = [...liste].sort((a, b) => String(a.datePartie || '').localeCompare(String(b.datePartie || '')));
+        const recentes = tries.slice(-3);
+        const vicRecentes = recentes.filter(m => m.resultat === 'V').length;
+        const tauxGlobal = Math.round((liste.filter(m => m.resultat === 'V').length / liste.length) * 100);
+        const tauxRecent = Math.round((vicRecentes / recentes.length) * 100);
+
+        let phraseForme = '';
+        if (tauxRecent >= tauxGlobal + 20) {
+            phraseForme = `Dynamique en nette hausse sur les ${recentes.length} dernières sorties (${vicRecentes}V/${recentes.length - vicRecentes}D).`;
+        } else if (tauxRecent <= tauxGlobal - 20) {
+            phraseForme = `Période plus délicate sur les ${recentes.length} dernières rencontres (${vicRecentes}V/${recentes.length - vicRecentes}D).`;
+        } else {
+            phraseForme = `Régularité confirmée sur les ${recentes.length} derniers matchs (${vicRecentes}V/${recentes.length - vicRecentes}D).`;
+        }
+
+        const victoires = liste.filter(m => m.resultat === 'V');
+        const defaites = liste.filter(m => m.resultat === 'D');
+        let phraseFacteurCle = '';
+
+        if (victoires.length >= 2 && defaites.length >= 2) {
+            const moyRecV = moyennerTauxRec(victoires);
+            const moyRecD = moyennerTauxRec(defaites);
+            const moyFrapV = moyennerTauxFrappe(victoires);
+            const moyFrapD = moyennerTauxFrappe(defaites);
+
+            const ecartRec = moyRecV - moyRecD;
+            const ecartFrap = moyFrapV - moyFrapD;
+
+            if (Math.abs(ecartRec) >= 12 && Math.abs(ecartRec) >= Math.abs(ecartFrap)) {
+                phraseFacteurCle = `Facteur déterminant : sa réception positive passe de ${moyRecD}% dans les défaites à ${moyRecV}% dans les victoires.`;
+            } else if (Math.abs(ecartFrap) >= 12) {
+                phraseFacteurCle = `Facteur déterminant : son efficacité à la frappe grimpe de ${moyFrapD}% (défaites) à ${moyFrapV}% (victoires).`;
             }
         }
 
-        const lectureStyle = sGraph.valAttaques > 2
-            ? 'Le registre privilégie la construction et la frappe classique.'
-            : (sGraph.valAttaques < -2
-                ? 'Le jeu s’oriente davantage vers l’initiative et l’attaque.'
-                : 'L’équilibre entre jeu classique et attaque est bien trouvé.');
+        return [phraseForme, phraseFacteurCle].filter(Boolean).join(' ');
+    }
 
-        const analyseDetails = [lectureReception, lectureFrappe, lectureButs, lectureStyle].filter(Boolean).join(' ');
+    function genererAnalyseEtSynthesePartie(joueur, partie, sGraph) {
+        const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
+        const ref = calculerProfilReferenceJoueur(matchsJoueurActifs);
+        const graineBase = `${joueur.id || nomComplet}__${partie.partieId || partie.nomPartie || ''}`;
 
-        const paragrapheAnalyse = `<strong>Analyse :</strong> Sur ${partie.competition} (${partie.equipe1} vs ${partie.equipe2}), ${nomComplet} signe ${issue}, ${lecturePoints}. ${analyseDetails}`.trim();
+        const scoreStr = partie.scoreAffiche && partie.scoreAffiche !== '-' ? ` (${partie.scoreAffiche})` : '';
+        const issue = partie.resultat === 'V'
+            ? choisirVariante([
+                `une victoire${scoreStr}`,
+                `un succès${scoreStr}`,
+                `un gain de partie${scoreStr}`
+            ], graineBase + '_issue')
+            : (partie.resultat === 'D'
+                ? choisirVariante([
+                    `une défaite${scoreStr}`,
+                    `un revers${scoreStr}`,
+                    `une partie cédée${scoreStr}`
+                ], graineBase + '_issue')
+                : `une rencontre disputée${scoreStr}`);
 
+        const soldePoints = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
+        const lecturePoints = soldePoints > 0
+            ? choisirVariante([
+                `avec +${soldePoints} sur le différentiel de points gagnés/perdus`,
+                `en dominant l'échange des points (+${soldePoints})`,
+                `avec un avantage comptable (+${soldePoints}) dans les échanges`
+            ], graineBase + '_pts')
+            : (soldePoints < 0
+                ? choisirVariante([
+                    `avec un solde de ${soldePoints} sur les points gagnés/perdus`,
+                    `dans un match où l'écart sur les points (${soldePoints}) a pesé`,
+                    `malgré un différentiel de ${soldePoints} dans les échanges`
+                ], graineBase + '_pts')
+                : `à égalité parfaite (${sGraph.valPtsGagnes} pts gagnés / ${sGraph.valPtsPerdus} pts perdus) dans l'échange`);
+
+        const details = [];
         const pointsForts = [];
         const axesTravaux = [];
 
         if (sGraph.valRecTotal > 0) {
-            if (sGraph.pctRecPos >= 70) pointsForts.push('qualité de réception');
-            else axesTravaux.push('stabilité en réception');
+            const cmpRec = ref.nb > 1 ? comparerRelatif(sGraph.pctRecPos, ref.pctRecRef, 12) : 'neutre';
+            if (cmpRec === 'haut' || (cmpRec === 'neutre' && sGraph.pctRecPos >= 72)) {
+                details.push(`Réception positive à ${sGraph.pctRecPos}% (${sGraph.valRecPos}/${sGraph.valRecTotal}), au-dessus de sa référence (${ref.pctRecRef}%).`);
+                pointsForts.push('tenue de balle en réception');
+            } else if (cmpRec === 'bas' || (cmpRec === 'neutre' && sGraph.pctRecPos < 55)) {
+                details.push(`Réception à ${sGraph.pctRecPos}% (${sGraph.valRecPos}/${sGraph.valRecTotal}), en retrait par rapport à son repère (${ref.pctRecRef}%).`);
+                axesTravaux.push('stabilité en réception');
+            } else {
+                details.push(`Réception dans ses standards à ${sGraph.pctRecPos}% (${sGraph.valRecPos}/${sGraph.valRecTotal}).`);
+            }
         }
+
         if (sGraph.valFrappesTotal > 0) {
-            if (sGraph.pctFrappesPos >= 65) pointsForts.push('efficacité à la frappe');
-            else axesTravaux.push('justesse à la frappe');
-        }
-        if (!sGraph.estArriere && sGraph.valButs > 0) {
-            pointsForts.push('capacité à conclure les points');
-        }
-        if (soldePoints > 0) {
-            pointsForts.push('maîtrise du score dans les échanges');
-        } else if (soldePoints < 0) {
-            axesTravaux.push('gestion des points clés');
+            const cmpFrap = ref.nb > 1 ? comparerRelatif(sGraph.pctFrappesPos, ref.pctFrappesRef, 12) : 'neutre';
+            if (cmpFrap === 'haut' || (cmpFrap === 'neutre' && sGraph.pctFrappesPos >= 65)) {
+                details.push(`Frappes positives à ${sGraph.pctFrappesPos}% (${sGraph.valFrappesPos}/${sGraph.valFrappesTotal}), au-dessus de sa moyenne (${ref.pctFrappesRef}%).`);
+                pointsForts.push('qualité de frappe');
+            } else if (cmpFrap === 'bas' || (cmpFrap === 'neutre' && sGraph.pctFrappesPos < 48)) {
+                details.push(`Frappes positives à ${sGraph.pctFrappesPos}% (${sGraph.valFrappesPos}/${sGraph.valFrappesTotal}), sous son niveau habituel (${ref.pctFrappesRef}%).`);
+                axesTravaux.push('précision à la frappe');
+            } else {
+                details.push(`Frappes positives à ${sGraph.pctFrappesPos}% (${sGraph.valFrappesPos}/${sGraph.valFrappesTotal}), dans sa lignée.`);
+            }
         }
 
-        const partieForte = pointsForts.length
-            ? `Points forts : ${pointsForts.join(', ')}.`
-            : 'Prestation à lire dans la continuité du volume de jeu.';
-        const partieAxe = axesTravaux.length
-            ? `Axe à travailler : ${axesTravaux.join(', ')}.`
-            : 'Bonne constance globale sur l’ensemble de la partie.';
+        if (sGraph.estArriere) {
+            if (sGraph.valPelotes > 0 && ref.moyPelotes > 0) {
+                const cmpPel = comparerRelatif(sGraph.valPelotes, ref.moyPelotes, 15);
+                if (cmpPel === 'haut') {
+                    details.push(`Gros volume de jeu avec ${sGraph.valPelotes} pelotes jouées (moy. joueur : ${ref.moyPelotes}).`);
+                    pointsForts.push("volume de jeu sur l'arrière");
+                }
+            }
+        } else {
+            if (sGraph.valButs > 0) {
+                details.push(`${sGraph.valButs} but${sGraph.valButs > 1 ? 's' : ''} inscrit${sGraph.valButs > 1 ? 's' : ''} (${sGraph.pctAvant}% avant / ${sGraph.pctArriere}% arrière).`);
+                pointsForts.push('efficacité à la conclusion');
+            } else if (sGraph.valPtsGagnes > 0) {
+                axesTravaux.push('concrétisation au but');
+            }
+        }
 
-        const paragrapheSynthese = `<strong>Synthèse :</strong> ${partieForte} ${partieAxe}`;
+        if (sGraph.valPtsAmenesRecAdvNeg > 0) {
+            details.push(`${sGraph.valPtsAmenesRecAdvNeg} pt${sGraph.valPtsAmenesRecAdvNeg > 1 ? 's' : ''} amené${sGraph.valPtsAmenesRecAdvNeg > 1 ? 's' : ''} sur réception adverse négative.`);
+        }
 
-        return `<p>${paragrapheAnalyse}</p><p>${paragrapheSynthese}</p>`;
+        if (soldePoints > 0) pointsForts.push('maîtrise des échanges');
+        else if (soldePoints < 0) axesTravaux.push('gestion des points clés');
+
+        const intro = choisirVariante([
+            `Sur ${partie.competition} (${partie.equipe1} vs ${partie.equipe2}), ${nomComplet} réalise ${issue}, ${lecturePoints}.`,
+            `Face à ${partie.equipe1} vs ${partie.equipe2} (${partie.competition}), ${nomComplet} enregistre ${issue}, ${lecturePoints}.`,
+            `Lors de ${partie.competition}, ${nomComplet} signe ${issue}, ${lecturePoints}.`
+        ], graineBase + '_intro');
+
+        const p1 = `<strong>Analyse :</strong> ${[intro, ...details].join(' ')}`;
+
+        const forcesStr = pointsForts.length
+            ? `Points forts du match : ${Array.from(new Set(pointsForts)).join(', ')}.`
+            : 'Prestation équilibrée sans écart marqué sur un secteur isolé.';
+        const axesStr = axesTravaux.length
+            ? `Axe prioritaire : ${Array.from(new Set(axesTravaux)).join(', ')}.`
+            : 'Continuité et régularité à préserver.';
+
+        const p2 = `<strong>Synthèse :</strong> ${forcesStr} ${axesStr}`;
+        return `<p>${p1}</p><p>${p2}</p>`;
     }
 
     function genererSyntheseLieuJoueur(joueur, lieuNom, sGraph, partieSpecifique, anneeFiltre) {
@@ -2423,28 +2592,44 @@
         if (partieSpecifique) {
             return genererAnalyseEtSynthesePartie(joueur, partieSpecifique, sGraph);
         }
+
+        const ref = calculerProfilReferenceJoueur(matchsJoueurActifs);
         const suffixeAnnee = anneeFiltre && anneeFiltre !== '__ALL__' ? ` en ${anneeFiltre}` : '';
         const nbP = sGraph.nbParties;
+        const graineBase = `${joueur.id || nomComplet}__lieu_${lieuNom}_${anneeFiltre || 'ALL'}`;
+
         if (nbP === 0) {
-            return `<p><strong>Synthèse lieu (${lieuNom}${suffixeAnnee}) :</strong> Aucune partie enregistrée dans ce lieu${suffixeAnnee} pour ${nomComplet}.</p>`;
+            return `<p><strong>Synthèse lieu (${lieuNom}${suffixeAnnee}) :</strong> Aucune partie enregistrée à ${lieuNom}${suffixeAnnee} pour ${nomComplet}.</p>`;
         }
+
         const ratioV = Math.round((sGraph.nbVictoires / nbP) * 100);
         const soldePts = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
-        const bilanTxt = ratioV >= 60
-            ? `un bilan très solide (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D)`
-            : (ratioV >= 45 ? `un bilan équilibré (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D)` : `un bilan à redresser (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D)`);
-        const ptsTxt = soldePts > 0
-            ? 'un différentiel de points positif'
-            : (soldePts < 0 ? 'un différentiel de points négatif' : 'un équilibre sur les points');
+        const cmpVic = ref.nb > 0 ? comparerRelatif(ratioV, ref.tauxVictoires, 15) : 'neutre';
 
-        const p1 = `<strong>Analyse sur le lieu — ${lieuNom}${suffixeAnnee} :</strong> Sur ${nbP} partie${nbP > 1 ? 's' : ''} jouée${nbP > 1 ? 's' : ''} à ${lieuNom}${suffixeAnnee}, ${nomComplet} présente ${bilanTxt} avec ${ptsTxt}.`;
+        const bilanLieu = cmpVic === 'haut'
+            ? `un rendement supérieur à sa moyenne globale (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D, soit ${ratioV}% contre ${ref.tauxVictoires}% sur l'ensemble)`
+            : (cmpVic === 'bas'
+                ? `un bilan en deçà de sa moyenne globale (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D, soit ${ratioV}% contre ${ref.tauxVictoires}% sur l'ensemble)`
+                : `un bilan cohérent avec sa dynamique globale (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D, ${ratioV}%)`);
+
+        const ptsTxt = soldePts > 0
+            ? `un différentiel positif (+${soldePts} pts)`
+            : (soldePts < 0 ? `un différentiel négatif (${soldePts} pts)` : 'un équilibre exact sur les points');
+
+        const p1 = choisirVariante([
+            `<strong>Analyse sur le lieu — ${lieuNom}${suffixeAnnee} :</strong> En ${nbP} partie${nbP > 1 ? 's' : ''} à ${lieuNom}${suffixeAnnee}, ${nomComplet} affiche ${bilanLieu} avec ${ptsTxt}.`,
+            `<strong>Repères à ${lieuNom}${suffixeAnnee} :</strong> Sur ${nbP} rencontre${nbP > 1 ? 's' : ''} disputée${nbP > 1 ? 's' : ''} sur ce lieu, ${nomComplet} présente ${bilanLieu} et ${ptsTxt}.`
+        ], graineBase + '_p1');
+
         const p2 = `<strong>Synthèse du lieu :</strong> Réception positive à ${sGraph.pctRecPos}% (${sGraph.valRecPos}/${sGraph.valRecTotal}) et frappes positives à ${sGraph.pctFrappesPos}% (${sGraph.valFrappesPos}/${sGraph.valFrappesTotal}).`;
+
         return `<p>${p1}</p><p>${p2}</p>`;
     }
 
     function genererSyntheseGlobaleJoueur(joueur, sGraph) {
         const nomComplet = [joueur.prenom, joueur.nom].map(v => (v || '').trim()).filter(Boolean).join(' ') || 'Le joueur';
         const nbP = sGraph.nbParties;
+        const graineBase = `${joueur.id || nomComplet}__globale`;
 
         if (nbP === 0) {
             return `<p><strong>Synthèse globale :</strong> Aucune partie enregistrée pour ${nomComplet} à ce stade.</p>`;
@@ -2452,49 +2637,52 @@
 
         const ratioVictoires = Math.round((sGraph.nbVictoires / nbP) * 100);
         const soldePoints = sGraph.valPtsGagnes - sGraph.valPtsPerdus;
+        const moyPg = (sGraph.valPtsGagnes / nbP).toFixed(1);
+        const moyPp = (sGraph.valPtsPerdus / nbP).toFixed(1);
 
         const tendanceBilan = ratioVictoires >= 60
-            ? 'un bilan très positif avec une dynamique de victoires marquée'
+            ? `un fort taux de réussite (${ratioVictoires}% de victoires)`
             : (ratioVictoires >= 45
-                ? 'un bilan équilibré et compétitif sur l’ensemble des rencontres'
-                : 'un bilan encore en construction sur l’ensemble des rencontres');
+                ? `un taux de réussite équilibré (${ratioVictoires}% de victoires)`
+                : `un taux de réussite encore en progression (${ratioVictoires}% de victoires)`);
 
         const tendancePoints = soldePoints > 0
-            ? 'un différentiel de points favorable sur la durée'
+            ? `une moyenne de ${moyPg} pts marqués pour ${moyPp} pts concédés (+${soldePoints})`
             : (soldePoints < 0
-                ? 'un différentiel de points légèrement déficitaire à inverser'
-                : 'un équilibre global sur les points gagnés et perdus');
+                ? `une moyenne de ${moyPg} pts marqués pour ${moyPp} pts concédés (${soldePoints})`
+                : `une moyenne équilibrée de ${moyPg} pts marqués pour ${moyPp} pts concédés`);
 
         const forces = [];
         const chantiers = [];
 
         if (sGraph.valRecTotal > 0) {
-            if (sGraph.pctRecPos >= 70) forces.push('réception régulière');
-            else chantiers.push('fiabilité en réception');
+            if (sGraph.pctRecPos >= 70) forces.push(`réception solide (${sGraph.pctRecPos}%)`);
+            else chantiers.push(`fiabilité en réception (${sGraph.pctRecPos}%)`);
         }
         if (sGraph.valFrappesTotal > 0) {
-            if (sGraph.pctFrappesPos >= 65) forces.push('frappes percutantes');
-            else chantiers.push('régularité à la frappe');
+            if (sGraph.pctFrappesPos >= 65) forces.push(`frappes efficaces (${sGraph.pctFrappesPos}%)`);
+            else chantiers.push(`justesse à la frappe (${sGraph.pctFrappesPos}%)`);
         }
-        if (!sGraph.estArriere && sGraph.valButs > 0) {
-            forces.push('efficacité à la conclusion');
+        if (sGraph.estArriere) {
+            forces.push(`volume moyen de ${Math.round(sGraph.valPelotes / nbP)} pelotes/partie`);
+        } else if (sGraph.valButs > 0) {
+            forces.push(`${(sGraph.valButs / nbP).toFixed(1)} but/partie`);
         }
-        if (sGraph.pctPelotes >= 65) {
-            forces.push('forte implication dans l’échange');
-        }
 
-        const p1 = `<strong>Analyse globale :</strong> Sur l’ensemble de ses ${nbP} partie${nbP > 1 ? 's' : ''} (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D), ${nomComplet} affiche ${tendanceBilan} et ${tendancePoints}.`;
+        const p1 = choisirVariante([
+            `<strong>Analyse globale :</strong> Sur ${nbP} partie${nbP > 1 ? 's' : ''} (${sGraph.nbVictoires}V / ${sGraph.nbDefaites}D), ${nomComplet} montre ${tendanceBilan} avec ${tendancePoints}.`,
+            `<strong>Profil global :</strong> Avec ${sGraph.nbVictoires} victoire${sGraph.nbVictoires > 1 ? 's' : ''} et ${sGraph.nbDefaites} défaite${sGraph.nbDefaites > 1 ? 's' : ''} en ${nbP} match${nbP > 1 ? 's' : ''}, ${nomComplet} présente ${tendanceBilan} et ${tendancePoints}.`
+        ], graineBase + '_p1');
 
-        const resumeForces = forces.length
-            ? `Points forts récurrents : ${forces.join(', ')}.`
-            : 'Profil en cours d’observation sur les indicateurs clés.';
-        const resumeChantiers = chantiers.length
-            ? `Priorités de progression : ${chantiers.join(', ')}.`
-            : 'Maintien d’un niveau homogène sur l’ensemble des secteurs de jeu.';
+        const forcesTxt = forces.length ? `Points forts : ${forces.join(', ')}.` : "Indicateurs en cours d'observation.";
+        const chantiersTxt = chantiers.length ? `Axe d'attention : ${chantiers.join(', ')}.` : 'Niveau homogène sur les principaux secteurs.';
 
-        const p2 = `<strong>Synthèse :</strong> ${resumeForces} ${resumeChantiers}`;
+        const p2 = `<strong>Synthèse :</strong> ${forcesTxt} ${chantiersTxt}`;
 
-        return `<p>${p1}</p><p>${p2}</p>`;
+        const dynamiqueTxt = analyserDynamiqueJoueur(matchsJoueurActifs);
+        const p3 = dynamiqueTxt ? `<p><strong>Dynamique &amp; repères :</strong> ${dynamiqueTxt}</p>` : '';
+
+        return `<p>${p1}</p><p>${p2}</p>${p3}`;
     }
 
     function normaliserNom(str) {
