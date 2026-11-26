@@ -259,9 +259,9 @@
         window.statsPresencesJoueurs = {};
 
         let totalTechPresences = 0;
-        let totalTechInscriptions = 0;
+        let totalTechConvoques = 0;
         let totalPhysPresences = 0;
-        let totalPhysInscriptions = 0;
+        let totalPhysConvoques = 0;
 
         try {
             const querySnapshot = await getDocs(collection(db, "entrainements"));
@@ -295,36 +295,31 @@
                         
                         const estPresent = (statutStr === 'present' || statutStr === 'présent');
                         const estAbsent = (statutStr === 'absent');
-                        const estPasDeReponse = (!estPresent && !estAbsent);
 
                         if (!window.statsPresencesJoueurs[idJ]) {
                             window.statsPresencesJoueurs[idJ] = { techP: 0, techA: 0, techNR: 0, physP: 0, physA: 0, physNR: 0 };
                         }
 
                         if (estPhysique) {
-                            if (estPresent || estAbsent) {
-                                totalPhysInscriptions++;
-                                if (estPresent) {
-                                    window.statsPresencesJoueurs[idJ].physP++;
-                                    totalPhysPresences++;
-                                } else {
-                                    window.statsPresencesJoueurs[idJ].physA++;
-                                }
-                            } else if (estPasDeReponse) {
+                            totalPhysConvoques++;
+                            if (estPresent) {
+                                window.statsPresencesJoueurs[idJ].physP++;
+                                totalPhysPresences++;
+                            } else if (estAbsent) {
+                                window.statsPresencesJoueurs[idJ].physA++;
+                            } else {
                                 window.statsPresencesJoueurs[idJ].physNR++;
                             }
                         }
                         
                         if (estTechnique) {
-                            if (estPresent || estAbsent) {
-                                totalTechInscriptions++;
-                                if (estPresent) {
-                                    window.statsPresencesJoueurs[idJ].techP++;
-                                    totalTechPresences++;
-                                } else {
-                                    window.statsPresencesJoueurs[idJ].techA++;
-                                }
-                            } else if (estPasDeReponse) {
+                            totalTechConvoques++;
+                            if (estPresent) {
+                                window.statsPresencesJoueurs[idJ].techP++;
+                                totalTechPresences++;
+                            } else if (estAbsent) {
+                                window.statsPresencesJoueurs[idJ].techA++;
+                            } else {
                                 window.statsPresencesJoueurs[idJ].techNR++;
                             }
                         }
@@ -336,11 +331,11 @@
         }
 
         document.getElementById('globalSeancesTechNum').innerText = totalSeancesTechnique;
-        const tauxTechGlobal = totalTechInscriptions > 0 ? Math.round((totalTechPresences / totalTechInscriptions) * 100) : 0;
+        const tauxTechGlobal = totalTechConvoques > 0 ? Math.round((totalTechPresences / totalTechConvoques) * 100) : 0;
         document.getElementById('globalAssiduiteTechNum').innerText = tauxTechGlobal + "%";
 
         document.getElementById('globalSeancesPhysNum').innerText = totalSeancesPhysique;
-        const tauxPhysGlobal = totalPhysInscriptions > 0 ? Math.round((totalPhysPresences / totalPhysInscriptions) * 100) : 0;
+        const tauxPhysGlobal = totalPhysConvoques > 0 ? Math.round((totalPhysPresences / totalPhysConvoques) * 100) : 0;
         document.getElementById('globalAssiduitePhysNum').innerText = tauxPhysGlobal + "%";
 
         afficherBilanPresencesTechnique();
@@ -361,8 +356,8 @@
             let nbPresents = stats.techP || 0;
             let nbAbsents = stats.techA || 0;
             let nbPasDeReponse = stats.techNR || 0;
-            const totalReponses = nbPresents + nbAbsents;
-            const taux = totalReponses > 0 ? Math.round((nbPresents / totalReponses) * 100) : 0;
+            const totalConvoques = nbPresents + nbAbsents + nbPasDeReponse;
+            const taux = totalConvoques > 0 ? Math.round((nbPresents / totalConvoques) * 100) : 0;
 
             const row = document.createElement('div');
             row.className = 'player-presence-row';
@@ -372,7 +367,7 @@
                     <span class="badge-present-count" title="Présences">✔ ${nbPresents}</span>
                     <span class="badge-absent-count" title="Absences">✖ ${nbAbsents}</span>
                     <span class="badge-noreply-count" title="Pas de réponse">? ${nbPasDeReponse}</span>
-                    <span class="badge-pct" title="Taux de présence">${taux}%</span>
+                    <span class="badge-pct" title="Taux de présence (non-réponses incluses)">${taux}%</span>
                 </div>
             `;
             container.appendChild(row);
@@ -393,8 +388,8 @@
             let nbPresents = stats.physP || 0;
             let nbAbsents = stats.physA || 0;
             let nbPasDeReponse = stats.physNR || 0;
-            const totalReponses = nbPresents + nbAbsents;
-            const taux = totalReponses > 0 ? Math.round((nbPresents / totalReponses) * 100) : 0;
+            const totalConvoques = nbPresents + nbAbsents + nbPasDeReponse;
+            const taux = totalConvoques > 0 ? Math.round((nbPresents / totalConvoques) * 100) : 0;
 
             const row = document.createElement('div');
             row.className = 'player-presence-row';
@@ -404,7 +399,7 @@
                     <span class="badge-present-count" title="Présences">✔ ${nbPresents}</span>
                     <span class="badge-absent-count" title="Absences">✖ ${nbAbsents}</span>
                     <span class="badge-noreply-count" title="Pas de réponse">? ${nbPasDeReponse}</span>
-                    <span class="badge-pct" title="Taux de présence">${taux}%</span>
+                    <span class="badge-pct" title="Taux de présence (non-réponses incluses)">${taux}%</span>
                 </div>
             `;
             container.appendChild(row);
